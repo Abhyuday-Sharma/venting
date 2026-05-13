@@ -156,12 +156,12 @@ export function DashboardClient() {
           </div>
         ) : (
           <>
-            <div className="flex justify-between items-start">
+            <div className="flex flex-col md:flex-row justify-between items-start gap-4">
               <div>
                 <h1 className="text-3xl font-bold font-headline">{greeting}</h1>
                 <p className="text-muted-foreground">Visualize your mood trends from written vents and review your history.</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive" size="sm" disabled={writtenVents.length === 0}>
