@@ -22,7 +22,7 @@ export default function MainLayout({
     return (
         <>
             <main className="flex-1">{children}</main>
-            <footer className="container py-8 grid grid-cols-3 items-center">
+            <footer className="container mx-auto px-4 md:px-8 py-8 grid grid-cols-3 items-center">
                 <div className="flex justify-start">
                     <Image 
                         src="/ventingmain.png"
