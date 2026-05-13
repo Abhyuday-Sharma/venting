@@ -7,7 +7,7 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronRight, Heart, Edit3, Shield } from "lucide-react";
+import { ChevronRight, Heart, Edit3, Shield, Smartphone } from "lucide-react";
 
 export default function WelcomePage() {
   const { user, loading } = useAuth();
@@ -34,7 +34,7 @@ export default function WelcomePage() {
   };
 
   const nextStep = () => {
-    if (step < 3) setStep(step + 1);
+    if (step < 4) setStep(step + 1);
   };
 
   if (loading || !user) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -87,8 +87,23 @@ export default function WelcomePage() {
           </Button>
         </div>
 
-        {/* Step 3: Write your first thought */}
+        {/* Step 3: Add to Homescreen */}
         <div className={`absolute inset-0 flex flex-col items-center justify-center transition-all duration-1000 ${step === 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
+          <div className="h-20 w-20 rounded-full bg-indigo-500/20 flex items-center justify-center mb-6">
+            <Smartphone className="h-10 w-10 text-indigo-500" />
+          </div>
+          <h2 className="text-3xl font-headline text-center mb-4">Add to Home Screen</h2>
+          <p className="text-lg text-muted-foreground text-center mb-12 max-w-sm">
+            For easy app-like access, tap the Share button in your browser and select "Add to Home Screen".
+          </p>
+          <Button size="lg" onClick={nextStep} className="rounded-full px-8 glass-card">
+            Next
+            <ChevronRight className="ml-2 h-5 w-5" />
+          </Button>
+        </div>
+
+        {/* Step 4: Write your first thought */}
+        <div className={`absolute inset-0 flex flex-col items-center justify-center transition-all duration-1000 ${step === 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
            <div className="h-20 w-20 rounded-full bg-blue-500/20 flex items-center justify-center mb-6">
             <Edit3 className="h-10 w-10 text-blue-500" />
           </div>
@@ -105,7 +120,7 @@ export default function WelcomePage() {
       
       {/* Progress Dots */}
       <div className="absolute bottom-12 flex space-x-3">
-        {[0, 1, 2, 3].map((i) => (
+        {[0, 1, 2, 3, 4].map((i) => (
           <div 
             key={i} 
             className={`h-2 rounded-full transition-all duration-500 ${step === i ? 'w-8 bg-primary' : 'w-2 bg-primary/30'}`} 
