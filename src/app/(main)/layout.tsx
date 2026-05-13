@@ -22,7 +22,7 @@ export default function MainLayout({
     return (
         <>
             <main className="flex-1">{children}</main>
-            <footer className="container mx-auto px-4 md:px-8 py-8 grid grid-cols-3 items-center">
+            <footer className="container mx-auto px-4 md:px-8 py-8 flex flex-col md:flex-row md:justify-between items-center gap-8">
                 <div className="flex justify-start">
                     <Image 
                         src="/ventingmain.png"
@@ -32,7 +32,7 @@ export default function MainLayout({
                         className="w-32 h-auto opacity-60 dark:invert"
                     />
                 </div>
-                <div className="flex justify-center gap-4">
+                <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm">
                     <Button asChild variant="link">
                         <Link href="/about">About</Link>
                     </Button>
@@ -52,7 +52,7 @@ export default function MainLayout({
                         <Link href="/legal/privacy-policy">Privacy</Link>
                     </Button>
                 </div>
-                <div className="flex items-center justify-end gap-4">
+                <div className="flex flex-col md:flex-row items-center justify-center md:justify-end gap-2 md:gap-4">
                     <h3 className="text-sm font-semibold text-muted-foreground">Follow Us</h3>
                     <div className="flex gap-2">
                         <Button asChild variant="ghost" size="icon">

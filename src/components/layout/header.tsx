@@ -69,7 +69,7 @@ export function AppHeader() {
             <Logo />
           </Link>
         </div>
-        <nav className="flex flex-1 items-center space-x-6 text-sm font-medium">
+        <nav className="hidden md:flex flex-1 items-center space-x-6 text-sm font-medium">
             {user && (
                 <>
                     <Link
