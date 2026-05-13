@@ -13,6 +13,18 @@ export const metadata: Metadata = {
   title: 'Venting',
   description: 'A safe and private space for your thoughts.',
   manifest: '/manifest.json',
+  icons: [
+    {
+      media: '(prefers-color-scheme: light)',
+      url: '/icon-light.png',
+      href: '/icon-light.png',
+    },
+    {
+      media: '(prefers-color-scheme: dark)',
+      url: '/icon-dark.png',
+      href: '/icon-dark.png',
+    }
+  ],
 };
 
 export default function RootLayout({
