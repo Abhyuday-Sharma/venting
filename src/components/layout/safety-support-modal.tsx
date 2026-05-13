@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,6 +16,7 @@ import { Button } from '@/components/ui/button';
 
 export function SafetySupportModal() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     // Check if this needs to trigger
@@ -32,7 +34,7 @@ export function SafetySupportModal() {
     } catch (e) {
       /* Ignore session storage failures */
     }
-  }, []);
+  }, [pathname]);
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
