@@ -181,9 +181,10 @@ export function VentForm() {
   };
 
   const executeSave = async (ventData: any, finalIsPublic: boolean, moderationAction: any) => {
+    if (!user) return;
     setIsVenting(true);
     try {
-        const finalVentId = ventId || doc(collection(db, "users", user!.uid, "vents")).id;
+        const finalVentId = ventId || doc(collection(db, "users", user.uid, "vents")).id;
         const privateVentRef = doc(db, "users", user.uid, "vents", finalVentId);
         const publicVentRef = doc(db, "publicVents", finalVentId);
 
@@ -276,7 +277,7 @@ export function VentForm() {
         console.error('Vent saving error:', error);
          if (error.code === 'permission-denied') {
             const permissionError = new FirestorePermissionError({
-                path: `users/${user!.uid}/vents/${ventId || 'new-vent'}`,
+                path: `users/${user.uid}/vents/${ventId || 'new-vent'}`,
                 operation: 'write',
                 requestResourceData: ventData,
             });
