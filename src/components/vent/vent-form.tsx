@@ -30,6 +30,7 @@ import { errorEmitter } from "@/firebase/error-emitter";
 import { FirestorePermissionError } from "@/firebase/errors";
 import { checkVent } from "@/lib/safety";
 import { generateIncognitoName, getIncognitoAvatar } from "@/lib/incognito";
+import { SafetySupportModal } from "@/components/layout/safety-support-modal";
 
 // @ts-ignore
 const SpeechRecognition = typeof window !== 'undefined' ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
@@ -49,8 +50,10 @@ export function VentForm() {
   const [text, setText] = useState("");
   const [mood, setMood] = useState(5);
   const [category, setCategory] = useState<VentCategory>("General");
-  const [isPublic, setIsPublic] = useState(user?.settings?.defaultPostingMode === 'public');
+  const [isPublic, setIsPublic] = useState(false);
   const [isIncognito, setIsIncognito] = useState(false);
+  const [showSafetyModal, setShowSafetyModal] = useState(false);
+  const [pendingVentData, setPendingVentData] = useState<any>(null);
   const [allowComments, setAllowComments] = useState(true);
   const [expiresInHours, setExpiresInHours] = useState<number>(0); // 0 = never
   
@@ -167,8 +170,20 @@ export function VentForm() {
         expiresAt: expiresInHours > 0 ? Timestamp.fromDate(new Date(Date.now() + expiresInHours * 60 * 60 * 1000)) : null,
     };
 
+    if (moderationAction.showSupportMessage) {
+        setPendingVentData({ ventData, finalIsPublic, moderationAction });
+        setShowSafetyModal(true);
+        setIsVenting(false);
+        return;
+    }
+
+    await executeSave(ventData, finalIsPublic, moderationAction);
+  };
+
+  const executeSave = async (ventData: any, finalIsPublic: boolean, moderationAction: any) => {
+    setIsVenting(true);
     try {
-        const finalVentId = ventId || doc(collection(db, "users", user.uid, "vents")).id;
+        const finalVentId = ventId || doc(collection(db, "users", user!.uid, "vents")).id;
         const privateVentRef = doc(db, "users", user.uid, "vents", finalVentId);
         const publicVentRef = doc(db, "publicVents", finalVentId);
 
@@ -253,9 +268,6 @@ export function VentForm() {
         
         try {
             sessionStorage.setItem('acknowledgementTrigger', 'true');
-            if (moderationAction.showSupportMessage) {
-                sessionStorage.setItem('showSupportMessage', 'true');
-            }
         } catch (e) { /* ignore session storage errors */ }
         
         router.push('/dashboard');
@@ -264,7 +276,7 @@ export function VentForm() {
         console.error('Vent saving error:', error);
          if (error.code === 'permission-denied') {
             const permissionError = new FirestorePermissionError({
-                path: `users/${user.uid}/vents/${ventId || 'new-vent'}`,
+                path: `users/${user!.uid}/vents/${ventId || 'new-vent'}`,
                 operation: 'write',
                 requestResourceData: ventData,
             });
@@ -275,6 +287,13 @@ export function VentForm() {
     } finally {
         setIsVenting(false);
     }
+  };
+
+  const confirmAndSaveVent = async () => {
+      setShowSafetyModal(false);
+      if (pendingVentData) {
+          await executeSave(pendingVentData.ventData, pendingVentData.finalIsPublic, pendingVentData.moderationAction);
+      }
   };
 
 
@@ -318,6 +337,7 @@ export function VentForm() {
 
   return (
     <div className="h-full w-full bg-gradient-to-br from-background via-muted to-accent animated-gradient">
+      <SafetySupportModal open={showSafetyModal} onOpenChange={setShowSafetyModal} onAcknowledge={confirmAndSaveVent} />
       <div className="container mx-auto p-4 md:p-8 flex justify-center items-start">
         <Card className="w-full max-w-2xl shadow-xl bg-card/80 backdrop-blur-sm">
           <CardHeader>

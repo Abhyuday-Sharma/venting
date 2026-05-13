@@ -14,11 +14,30 @@ import {
 import { HeartHandshake, Phone, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export function SafetySupportModal() {
-  const [open, setOpen] = useState(false);
+interface SafetySupportModalProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onAcknowledge?: () => void;
+}
+
+export function SafetySupportModal({ open: controlledOpen, onOpenChange: controlledOnOpenChange, onAcknowledge }: SafetySupportModalProps = {}) {
+  const [internalOpen, setInternalOpen] = useState(false);
   const pathname = usePathname();
 
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  
+  const setOpen = (newOpen: boolean) => {
+    if (!isControlled) {
+      setInternalOpen(newOpen);
+    }
+    if (controlledOnOpenChange) {
+      controlledOnOpenChange(newOpen);
+    }
+  };
+
   useEffect(() => {
+    if (isControlled) return;
     // Check if this needs to trigger
     try {
       const shouldShow = sessionStorage.getItem('showSupportMessage');
@@ -34,11 +53,19 @@ export function SafetySupportModal() {
     } catch (e) {
       /* Ignore session storage failures */
     }
-  }, [pathname]);
+  }, [pathname, isControlled]);
+
+  const handleAcknowledge = () => {
+    if (onAcknowledge) {
+      onAcknowledge();
+    } else {
+      setOpen(false);
+    }
+  };
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogContent className="max-w-md sm:rounded-2xl border-orange-100 dark:border-orange-950/30 shadow-2xl">
+      <AlertDialogContent className="max-w-[95vw] sm:max-w-2xl lg:max-w-3xl h-[85vh] md:h-auto overflow-y-auto sm:rounded-2xl border-orange-100 dark:border-orange-950/30 shadow-2xl">
         <AlertDialogHeader className="items-center text-center">
           <div className="h-16 w-16 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center mb-2">
             <HeartHandshake className="h-8 w-8 text-orange-600 dark:text-orange-400" />
@@ -87,7 +114,7 @@ export function SafetySupportModal() {
 
         <AlertDialogFooter className="sm:justify-center gap-2 sm:flex-col-reverse">
           <AlertDialogAction asChild>
-             <Button className="w-full rounded-xl" onClick={() => setOpen(false)}>
+             <Button className="w-full rounded-xl" onClick={handleAcknowledge}>
                 I understand, thank you
              </Button>
           </AlertDialogAction>
