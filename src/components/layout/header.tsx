@@ -24,12 +24,12 @@ import { ModeToggle } from './mode-toggle';
 
 const Logo = () => (
   <Image
-    src="/ventinglogoo.png"
+    src="/ventingmain.png"
     alt="Venting Logo"
-    width={170}
-    height={65}
+    width={727}
+    height={213}
     priority
-    className="dark:invert hover:scale-105 transition-transform duration-300 drop-shadow-md"
+    className="w-28 h-auto dark:invert hover:scale-105 transition-transform duration-300 drop-shadow-md"
   />
 );
 

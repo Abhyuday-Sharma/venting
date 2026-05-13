@@ -25,11 +25,11 @@ export default function MainLayout({
             <footer className="container py-8 grid grid-cols-3 items-center">
                 <div className="flex justify-start">
                     <Image 
-                        src="/venting_logo.png"
+                        src="/ventingmain.png"
                         alt="Venting Logo"
-                        width={150}
-                        height={55}
-                        className="opacity-60 dark:invert"
+                        width={727}
+                        height={213}
+                        className="w-32 h-auto opacity-60 dark:invert"
                     />
                 </div>
                 <div className="flex justify-center gap-4">

@@ -17,12 +17,12 @@ export default function AboutPage() {
       <Card className="w-full max-w-4xl mx-auto shadow-lg">
         <CardHeader className="items-center">
             <Image
-                src="/venting_logo.png"
+                src="/ventingmain.png"
                 alt="Venting Logo"
-                width={200}
-                height={74}
+                width={727}
+                height={213}
                 priority
-                className="mb-4 dark:invert"
+                className="w-40 h-auto mb-4 dark:invert"
             />
           <CardTitle className="text-3xl font-headline text-center">About the Venting Platform</CardTitle>
         </CardHeader>

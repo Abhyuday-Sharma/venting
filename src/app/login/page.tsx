@@ -3,8 +3,8 @@ import { Suspense } from 'react';
 
 export default function LoginPage() {
   return (
-    <div className="w-full h-screen flex items-center justify-center p-4">
-      <Suspense fallback={<div className="text-center">Loading...</div>}>
+    <div className="w-full h-[calc(100vh-56px)] flex items-center justify-center overflow-hidden">
+      <Suspense fallback={<div className="flex-1 flex items-center justify-center">Loading...</div>}>
         <LoginForm />
       </Suspense>
     </div>
