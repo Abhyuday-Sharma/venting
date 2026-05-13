@@ -50,7 +50,7 @@ export function AppHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/40 backdrop-blur-xl border-white/10 dark:border-white/5 supports-[backdrop-filter]:bg-background/40">
-      <div className="container flex h-14 items-center">
+      <div className="container mx-auto flex h-14 items-center px-4 md:px-8">
         <div className="flex items-center">
           <Link href="/feed" className="mr-6 flex items-center space-x-2">
             <Logo />
