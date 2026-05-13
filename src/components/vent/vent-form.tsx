@@ -150,15 +150,16 @@ export function VentForm() {
     setIsVenting(true);
 
     const moderationAction = checkVent(text);
+    const finalIsPublic = isPublic && moderationAction.publish !== false;
 
     const ventData = {
         text,
         mood,
         category: category,
-        isPublic: isPublic,
-        isIncognito: isPublic ? isIncognito : false,
-        commentsDisabled: isPublic ? !allowComments || !moderationAction.commentsEnabled : false,
-        safetyFlag: moderationAction.safetyFlag,
+        isPublic: finalIsPublic,
+        isIncognito: finalIsPublic ? isIncognito : false,
+        commentsDisabled: finalIsPublic ? !allowComments || moderationAction.commentsEnabled === false : false,
+        safetyFlag: moderationAction.safetyFlag || false,
         userId: user.uid,
         authorName: user.username, // Set as default, overridden during transaction if incognito
         authorPhotoURL: user.photoURL, // Set as default, overridden during transaction if incognito
@@ -183,7 +184,7 @@ export function VentForm() {
             let finalAuthorName = user.username;
             let finalAuthorPhotoURL = user.photoURL;
 
-            if (isPublic && isIncognito) {
+            if (finalIsPublic && isIncognito) {
                 // Check if there was already an incognito name saved previously
                 const wasAlreadyIncognito = existingData.isIncognito && existingData.authorName && existingData.authorName !== 'Anonymous Venter';
                 if (wasAlreadyIncognito) {
@@ -218,14 +219,14 @@ export function VentForm() {
 
             if (isNewVent) {
                 newVentCount++;
-                if (isPublic) newPublicVentCount++;
+                if (finalIsPublic) newPublicVentCount++;
                 transaction.update(userDocRef, {
                     ventCount: newVentCount,
                     publicVentCount: newPublicVentCount
                 });
             }
 
-            if (isPublic) {
+            if (finalIsPublic) {
                 transaction.set(publicVentRef, dataToSave, { merge: true });
             } else if (publicDoc.exists()) {
                 transaction.delete(publicVentRef);
@@ -242,7 +243,7 @@ export function VentForm() {
                     toast({ title: "You've shown up for yourself 7 times. That matters.", duration: 4000 });
                 }
                 
-                if (isPublic && stats.newPublicVentCount === 1) {
+                if (finalIsPublic && stats.newPublicVentCount === 1) {
                     setTimeout(() => {
                         toast({ title: "Thank you for trusting the community.", duration: 4000 });
                     }, 1000);
