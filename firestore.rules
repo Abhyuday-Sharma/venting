@@ -1,0 +1,214 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─────────────────────────────────────────────────────────
+    // HELPER FUNCTIONS
+    // ─────────────────────────────────────────────────────────
+
+    // Is the request coming from a signed-in user?
+    function isAuthed() {
+      return request.auth != null;
+    }
+
+    // Is the signed-in user the owner of this resource?
+    function isOwner(uid) {
+      return isAuthed() && request.auth.uid == uid;
+    }
+
+    // Read the user's profile document from Firestore
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // Is the user an admin or owner?
+    function isAdmin() {
+      return isAuthed() && getUserData().role in ['admin', 'owner'];
+    }
+
+    // Is the user banned?
+    function isNotBanned() {
+      return isAuthed() && (
+        !('banStatus' in getUserData()) ||
+        getUserData().banStatus == 'none' ||
+        getUserData().banStatus == null
+      );
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // USERNAMES COLLECTION
+    // /usernames/{username}
+    // Stores uid lookup by lowercased username.
+    // ─────────────────────────────────────────────────────────
+    match /usernames/{username} {
+      // Anyone (even unauthenticated) can check if a username exists
+      allow read: if true;
+
+      // Only the authenticated user can claim a username that maps to their UID
+      allow create: if isAuthed()
+        && request.resource.data.uid == request.auth.uid;
+
+      // Only the owner of the username (by uid) can delete it (for username changes)
+      allow delete: if isAuthed()
+        && resource.data.uid == request.auth.uid;
+
+      // No direct updates
+      allow update: if false;
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // USERS COLLECTION
+    // /users/{userId}
+    // ─────────────────────────────────────────────────────────
+    match /users/{userId} {
+      // Users can read their own profile. Admins can read any.
+      allow read: if isOwner(userId) || isAdmin();
+
+      // Only the Firebase Auth system (via server-side) or the user themselves
+      // can create their profile document.
+      allow create: if isOwner(userId);
+
+      // Users can update their own non-privileged fields.
+      // Privileged fields (role, banStatus, warningCount) cannot be self-updated.
+      allow update: if isOwner(userId)
+        && !('role' in request.resource.data.diff(resource.data).affectedKeys())
+        && !('banStatus' in request.resource.data.diff(resource.data).affectedKeys())
+        && !('warningCount' in request.resource.data.diff(resource.data).affectedKeys())
+        && !('banExpiry' in request.resource.data.diff(resource.data).affectedKeys());
+
+      // Admins can update any user (for banning, warning, role management)
+      allow update: if isAdmin();
+
+      // No one can delete user documents directly (handled by the server action)
+      allow delete: if false;
+
+      // ── Private Vents Subcollection ──
+      // /users/{userId}/vents/{ventId}
+      match /vents/{ventId} {
+        // Only the owner can read their private vents
+        allow read: if isOwner(userId);
+
+        // Only the owner can create/update their vents, and only if not banned
+        allow create, update: if isOwner(userId) && isNotBanned();
+
+        // Owner can delete their own vents
+        allow delete: if isOwner(userId);
+      }
+
+      // ── Notifications Subcollection ──
+      // /users/{userId}/notifications/{notifId}
+      match /notifications/{notifId} {
+        // Only the owner can read their notifications
+        allow read: if isOwner(userId);
+
+        // Notifications are created by the system on behalf of other users
+        // (e.g., "X reacted to your vent") — allow any authed user to create
+        allow create: if isAuthed();
+
+        // Only the owner can mark notifications as read (update)
+        allow update: if isOwner(userId)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+
+        // Owner can delete their notifications
+        allow delete: if isOwner(userId);
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // PUBLIC VENTS COLLECTION
+    // /publicVents/{ventId}
+    // ─────────────────────────────────────────────────────────
+    match /publicVents/{ventId} {
+      // Anyone authenticated can read public vents (that are not hidden)
+      allow read: if isAuthed();
+
+      // Only the vent owner can create their public vent, and only if not banned
+      allow create: if isAuthed()
+        && isNotBanned()
+        && request.resource.data.userId == request.auth.uid;
+
+      // Owner can update their own vent. Admins can update any vent.
+      // Any authenticated non-banned user can update ONLY reaction fields.
+      allow update: if (
+        // Owner can update their own vent content
+        (isOwner(resource.data.userId) && isNotBanned())
+        ||
+        // Any authed non-banned user can react (hearts, hugs, heartedBy, huggedBy)
+        // or update comment count, reportCount, isHidden
+        (isAuthed() && isNotBanned() &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['hearts', 'hugs', 'heartedBy', 'huggedBy', 'comments', 'reportCount', 'isHidden', 'commentsDisabled']))
+        ||
+        // Admins can update anything
+        isAdmin()
+      );
+
+      // Owner can delete their own vent. Admins can delete any vent.
+      allow delete: if isOwner(resource.data.userId) || isAdmin();
+
+      // ── Comments Subcollection ──
+      // /publicVents/{ventId}/comments/{commentId}
+      match /comments/{commentId} {
+        // Any authed user can read comments
+        allow read: if isAuthed();
+
+        // Any authed non-banned user can post a comment
+        allow create: if isAuthed() && isNotBanned()
+          && request.resource.data.userId == request.auth.uid;
+
+        // Authors can update only their own comment text.
+        // Any authed user can update reportCount and isHidden (moderation).
+        allow update: if (
+          isOwner(resource.data.userId)
+          ||
+          (isAuthed() && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['reportCount', 'isHidden', 'replyCount']))
+          ||
+          isAdmin()
+        );
+
+        // Authors and admins can delete comments
+        allow delete: if isOwner(resource.data.userId) || isAdmin();
+      }
+
+      // ── Reports Subcollection ──
+      // /publicVents/{ventId}/reports/{reportId}
+      match /reports/{reportId} {
+        // Only admins can read reports
+        allow read: if isAdmin();
+
+        // Any authed non-banned user can submit a report
+        allow create: if isAuthed() && isNotBanned()
+          && request.resource.data.reporterId == request.auth.uid;
+
+        // Reports are immutable once submitted
+        allow update, delete: if false;
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // AUDIT LOGS COLLECTION
+    // /auditLogs/{logId}
+    // Written by admins when they take moderation actions.
+    // ─────────────────────────────────────────────────────────
+    match /auditLogs/{logId} {
+      // Only admins/owners can read audit logs
+      allow read: if isAdmin();
+
+      // Only admins can create audit logs
+      allow create: if isAdmin();
+
+      // Audit logs are immutable
+      allow update, delete: if false;
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // DENY ALL OTHER PATHS
+    // ─────────────────────────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+  }
+}

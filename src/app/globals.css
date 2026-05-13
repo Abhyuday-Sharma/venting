@@ -1,0 +1,169 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%; /* White */
+    --foreground: 0 0% 9%; /* Almost Black */
+    --card: 0 0% 98%; /* Light Grey */
+    --card-foreground: 0 0% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
+    --primary: 0 0% 9%; /* Almost Black */
+    --primary-foreground: 0 0% 98%; /* Whiteish */
+    --secondary: 0 0% 90%; /* Grey */
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 90%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 0 0% 90%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 80%; /* Medium Grey */
+    --input: 0 0% 80%;
+    --ring: 0 0% 9%;
+    --radius: 0.75rem;
+    --grad-1: 210 40% 96%; /* Soft soothing cloud */
+    --grad-2: 215 25% 98%;
+  }
+
+  .dark {
+    --background: 222.2 47.4% 6.1%; /* Very deep calming night sky */
+    --foreground: 210 40% 98%; /* Clean white w/ slight coolness */
+    --card: 222.2 47.4% 11.2%; /* Slightly lighter restful navy */
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 47.4% 8%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%; /* Soft charcoal blue */
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 15.5%;
+    --muted-foreground: 215 20.2% 65.1%; /* Readable soft grey-blue */
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 40.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 20.5%; /* Soft border harmony */
+    --input: 217.2 32.6% 20.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --grad-1: 222.2 47.4% 12%; /* Serene night depth */
+    --grad-2: 215 30% 15%;
+  }
+
+  .enlighten {
+    --background: 26 70% 97%; 
+    --foreground: 194 15% 20%; 
+    --card: 26 73% 94%; 
+    --card-foreground: 194 15% 20%;
+    --popover: 26 73% 94%;
+    --popover-foreground: 194 15% 20%;
+    --primary: 199 39% 56%; 
+    --primary-foreground: 210 20% 98%;
+    --secondary: 26 21% 60%; 
+    --secondary-foreground: 26 70% 98%;
+    --muted: 200 25% 92%; 
+    --muted-foreground: 194 11% 40%;
+    --accent: 200 25% 88%; 
+    --accent-foreground: 194 15% 20%;
+    --destructive: 0 72% 51%; 
+    --destructive-foreground: 0 0% 98%;
+    --border: 200 25% 88%; 
+    --input: 200 25% 88%;
+    --ring: 199 45% 50%; 
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground transition-colors duration-300;
+  }
+}
+
+@layer utilities {
+  .animated-gradient {
+    background: linear-gradient(
+      45deg,
+      hsl(var(--background)),
+      hsl(var(--grad-1)),
+      hsl(var(--background) / 0.95),
+      hsl(var(--grad-2))
+    );
+    background-size: 400% 400%;
+    animation: gradient-animation 25s ease-in-out infinite;
+  }
+
+  .glass-panel {
+    @apply bg-background/60 backdrop-blur-xl border border-white/10 shadow-lg dark:border-white/5;
+  }
+
+  .glass-card {
+    background: rgba(var(--card-rgb, 255 255 255) / 0.6);
+    @apply backdrop-blur-lg border shadow-xl transition-all duration-300 cursor-default;
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+
+  .dark .glass-card {
+    background: rgba(30, 41, 80, 0.45);
+    border-color: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+
+  .glass-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.14), inset 0 1px 0 rgba(255,255,255,0.18);
+  }
+
+  .dark .glass-card:hover {
+    box-shadow: 0 16px 56px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.09);
+  }
+
+  /* Ambient glow orbs */
+  .ambient-orb {
+    @apply absolute rounded-full blur-3xl opacity-20 pointer-events-none select-none;
+  }
+
+  /* Reaction button pulse */
+  .reaction-btn {
+    @apply transition-all duration-200;
+  }
+  .reaction-btn:hover {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 8px currentColor);
+  }
+  .reaction-btn:active {
+    transform: scale(0.92);
+  }
+
+  /* Card reveal animation */
+  @keyframes card-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .card-reveal {
+    animation: card-reveal 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+
+  .card-reveal-1  { animation-delay: 0.04s; }
+  .card-reveal-2  { animation-delay: 0.10s; }
+  .card-reveal-3  { animation-delay: 0.16s; }
+  .card-reveal-4  { animation-delay: 0.22s; }
+  .card-reveal-5  { animation-delay: 0.28s; }
+  .card-reveal-6  { animation-delay: 0.34s; }
+
+  @keyframes gradient-animation {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+}
