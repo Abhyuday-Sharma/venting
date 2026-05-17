@@ -62,8 +62,8 @@ service cloud.firestore {
     // /users/{userId}
     // ─────────────────────────────────────────────────────────
     match /users/{userId} {
-      // Users can read their own profile. Admins can read any.
-      allow read: if isOwner(userId) || isAdmin();
+      // Any authenticated user can read profiles (needed for public profile pages)
+      allow read: if isAuthed();
 
       // Only the Firebase Auth system (via server-side) or the user themselves
       // can create their profile document.

@@ -51,7 +51,7 @@ export default function WelcomePage() {
           <p className="text-xl text-muted-foreground text-center mb-12">
             This is your space.
           </p>
-          <Button size="lg" onClick={nextStep} className="rounded-full px-8 glass-card">
+          <Button size="lg" variant="ghost" onClick={nextStep} className="rounded-full px-8 border border-border/40 dark:border-white/10 bg-card/60 dark:bg-white/[0.06] backdrop-blur-md text-foreground hover:bg-card/80 dark:hover:bg-white/[0.12] hover:text-foreground hover:shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 shadow-md cursor-pointer">
             Begin
             <ChevronRight className="ml-2 h-5 w-5" />
           </Button>
@@ -66,7 +66,7 @@ export default function WelcomePage() {
           <p className="text-lg text-muted-foreground text-center mb-12 max-w-sm">
             Everything you write is private by default. Let go of your thoughts without judgment.
           </p>
-          <Button size="lg" onClick={nextStep} className="rounded-full px-8 glass-card">
+          <Button size="lg" variant="ghost" onClick={nextStep} className="rounded-full px-8 border border-border/40 dark:border-white/10 bg-card/60 dark:bg-white/[0.06] backdrop-blur-md text-foreground hover:bg-card/80 dark:hover:bg-white/[0.12] hover:text-foreground hover:shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 shadow-md cursor-pointer">
             Next
             <ChevronRight className="ml-2 h-5 w-5" />
           </Button>
@@ -81,7 +81,7 @@ export default function WelcomePage() {
           <p className="text-lg text-muted-foreground text-center mb-12 max-w-sm">
             Connect with a supportive community. Share anonymously, or with your username.
           </p>
-          <Button size="lg" onClick={nextStep} className="rounded-full px-8 glass-card">
+          <Button size="lg" variant="ghost" onClick={nextStep} className="rounded-full px-8 border border-border/40 dark:border-white/10 bg-card/60 dark:bg-white/[0.06] backdrop-blur-md text-foreground hover:bg-card/80 dark:hover:bg-white/[0.12] hover:text-foreground hover:shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 shadow-md cursor-pointer">
             Next
             <ChevronRight className="ml-2 h-5 w-5" />
           </Button>
@@ -96,7 +96,7 @@ export default function WelcomePage() {
           <p className="text-lg text-muted-foreground text-center mb-12 max-w-sm">
             For easy app-like access, tap the Share button in your browser and select "Add to Home Screen".
           </p>
-          <Button size="lg" onClick={nextStep} className="rounded-full px-8 glass-card">
+          <Button size="lg" variant="ghost" onClick={nextStep} className="rounded-full px-8 border border-border/40 dark:border-white/10 bg-card/60 dark:bg-white/[0.06] backdrop-blur-md text-foreground hover:bg-card/80 dark:hover:bg-white/[0.12] hover:text-foreground hover:shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 shadow-md cursor-pointer">
             Next
             <ChevronRight className="ml-2 h-5 w-5" />
           </Button>
