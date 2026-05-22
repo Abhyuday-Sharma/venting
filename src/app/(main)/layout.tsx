@@ -21,8 +21,8 @@ export default function MainLayout({
 }>) {
     return (
         <>
-            <main className="flex-1">{children}</main>
-            <footer className="container mx-auto px-4 md:px-8 py-8 flex flex-col md:flex-row md:justify-between items-center gap-8">
+            <main className="flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:pb-0">{children}</main>
+            <footer className="hidden md:flex container mx-auto px-4 md:px-8 py-8 flex-col md:flex-row md:justify-between items-center gap-8">
                 <div className="flex justify-start">
                     <Image 
                         src="/ventingmain.png"

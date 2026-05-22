@@ -8,6 +8,8 @@ import { MoodCheckInManager } from '@/components/dashboard/mood-checkin-manager'
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 import { ThemeProvider } from '@/components/theme-provider';
 import { SafetySupportModal } from '@/components/layout/safety-support-modal';
+import { PWAManager } from '@/components/layout/pwa-manager';
+import { BottomNavigation } from '@/components/layout/bottom-navigation';
 
 export const metadata: Metadata = {
   title: 'Venting',
@@ -39,6 +41,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
         <link rel="apple-touch-icon" href="/app_icon.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Venting" />
+        <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className="font-body antialiased animated-gradient min-h-screen">
         <ThemeProvider
@@ -53,8 +59,10 @@ export default function RootLayout({
             <div className="flex flex-col min-h-screen bg-background/40 backdrop-blur-[2px]">
               <AppHeader />
               {children}
+              <BottomNavigation />
               <MoodCheckInManager />
             </div>
+            <PWAManager />
             <Toaster />
           </AuthProvider>
         </ThemeProvider>
