@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useTransition, useCallback } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import Link from "next/link";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
@@ -140,7 +141,50 @@ export function VentForm() {
     };
 
   const handleVent = async () => {
-    if (!user || !user.username) return;
+    if (!user) {
+      if (text.trim().length === 0) {
+        toast({ variant: 'destructive', title: 'Cannot save empty vent', description: 'Please write something to vent.' });
+        return;
+      }
+      setIsVenting(true);
+      try {
+        const localVentsRaw = localStorage.getItem('guest_vents');
+        const localVents = localVentsRaw ? JSON.parse(localVentsRaw) : [];
+        if (localVents.length >= 2) {
+          toast({
+            title: 'Limit reached',
+            description: 'Guest users are limited to 2 local private vents. Please sign in to write more!'
+          });
+          router.push('/login');
+          return;
+        }
+
+        const newVent = {
+          id: 'local_' + Math.random().toString(36).substr(2, 9),
+          text,
+          mood,
+          category,
+          isPublic: false,
+          isIncognito: false,
+          timestamp: Date.now(),
+          hearts: 0,
+          hugs: 0,
+          comments: 0
+        };
+        localVents.push(newVent);
+        localStorage.setItem('guest_vents', JSON.stringify(localVents));
+        toast({ title: 'Vent saved locally!' });
+        router.push('/feed');
+      } catch (e) {
+        console.error(e);
+        toast({ variant: 'destructive', title: 'Save failed', description: 'Could not save your vent locally.' });
+      } finally {
+        setIsVenting(false);
+      }
+      return;
+    }
+
+    if (!user.username) return;
     if (user.banStatus && user.banStatus !== 'none') {
         toast({ variant: 'destructive', title: 'Action Prohibited', description: 'Your account is banned and cannot post.' });
         return;
@@ -344,6 +388,15 @@ export function VentForm() {
           <CardHeader>
             <CardTitle className="text-2xl font-headline">{ventId ? 'Edit Vent' : "What's on your mind?"}</CardTitle>
             <CardDescription>Let your thoughts out in a safe space. Your entries are private by default.</CardDescription>
+            {!user && (
+              <Alert className="mt-4 border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-300">
+                <Info className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <AlertTitle className="text-sm font-semibold">Explore Mode</AlertTitle>
+                <AlertDescription className="text-xs">
+                  You are browsing as a guest. You can write up to 2 private vents saved locally. <Link href="/login" className="underline font-medium hover:text-amber-800 dark:hover:text-amber-200">Sign in</Link> to unlock public sharing, comments, and unlimited posts.
+                </AlertDescription>
+              </Alert>
+            )}
             <Alert className="mt-4" variant="destructive">
               <ShieldQuestion className="h-4 w-4" />
               <AlertTitle className="text-sm">Safety Notice</AlertTitle>
@@ -412,12 +465,12 @@ export function VentForm() {
             <div className="space-y-4">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center space-x-2">
-                  <Switch id="public-switch" checked={isPublic} onCheckedChange={setIsPublic} />
-                  <Label htmlFor="public-switch">Make public</Label>
+                  <Switch id="public-switch" checked={isPublic} onCheckedChange={setIsPublic} disabled={!user} />
+                  <Label htmlFor="public-switch" className={!user ? 'text-muted-foreground' : ''}>Make public {!user && "(Sign in required)"}</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Switch id="incognito-switch" checked={isIncognito} onCheckedChange={setIsIncognito} disabled={!isPublic} />
-                  <Label htmlFor="incognito-switch" className={!isPublic ? 'text-muted-foreground' : ''}>Post anonymously</Label>
+                  <Switch id="incognito-switch" checked={isIncognito} onCheckedChange={setIsIncognito} disabled={!isPublic || !user} />
+                  <Label htmlFor="incognito-switch" className={(!isPublic || !user) ? 'text-muted-foreground' : ''}>Post anonymously</Label>
                 </div>
               </div>
                {isPublic && (

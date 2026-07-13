@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { Timestamp } from "firebase/firestore";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -43,6 +44,7 @@ const getInitials = (name: string | null | undefined) => {
 export function CommentWithReplies({ comment, ventId, onReply, isPosting, onCommentReported }: CommentWithRepliesProps) {
     const { user } = useAuth();
     const { toast } = useToast();
+    const router = useRouter();
     const [isReplying, setIsReplying] = useState(false);
     const [replyText, setReplyText] = useState("");
     const [isExpanded, setIsExpanded] = useState(false);
@@ -136,12 +138,21 @@ export function CommentWithReplies({ comment, ventId, onReply, isPosting, onComm
                     </Button>
                 )}
                 <AlertDialog open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}>
-                    <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="sm" className="text-xs h-auto py-1 px-2 text-muted-foreground">
-                            <Flag className="mr-1 h-3 w-3" />
-                            Report
-                        </Button>
-                    </AlertDialogTrigger>
+                    <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-xs h-auto py-1 px-2 text-muted-foreground"
+                        onClick={() => {
+                            if (!user) {
+                                toast({ title: 'Sign in to report', description: 'You must be signed in to flag content.' });
+                            } else {
+                                setIsReportDialogOpen(true);
+                            }
+                        }}
+                    >
+                        <Flag className="mr-1 h-3 w-3" />
+                        Report
+                    </Button>
                     <AlertDialogContent>
                         <AlertDialogHeader>
                             <AlertDialogTitle>Report Comment</AlertDialogTitle>

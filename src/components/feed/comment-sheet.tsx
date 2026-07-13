@@ -21,6 +21,7 @@ import type { Comment, Vent } from "@/lib/types";
 import { Send, Info, Ban } from "lucide-react";
 import { CommentWithReplies } from "./comment";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useRouter } from "next/navigation";
 
 interface CommentSheetProps {
     vent: Vent;
@@ -43,6 +44,7 @@ const findComment = (comments: Comment[], id: string): Comment | null => {
 export function CommentSheet({ vent, isOpen, onOpenChange, onCommentAdded }: CommentSheetProps) {
     const { user } = useAuth();
     const { toast } = useToast();
+    const router = useRouter();
     const [comments, setComments] = useState<Comment[]>([]);
     const [newCommentText, setNewCommentText] = useState("");
     const [loading, setLoading] = useState(true);
@@ -173,28 +175,36 @@ export function CommentSheet({ vent, isOpen, onOpenChange, onCommentAdded }: Com
                 </div>
                 <SheetFooter className="mt-auto pt-4 border-t">
                      <div className="w-full space-y-4">
-                        <div className="flex w-full items-center space-x-2">
-                            <Input 
-                                value={newCommentText}
-                                onChange={(e) => setNewCommentText(e.target.value)}
-                                placeholder={
-                                    isBanned ? "Your account is banned." : 
-                                    vent.commentsDisabled ? "Comments are disabled by the author." : "Add a supportive comment..."
-                                }
-                                disabled={!user || isPosting || vent.commentsDisabled || isBanned}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && !e.shiftKey) {
-                                        e.preventDefault();
-                                        handlePostComment(newCommentText);
+                        {!user ? (
+                            <div className="text-center py-2 space-y-2">
+                                <p className="text-sm text-muted-foreground">Sign in to support other venters and share your thoughts.</p>
+                                <Button className="w-full" onClick={() => router.push('/login')}>
+                                    Sign In to Comment
+                                </Button>
+                            </div>
+                        ) : (
+                            <div className="flex w-full items-center space-x-2">
+                                <Input 
+                                    value={newCommentText}
+                                    onChange={(e) => setNewCommentText(e.target.value)}
+                                    placeholder={
+                                        isBanned ? "Your account is banned." : 
+                                        vent.commentsDisabled ? "Comments are disabled by the author." : "Add a supportive comment..."
                                     }
-                                }}
-                            />
-                            <Button onClick={() => handlePostComment(newCommentText)} disabled={!user || !newCommentText.trim() || isPosting || vent.commentsDisabled || isBanned}>
-                                {isBanned ? <Ban className="h-4 w-4" /> : <Send className="h-4 w-4" />}
-                                <span className="sr-only">Post Comment</span>
-                            </Button>
-                        </div>
-                        {!user && <p className="text-xs text-destructive text-center w-full">You must be signed in to comment.</p>}
+                                    disabled={isPosting || vent.commentsDisabled || isBanned}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && !e.shiftKey) {
+                                            e.preventDefault();
+                                            handlePostComment(newCommentText);
+                                        }
+                                    }}
+                                />
+                                <Button onClick={() => handlePostComment(newCommentText)} disabled={!newCommentText.trim() || isPosting || vent.commentsDisabled || isBanned}>
+                                    {isBanned ? <Ban className="h-4 w-4" /> : <Send className="h-4 w-4" />}
+                                    <span className="sr-only">Post Comment</span>
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </SheetFooter>
             </SheetContent>

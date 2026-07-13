@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useMemo } from "react";
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { getPublicVents, db, adminDeletePublicVent, submitReportAndTakeAction } from "@/lib/firebase";
 import type { Vent, Comment, Notification, ReportReasonCategory } from "@/lib/types";
 import { ventCategories } from "@/lib/types";
@@ -66,6 +66,7 @@ export function PublicFeed() {
     const { user } = useAuth();
     const { toast } = useToast();
     const searchParams = useSearchParams();
+    const router = useRouter();
     const [vents, setVents] = useState<Vent[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedVentId, setSelectedVentId] = useState<string | null>(null);
@@ -157,7 +158,7 @@ export function PublicFeed() {
 
     const handleReaction = async (ventId: string, reactionType: 'hearts' | 'hugs') => {
         if (!user) {
-            toast({ variant: 'destructive', title: 'You must be signed in to react.'});
+            toast({ title: 'Sign in to connect', description: 'You must be signed in to react to posts.'});
             return;
         }
 
@@ -419,7 +420,13 @@ export function PublicFeed() {
                                                 </AlertDialogContent>
                                             </AlertDialog>
                                         )}
-                                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setVentToReport(vent)}>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {
+                                             if (!user) {
+                                                 toast({ title: 'Sign in to report', description: 'You must be signed in to flag content.' });
+                                                 return;
+                                             }
+                                             setVentToReport(vent);
+                                         }}>
                                             <Flag className="h-4 w-4 text-muted-foreground" />
                                             <span className="sr-only">Report</span>
                                         </Button>

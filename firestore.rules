@@ -62,8 +62,8 @@ service cloud.firestore {
     // /users/{userId}
     // ─────────────────────────────────────────────────────────
     match /users/{userId} {
-      // Any authenticated user can read profiles (needed for public profile pages)
-      allow read: if isAuthed();
+      // Any user (even unauthenticated) can read profiles (needed for public profile pages)
+      allow read: if true;
 
       // Only the Firebase Auth system (via server-side) or the user themselves
       // can create their profile document.
@@ -120,8 +120,8 @@ service cloud.firestore {
     // /publicVents/{ventId}
     // ─────────────────────────────────────────────────────────
     match /publicVents/{ventId} {
-      // Anyone authenticated can read public vents (that are not hidden)
-      allow read: if isAuthed();
+      // Anyone (even unauthenticated) can read public vents (that are not hidden)
+      allow read: if true;
 
       // Only the vent owner can create their public vent, and only if not banned
       allow create: if isAuthed()
@@ -150,8 +150,8 @@ service cloud.firestore {
       // ── Comments Subcollection ──
       // /publicVents/{ventId}/comments/{commentId}
       match /comments/{commentId} {
-        // Any authed user can read comments
-        allow read: if isAuthed();
+        // Any user (even unauthenticated) can read comments
+        allow read: if true;
 
         // Any authed non-banned user can post a comment
         allow create: if isAuthed() && isNotBanned()

@@ -1,5 +1,4 @@
-
-'use client';
+"use client";
 
 import { useState, useEffect, Suspense } from 'react';
 import { useParams } from 'next/navigation';
@@ -9,7 +8,6 @@ import { UserProfileVents } from "@/components/profile/user-profile-vents";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { notFound } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
-import ProtectedPage from "@/components/auth/protected-page";
 
 const getInitials = (name: string | null | undefined) => {
     if (!name) return 'U';
@@ -64,28 +62,26 @@ export default function UserProfilePage() {
     }
 
     return (
-        <ProtectedPage>
-            <div className="container mx-auto p-4 md:p-8">
-                {profile && (
-                    <>
-                        <div className="flex flex-row items-start gap-8 mb-8">
-                            <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-card flex-shrink-0">
-                                <AvatarImage src={profile.photoURL ?? ''} alt={profile.displayName ?? 'User'} />
-                                <AvatarFallback className="text-4xl">{getInitials(profile.displayName)}</AvatarFallback>
-                            </Avatar>
-                            <div className="pt-4">
-                                <h1 className="text-3xl md:text-4xl font-bold font-headline">{profile.displayName}</h1>
-                                <p className="text-muted-foreground mt-1">@{profile.username}</p>
-                                <p className="mt-4 text-foreground/80 max-w-lg">{vents.length} public vent(s).</p>
-                            </div>
+        <div className="container mx-auto p-4 md:p-8">
+            {profile && (
+                <>
+                    <div className="flex flex-row items-start gap-8 mb-8">
+                        <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-card flex-shrink-0">
+                            <AvatarImage src={profile.photoURL ?? ''} alt={profile.displayName ?? 'User'} />
+                            <AvatarFallback className="text-4xl">{getInitials(profile.displayName)}</AvatarFallback>
+                        </Avatar>
+                        <div className="pt-4">
+                            <h1 className="text-3xl md:text-4xl font-bold font-headline">{profile.displayName}</h1>
+                            <p className="text-muted-foreground mt-1">@{profile.username}</p>
+                            <p className="mt-4 text-foreground/80 max-w-lg">{vents.length} public vent(s).</p>
                         </div>
+                    </div>
 
-                        <Suspense fallback={<Skeleton className="h-64 w-full" />}>
-                           <UserProfileVents initialVents={vents} />
-                        </Suspense>
-                    </>
-                )}
-            </div>
-        </ProtectedPage>
+                    <Suspense fallback={<Skeleton className="h-64 w-full" />}>
+                       <UserProfileVents initialVents={vents} />
+                    </Suspense>
+                </>
+            )}
+        </div>
     );
 }

@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
@@ -48,6 +48,8 @@ const Logo = () => (
 export function AppHeader() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
+  const isAuthPage = pathname === '/login' || pathname === '/create-username' || pathname === '/';
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
 
   const handleSignOut = async () => {
@@ -70,33 +72,37 @@ export function AppHeader() {
           </Link>
         </div>
         <nav className="hidden md:flex flex-1 items-center space-x-6 text-sm font-medium">
+            {!isAuthPage && (
+              <Link
+                  href="/feed"
+                  className="transition-colors hover:text-foreground/80 text-foreground/60"
+              >
+                  Public Feed
+              </Link>
+            )}
             {user && (
-                <>
-                    <Link
-                        href="/dashboard"
-                        className="transition-colors hover:text-foreground/80 text-foreground/60"
-                    >
-                        Dashboard
-                    </Link>
-                    <Link
-                        href="/feed"
-                        className="transition-colors hover:text-foreground/80 text-foreground/60"
-                    >
-                        Public Feed
-                    </Link>
-                    <Link
-                        href="/moments"
-                        className="transition-colors hover:text-foreground/80 text-foreground/60"
-                    >
-                        Moments
-                    </Link>
-                    <Link
-                        href="/vent"
-                        className="transition-colors hover:text-foreground/80 text-foreground/60"
-                    >
-                        Vent
-                    </Link>
-                </>
+              <Link
+                  href="/dashboard"
+                  className="transition-colors hover:text-foreground/80 text-foreground/60"
+              >
+                  Dashboard
+              </Link>
+            )}
+            {!isAuthPage && (
+              <Link
+                  href="/vent"
+                  className="transition-colors hover:text-foreground/80 text-foreground/60"
+              >
+                  Vent
+              </Link>
+            )}
+            {user && (
+                <Link
+                    href="/moments"
+                    className="transition-colors hover:text-foreground/80 text-foreground/60"
+                >
+                    Moments
+                </Link>
             )}
         </nav>
         <div className="flex items-center justify-end">

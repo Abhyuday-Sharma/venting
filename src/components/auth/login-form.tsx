@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   signInWithRedirect, 
   signInWithPopup,
@@ -46,6 +47,7 @@ const Logo = () => (
 
 export function LoginForm() {
   const { toast } = useToast();
+  const router = useRouter();
   
   const [loading, setLoading] = useState<null | 'google' | 'email-signup' | 'email-signin'>(null);
   
@@ -329,6 +331,16 @@ export function LoginForm() {
               <Button variant="outline" onClick={handleGoogleSignIn} disabled={!!loading || (activeTab === 'signup' && isSignUpButtonDisabled)} className="w-full h-9 sm:h-10 text-xs sm:text-sm">
                   {loading === 'google' ? <Loader2 className="h-4 w-4 animate-spin" /> : <><GoogleIcon /> {activeTab === 'signup' ? 'Sign up with Google' : 'Sign in with Google'}</>}
               </Button>
+              <div className="pt-2">
+                <Button 
+                    variant="ghost" 
+                    onClick={() => router.push('/welcome')} 
+                    disabled={!!loading} 
+                    className="w-full h-9 sm:h-10 text-xs sm:text-sm text-muted-foreground hover:text-foreground"
+                >
+                    Explore Venting as a Guest
+                </Button>
+              </div>
             </CardContent>
         </Card>
     </div>

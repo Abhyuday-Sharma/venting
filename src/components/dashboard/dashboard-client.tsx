@@ -10,9 +10,10 @@ import { MoodChart } from "@/components/dashboard/mood-chart";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PlusCircle, BarChart3, Trash2 } from "lucide-react";
-import { deleteDoc, doc, getDoc } from "firebase/firestore";
+import { PlusCircle, BarChart3, Trash2, Info } from "lucide-react";
+import { deleteDoc, doc, getDoc, Timestamp } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,14 +29,18 @@ import { useSearchParams } from "next/navigation";
 import { EndSessionAcknowledgement } from "@/components/layout/end-session-acknowledgement";
 
 export function DashboardClient() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const [vents, setVents] = useState<Vent[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAcknowledgement, setShowAcknowledgement] = useState(false);
 
+  console.log("DashboardClient Render:", { authLoading, loading, user: user?.uid || null });
+
   useEffect(() => {
+    if (authLoading) return;
+
     if (user) {
       setLoading(true);
       const unsubscribe = getVentsForUser(user.uid, (userVents) => {
@@ -43,8 +48,27 @@ export function DashboardClient() {
         setLoading(false);
       });
       return () => unsubscribe();
+    } else {
+      // Load guest vents from localStorage
+      try {
+        const localVentsRaw = localStorage.getItem('guest_vents');
+        if (localVentsRaw) {
+          const parsed = JSON.parse(localVentsRaw);
+          const mapped = parsed.map((v: any) => ({
+            ...v,
+            timestamp: v.timestamp ? new Date(v.timestamp) : new Date()
+          }));
+          setVents(mapped);
+        } else {
+          setVents([]);
+        }
+      } catch (e) {
+        console.error("Failed to load guest vents:", e);
+        setVents([]);
+      }
+      setLoading(false);
     }
-  }, [user]);
+  }, [user, authLoading]);
 
   useEffect(() => {
     try {
@@ -75,7 +99,27 @@ export function DashboardClient() {
 
 
   const handleDeleteVent = async (ventId: string) => {
-    if (!user) return;
+    if (!user) {
+      try {
+        const localVentsRaw = localStorage.getItem('guest_vents');
+        if (localVentsRaw) {
+          const parsed = JSON.parse(localVentsRaw);
+          const filtered = parsed.filter((v: any) => v.id !== ventId);
+          localStorage.setItem('guest_vents', JSON.stringify(filtered));
+          setVents(filtered.map((v: any) => ({
+            ...v,
+            timestamp: v.timestamp ? new Date(v.timestamp) : new Date()
+          })));
+          toast({
+            title: "Vent Deleted",
+            description: "Your local vent has been removed.",
+          });
+        }
+      } catch (error) {
+        console.error("Error deleting local vent:", error);
+      }
+      return;
+    }
   
     const privateVentRef = doc(db, 'users', user.uid, 'vents', ventId);
     const publicVentRef = doc(db, 'publicVents', ventId);
@@ -108,7 +152,15 @@ export function DashboardClient() {
   };
 
   const handleResetReflections = async () => {
-    if (!user) return;
+    if (!user) {
+      localStorage.removeItem('guest_vents');
+      setVents([]);
+      toast({
+        title: "Reflections Reset",
+        description: "All of your local vents have been deleted.",
+      });
+      return;
+    }
 
     try {
       await resetWrittenVents(user.uid);
@@ -128,7 +180,7 @@ export function DashboardClient() {
   };
 
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
         <div className="container mx-auto p-4 md:p-8 space-y-8">
             <Skeleton className="h-64 w-full rounded-lg" />
@@ -144,9 +196,18 @@ export function DashboardClient() {
   return (
     <>
       <div className="container mx-auto p-4 md:p-8 space-y-8">
+        {!user && (
+          <Alert className="border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-300">
+            <Info className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            <AlertTitle className="text-sm font-semibold">Explore Mode</AlertTitle>
+            <AlertDescription className="text-xs">
+              You are exploring the dashboard as a guest. These reflections are only saved on this device. <Link href="/login" className="underline font-medium hover:text-amber-800 dark:hover:text-amber-200">Sign in</Link> to back up your vents, share with the community, and write unlimited entries.
+            </AlertDescription>
+          </Alert>
+        )}
         {vents.length === 0 ? (
           <div className="text-center py-16 px-4 border-2 border-dashed rounded-lg bg-card/50">
-            <h2 className="text-2xl font-semibold mb-2 font-headline">I'm glad you came, {user?.username}!</h2>
+            <h2 className="text-2xl font-semibold mb-2 font-headline">I'm glad you came, {user?.username || 'Guest'}!</h2>
             <p className="text-muted-foreground mb-6">You haven't recorded any vents yet. Let it all out!</p>
             <Button asChild size="lg">
               <Link href="/vent"><PlusCircle className="mr-2 h-4 w-4" />Create Your First Vent</Link>
@@ -156,7 +217,7 @@ export function DashboardClient() {
           <>
             <div className="flex justify-between items-start">
               <div>
-                <h1 className="text-3xl font-bold font-headline">{user?.username}'s Reflections</h1>
+                <h1 className="text-3xl font-bold font-headline">{user?.username || 'Guest'}'s Reflections</h1>
                 <p className="text-muted-foreground">Visualize your mood trends from written vents and review your history.</p>
               </div>
               <div className="flex gap-2">

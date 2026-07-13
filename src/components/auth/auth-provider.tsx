@@ -133,7 +133,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const isAuthPage = pathname === "/login" || pathname === "/create-username";
-    const protectedRoutes = ['/dashboard', '/feed', '/vent', '/settings', '/profile', '/u', '/moments', '/support', '/feedback'];
+    const protectedRoutes = ['/settings', '/moments', '/feedback', '/dashboard'];
     const isProtectedRoute = protectedRoutes.some(p => pathname.startsWith(p));
 
     if (!user) {

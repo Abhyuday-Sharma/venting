@@ -1,5 +1,5 @@
 
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from '@/components/auth/auth-provider';
@@ -10,11 +10,35 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { SafetySupportModal } from '@/components/layout/safety-support-modal';
 import { PWAManager } from '@/components/layout/pwa-manager';
 import { BottomNavigation } from '@/components/layout/bottom-navigation';
+import ShaderBackground from '@/components/layout/shader-background-wrapper';
 
 export const metadata: Metadata = {
-  title: 'Venting',
-  description: 'A safe and private space for your thoughts.',
+  metadataBase: new URL('https://www.venting.in'),
+  title: 'Venting – Anonymous Emotional Wellness Platform | Venting.in',
+  description: 'Join Venting.in, the anonymous emotional wellness platform. A safe, private, and supportive space to express your thoughts, track your mood, and heal together.',
   manifest: '/manifest.json',
+  openGraph: {
+    title: 'Venting – Anonymous Emotional Wellness Platform',
+    description: 'Join Venting.in, the anonymous emotional wellness platform. A safe, private space to express your thoughts and heal.',
+    url: 'https://www.venting.in',
+    siteName: 'Venting.in',
+    images: [
+      {
+        url: '/app_icon.png',
+        width: 512,
+        height: 512,
+        alt: 'Venting.in Logo',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Venting – Anonymous Emotional Wellness Platform',
+    description: 'Join Venting.in, the anonymous emotional wellness platform. A safe, private space to express your thoughts and heal.',
+    images: ['/app_icon.png'],
+  },
   icons: [
     {
       media: '(prefers-color-scheme: light)',
@@ -27,6 +51,13 @@ export const metadata: Metadata = {
       href: '/icon-dark.png',
     }
   ],
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -53,15 +84,16 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <ShaderBackground />
           <AuthProvider>
             <FirebaseErrorListener />
             <SafetySupportModal />
             <div className="flex flex-col min-h-screen bg-background/40 backdrop-blur-[2px]">
               <AppHeader />
               {children}
-              <BottomNavigation />
-              <MoodCheckInManager />
             </div>
+            <BottomNavigation />
+            <MoodCheckInManager />
             <PWAManager />
             <Toaster />
           </AuthProvider>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { X, Share, PlusSquare, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
 
 // Detect if device is iOS
 const isIos = () => {
@@ -22,6 +23,7 @@ export function PWAManager() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
   const [showIosInstruction, setShowIosInstruction] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     // 1. Register Service Worker
@@ -81,6 +83,10 @@ export function PWAManager() {
 
   const closeInstallBanner = () => {
       setShowInstallBanner(false);
+  }
+
+  if (!user || !user.username) {
+    return null;
   }
 
   return (

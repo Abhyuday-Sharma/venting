@@ -80,7 +80,9 @@
   
   html, body {
     overscroll-behavior-y: none;
+    overscroll-behavior-x: none;
     -webkit-tap-highlight-color: transparent;
+    touch-action: pan-x pan-y;
   }
 
   body {

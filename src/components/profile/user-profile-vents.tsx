@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import type { Vent, Comment, Notification, ReportReasonCategory } from "@/lib/types";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
@@ -44,6 +45,7 @@ async function createReactionNotification(vent: Vent, reactingUser: any, reactio
 export function UserProfileVents({ initialVents }: { initialVents: Vent[] }) {
     const { user } = useAuth();
     const { toast } = useToast();
+    const router = useRouter();
     const [vents, setVents] = useState<Vent[]>(initialVents);
     const [selectedVentId, setSelectedVentId] = useState<string | null>(null);
 
@@ -64,7 +66,7 @@ export function UserProfileVents({ initialVents }: { initialVents: Vent[] }) {
 
     const handleReaction = async (ventId: string, reactionType: 'hearts' | 'hugs') => {
         if (!user) {
-            toast({ variant: 'destructive', title: 'You must be signed in to react.'});
+            toast({ title: 'Sign in to connect', description: 'You must be signed in to react.'});
             return;
         }
 
@@ -183,10 +185,16 @@ export function UserProfileVents({ initialVents }: { initialVents: Vent[] }) {
                                     {vent.commentsDisabled && <TooltipContent><p>Comments are disabled by the author.</p></TooltipContent>}
                                 </Tooltip>
                             </div>
-                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setVentToReport(vent)}>
-                                <Flag className="h-4 w-4 text-muted-foreground" />
-                                <span className="sr-only">Report</span>
-                            </Button>
+                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => {
+                                 if (!user) {
+                                     toast({ title: 'Sign in to report', description: 'You must be signed in to flag content.' });
+                                     return;
+                                 }
+                                 setVentToReport(vent);
+                             }}>
+                                 <Flag className="h-4 w-4 text-muted-foreground" />
+                                 <span className="sr-only">Report</span>
+                             </Button>
                         </CardFooter>
                     </Card>
                 ))}

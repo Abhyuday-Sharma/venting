@@ -15,13 +15,14 @@ export default function WelcomePage() {
   const [step, setStep] = useState(0);
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push("/login");
-    }
-  }, [user, loading, router]);
+    // Guests are allowed to view the welcome slides.
+  }, []);
 
   const completeOnboarding = async () => {
-    if (!user) return;
+    if (!user) {
+        router.push("/vent");
+        return;
+    }
     try {
       const userDocRef = doc(db, "users", user.uid);
       await updateDoc(userDocRef, { hasCompletedOnboarding: true });
@@ -37,7 +38,7 @@ export default function WelcomePage() {
     if (step < 4) setStep(step + 1);
   };
 
-  if (loading || !user) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background p-4 sm:p-8 animated-gradient">
@@ -46,7 +47,7 @@ export default function WelcomePage() {
         {/* Step 0: Welcome */}
         <div className={`absolute inset-0 flex flex-col items-center justify-center transition-all duration-1000 ${step === 0 ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8 pointer-events-none'}`}>
           <h1 className="text-4xl sm:text-5xl font-headline text-center mb-6">
-            Welcome, <span className="text-primary">{user.displayName || user.username || 'Friend'}</span>.
+            Welcome, <span className="text-primary">{user ? (user.displayName || user.username || 'Friend') : 'Guest'}</span>.
           </h1>
           <p className="text-xl text-muted-foreground text-center mb-12">
             This is your space.

@@ -7,6 +7,7 @@ import { format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import type { Vent } from '@/lib/types';
 import { Timestamp } from 'firebase/firestore';
+import { getDate } from '@/lib/date-utils';
 
 interface MoodChartProps {
   vents: Vent[];
@@ -56,9 +57,9 @@ export function MoodChart({ vents, chartTitle, chartDescription }: MoodChartProp
     if (!vents || vents.length === 0) return [];
     
     const ventsWithDates = vents.map(vent => {
-      const date = (vent.timestamp as Timestamp)?.toDate();
+      const date = getDate(vent.timestamp);
       return { ...vent, date };
-    }).filter(vent => vent.date); // Filter out any vents that might have a missing timestamp
+    }).filter((vent): vent is typeof vent & { date: Date } => vent.date !== null); // Filter out any vents that might have a missing timestamp
 
     const sortedVents = ventsWithDates.sort((a, b) => a.date.getTime() - b.date.getTime());
 

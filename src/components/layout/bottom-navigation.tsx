@@ -10,8 +10,8 @@ export function BottomNavigation() {
   const pathname = usePathname();
   const { user } = useAuth();
 
-  // Hide the bottom navigation if the user is not authenticated or on specific unauthenticated pages
-  if (!user || pathname === "/login" || pathname === "/") {
+  // Hide the bottom navigation on specific pages
+  if (pathname === "/login" || pathname === "/create-username" || pathname === "/") {
     return null;
   }
 
@@ -49,11 +49,13 @@ export function BottomNavigation() {
       <nav className="flex justify-around items-center h-16 px-2">
         {navItems.map((item) => {
           const Icon = item.icon;
+          const isProtectedRoute = item.href === "/moments" || item.href === "/settings" || item.href === "/dashboard";
+          const targetHref = (!user && isProtectedRoute) ? `/login?redirect=${item.href}` : item.href;
           const isActive = pathname === item.href;
 
           if (item.isPrimary) {
             return (
-              <Link key={item.href} href={item.href} className="relative -top-5 flex flex-col items-center">
+              <Link key={item.href} href={targetHref} className="relative -top-5 flex flex-col items-center">
                 <div
                   className={cn(
                     "flex items-center justify-center w-14 h-14 rounded-full text-white shadow-lg transition-transform duration-300 active:scale-95",
@@ -71,7 +73,7 @@ export function BottomNavigation() {
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={targetHref}
               className={cn(
                 "flex flex-col items-center justify-center w-16 h-full space-y-1 transition-colors duration-200 active:scale-95",
                 isActive

@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import type { Vent } from "@/lib/types";
@@ -8,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import { Timestamp } from "firebase/firestore";
 import { Trash2, Shield, EyeOff, Pencil, Lock, Clock } from "lucide-react";
+import { getDate, toMillis } from "@/lib/date-utils";
 import { Button } from "../ui/button";
 import {
   AlertDialog,
@@ -78,7 +77,7 @@ export function VentHistory({ vents, onDeleteVent }: VentHistoryProps) {
             </p>
           </CardHeader>
           <CardFooter className="flex justify-between items-center text-sm text-muted-foreground">
-            <span>{vent.timestamp ? formatDistanceToNow((vent.timestamp as Timestamp).toDate(), { addSuffix: true }) : ''}</span>
+            <span>{vent.timestamp && getDate(vent.timestamp) ? formatDistanceToNow(getDate(vent.timestamp)!, { addSuffix: true }) : ''}</span>
             <div className="flex items-center gap-4">
                 {!vent.isPublic ? (
                   <Badge variant="outline" className="flex items-center gap-1">
@@ -92,9 +91,9 @@ export function VentHistory({ vents, onDeleteVent }: VentHistoryProps) {
                     </Badge>
                 )}
                 {vent.isPublic && vent.expiresAt && (
-                    <Badge variant="outline" className={`flex items-center gap-1 border-orange-200 text-orange-600 dark:text-orange-400 ${ (vent.expiresAt as Timestamp).toMillis() < Date.now() ? 'opacity-60 line-through bg-muted text-muted-foreground border-muted' : ''}`}>
+                    <Badge variant="outline" className={`flex items-center gap-1 border-orange-200 text-orange-600 dark:text-orange-400 ${ toMillis(vent.expiresAt) < Date.now() ? 'opacity-60 line-through bg-muted text-muted-foreground border-muted' : ''}`}>
                         <Clock className="h-3 w-3" />
-                        {(vent.expiresAt as Timestamp).toMillis() < Date.now() ? 'Archived' : `Expires ${formatDistanceToNow((vent.expiresAt as Timestamp).toDate(), { addSuffix: true })}`}
+                        {toMillis(vent.expiresAt) < Date.now() ? 'Archived' : `Expires ${formatDistanceToNow(getDate(vent.expiresAt) || new Date(), { addSuffix: true })}`}
                     </Badge>
                 )}
                 <Badge variant={moodBadgeVariant(vent.mood)} className="shadow-sm">Mood: {vent.mood}/10</Badge>

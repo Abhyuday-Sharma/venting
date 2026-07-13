@@ -19,6 +19,7 @@ export default function SupportPage() {
     const { user } = useAuth();
     const { toast } = useToast();
     const searchParams = useSearchParams();
+    const router = useRouter();
 
     const [selectedAmount, setSelectedAmount] = useState<number | null>(100);
     const [customAmount, setCustomAmount] = useState('');
@@ -42,6 +43,7 @@ export default function SupportPage() {
                 title: 'You must be logged in',
                 description: 'Please sign in to support the platform.',
             });
+            router.push('/login?redirect=/support');
             return;
         }
         
