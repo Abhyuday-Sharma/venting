@@ -32,6 +32,7 @@ import { Skeleton } from '../ui/skeleton';
 import Image from 'next/image';
 import { NotificationsDropdown } from './notifications-dropdown';
 import { ModeToggle } from './mode-toggle';
+import { InstallButton } from './install-button';
 
 const Logo = () => (
   <Image
@@ -110,6 +111,7 @@ export function AppHeader() {
             <Skeleton className="h-8 w-24 rounded-md" />
           ) : user ? (
             <div className="flex items-center gap-2 sm:gap-4">
+              <InstallButton />
               <ModeToggle />
               <NotificationsDropdown />
               <DropdownMenu>
@@ -176,6 +178,7 @@ export function AppHeader() {
             </div>
           ) : (
             <div className="flex items-center gap-2">
+                <InstallButton />
                 <ModeToggle />
                 <Button onClick={() => router.push('/login')}>
                 Sign In

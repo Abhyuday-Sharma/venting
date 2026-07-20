@@ -1,18 +1,18 @@
 import {genkit} from 'genkit';
-import {googleAI} from '@genkit-ai/google-genai';
+import {groq} from 'genkitx-groq';
 import { config } from 'dotenv';
 
 config();
 
 const plugins = [];
 
-if (process.env.GEMINI_API_KEY) {
-    plugins.push(googleAI());
+if (process.env.GROQ_API_KEY) {
+    plugins.push(groq({ apiKey: process.env.GROQ_API_KEY }));
 } else {
-    console.warn("GEMINI_API_KEY is not set. GenAI features will be disabled.");
+    console.warn("GROQ_API_KEY is not set. GenAI features will be disabled.");
 }
 
 export const ai = genkit({
   plugins: plugins,
-  model: 'googleai/gemini-2.5-flash',
+  model: 'groq/llama-3.3-70b-versatile',
 });

@@ -44,8 +44,12 @@ export function PWAManager() {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      // Wait a bit before showing to not disrupt initial page load
-      setTimeout(() => setShowInstallBanner(true), 3000);
+      
+      const hasSeenPrompt = localStorage.getItem("hasSeenPwaPrompt");
+      // Wait a bit before showing to not disrupt initial page load, but only if they haven't dismissed it before
+      if (!hasSeenPrompt) {
+        setTimeout(() => setShowInstallBanner(true), 3000);
+      }
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
@@ -58,8 +62,15 @@ export function PWAManager() {
         }
     }
 
+    // 5. Listen for manual trigger from InstallButton
+    const handleShowIosPrompt = () => {
+      setShowIosInstruction(true);
+    };
+    window.addEventListener("show-ios-pwa-prompt", handleShowIosPrompt);
+
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("show-ios-pwa-prompt", handleShowIosPrompt);
     };
   }, []);
 
@@ -83,6 +94,7 @@ export function PWAManager() {
 
   const closeInstallBanner = () => {
       setShowInstallBanner(false);
+      localStorage.setItem("hasSeenPwaPrompt", "true");
   }
 
   if (!user || !user.username) {

@@ -32,6 +32,7 @@ import { FirestorePermissionError } from "@/firebase/errors";
 import { checkVent } from "@/lib/safety";
 import { generateIncognitoName, getIncognitoAvatar } from "@/lib/incognito";
 import { SafetySupportModal } from "@/components/layout/safety-support-modal";
+import { analyzeContentSafety } from "@/actions/ai";
 
 // @ts-ignore
 const SpeechRecognition = typeof window !== 'undefined' ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
@@ -196,8 +197,45 @@ export function VentForm() {
     
     setIsVenting(true);
 
+    // Client-side pre-filter (fast, catches obvious patterns)
     const moderationAction = checkVent(text);
-    const finalIsPublic = isPublic && moderationAction.publish !== false;
+
+    // If the client-side check immediately blocks, use its decision.
+    if (moderationAction.publish === false && !moderationAction.showSupportMessage) {
+      const ventData = {
+        text,
+        mood,
+        category: category,
+        isPublic: false,
+        isIncognito: false,
+        commentsDisabled: false,
+        safetyFlag: false,
+        userId: user.uid,
+        authorName: user.username,
+        authorPhotoURL: user.photoURL,
+        timestamp: serverTimestamp(),
+        expiresAt: expiresInHours > 0 ? Timestamp.fromDate(new Date(Date.now() + expiresInHours * 60 * 60 * 1000)) : null,
+      };
+      await executeSave(ventData, false, moderationAction);
+      return;
+    }
+
+    // Server-side AI safety check (authoritative, context-aware)
+    let aiModerationAction = moderationAction;
+    if (isPublic) {
+      const aiResult = await analyzeContentSafety(text, 'vent');
+      if (aiResult.success && aiResult.data) {
+        const aiData = aiResult.data;
+        aiModerationAction = {
+          publish: aiData.action.publish,
+          safetyFlag: aiData.action.safetyFlag,
+          commentsEnabled: !aiData.action.disableComments,
+          showSupportMessage: aiData.action.showSupportMessage,
+        };
+      }
+    }
+
+    const finalIsPublic = isPublic && aiModerationAction.publish !== false;
 
     const ventData = {
         text,
@@ -205,23 +243,23 @@ export function VentForm() {
         category: category,
         isPublic: finalIsPublic,
         isIncognito: finalIsPublic ? isIncognito : false,
-        commentsDisabled: finalIsPublic ? !allowComments || moderationAction.commentsEnabled === false : false,
-        safetyFlag: moderationAction.safetyFlag || false,
+        commentsDisabled: finalIsPublic ? !allowComments || aiModerationAction.commentsEnabled === false : false,
+        safetyFlag: aiModerationAction.safetyFlag || false,
         userId: user.uid,
-        authorName: user.username, // Set as default, overridden during transaction if incognito
-        authorPhotoURL: user.photoURL, // Set as default, overridden during transaction if incognito
+        authorName: user.username,
+        authorPhotoURL: user.photoURL,
         timestamp: serverTimestamp(),
         expiresAt: expiresInHours > 0 ? Timestamp.fromDate(new Date(Date.now() + expiresInHours * 60 * 60 * 1000)) : null,
     };
 
-    if (moderationAction.showSupportMessage) {
-        setPendingVentData({ ventData, finalIsPublic, moderationAction });
+    if (aiModerationAction.showSupportMessage) {
+        setPendingVentData({ ventData, finalIsPublic, moderationAction: aiModerationAction });
         setShowSafetyModal(true);
         setIsVenting(false);
         return;
     }
 
-    await executeSave(ventData, finalIsPublic, moderationAction);
+    await executeSave(ventData, finalIsPublic, aiModerationAction);
   };
 
   const executeSave = async (ventData: any, finalIsPublic: boolean, moderationAction: any) => {
@@ -510,6 +548,11 @@ export function VentForm() {
                   {isVenting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                   {ventId ? 'Update Vent' : 'Vent'}
                 </Button>
+                {!user && (
+                  <Link href="/saved">
+                    <Button variant="outline">Saved</Button>
+                  </Link>
+                )}
             </div>
           </CardFooter>
         </Card>

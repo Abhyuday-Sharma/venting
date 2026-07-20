@@ -35,7 +35,7 @@ export default function WelcomePage() {
   };
 
   const nextStep = () => {
-    if (step < 4) setStep(step + 1);
+    if (step < 5) setStep(step + 1);
   };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -88,8 +88,23 @@ export default function WelcomePage() {
           </Button>
         </div>
 
-        {/* Step 3: Add to Homescreen */}
+        {/* Step 3: AI Companion */}
         <div className={`absolute inset-0 flex flex-col items-center justify-center transition-all duration-1000 ${step === 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
+          <div className="h-20 w-20 rounded-full bg-purple-500/20 flex items-center justify-center mb-6">
+            <Shield className="h-10 w-10 text-purple-500" />
+          </div>
+          <h2 className="text-3xl font-headline text-center mb-4">Your Private AI Companion</h2>
+          <p className="text-lg text-muted-foreground text-center mb-12 max-w-sm">
+            Venting uses AI quietly in the background to summarize your mood trends (after 3 vents), offer gentle reflections, and keep the community safe.
+          </p>
+          <Button size="lg" variant="ghost" onClick={nextStep} className="rounded-full px-8 border border-border/40 dark:border-white/10 bg-card/60 dark:bg-white/[0.06] backdrop-blur-md text-foreground hover:bg-card/80 dark:hover:bg-white/[0.12] hover:text-foreground hover:shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 shadow-md cursor-pointer">
+            Next
+            <ChevronRight className="ml-2 h-5 w-5" />
+          </Button>
+        </div>
+
+        {/* Step 4: Add to Homescreen */}
+        <div className={`absolute inset-0 flex flex-col items-center justify-center transition-all duration-1000 ${step === 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
           <div className="h-20 w-20 rounded-full bg-indigo-500/20 flex items-center justify-center mb-6">
             <Smartphone className="h-10 w-10 text-indigo-500" />
           </div>
@@ -103,8 +118,8 @@ export default function WelcomePage() {
           </Button>
         </div>
 
-        {/* Step 4: Write your first thought */}
-        <div className={`absolute inset-0 flex flex-col items-center justify-center transition-all duration-1000 ${step === 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
+        {/* Step 5: Write your first thought */}
+        <div className={`absolute inset-0 flex flex-col items-center justify-center transition-all duration-1000 ${step === 5 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}`}>
            <div className="h-20 w-20 rounded-full bg-blue-500/20 flex items-center justify-center mb-6">
             <Edit3 className="h-10 w-10 text-blue-500" />
           </div>
@@ -121,7 +136,7 @@ export default function WelcomePage() {
       
       {/* Progress Dots */}
       <div className="absolute bottom-12 flex space-x-3">
-        {[0, 1, 2, 3, 4].map((i) => (
+        {[0, 1, 2, 3, 4, 5].map((i) => (
           <div 
             key={i} 
             className={`h-2 rounded-full transition-all duration-500 ${step === i ? 'w-8 bg-primary' : 'w-2 bg-primary/30'}`} 

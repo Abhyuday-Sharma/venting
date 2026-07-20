@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useSearchParams } from "next/navigation";
 import { EndSessionAcknowledgement } from "@/components/layout/end-session-acknowledgement";
+import { ReflectionPromptCard } from "@/components/dashboard/reflection-prompt-card";
+import { MoodInsightsCard } from "@/components/dashboard/mood-insights-card";
 
 export function DashboardClient() {
   const { user, loading: authLoading } = useAuth();
@@ -35,6 +37,7 @@ export function DashboardClient() {
   const [vents, setVents] = useState<Vent[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAcknowledgement, setShowAcknowledgement] = useState(false);
+  const [showReflection, setShowReflection] = useState(false);
 
   console.log("DashboardClient Render:", { authLoading, loading, user: user?.uid || null });
 
@@ -75,6 +78,7 @@ export function DashboardClient() {
       const endSessionTrigger = sessionStorage.getItem('acknowledgementTrigger');
       if (endSessionTrigger === 'true') {
         setShowAcknowledgement(true);
+        setShowReflection(true);
         sessionStorage.removeItem('acknowledgementTrigger');
       }
 
@@ -247,7 +251,13 @@ export function DashboardClient() {
                 </Button>
               </div>
             </div>
+            {user && showReflection && writtenVents.length > 0 && !writtenVents[0].isPublic && (
+              <ReflectionPromptCard vent={writtenVents[0]} />
+            )}
             <MoodChart vents={writtenVents} chartTitle="Vent Mood Journey" chartDescription="A visualization of your moods from written vents." />
+            {user && (
+              <MoodInsightsCard vents={writtenVents} username={user.username || 'Friend'} />
+            )}
             <VentHistory vents={writtenVents} onDeleteVent={handleDeleteVent} />
           </>
         )}

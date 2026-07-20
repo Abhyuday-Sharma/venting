@@ -94,6 +94,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 photoURL: photoURL || `https://api.dicebear.com/8.x/initials/svg?seed=${email}`,
                 username: null, // Username is set in a separate step.
                 role,
+                hasCompletedOnboarding: false,
               };
               
               // Set the new profile document. The onSnapshot listener will then fire again with the new data.
@@ -145,8 +146,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (!user.username && pathname !== "/create-username") {
         // If user is signed in but has no username, force them to the creation page.
         router.push("/create-username");
-      } else if (user.username && isAuthPage) {
-        // If user is signed in, has a username, and is on an auth page, send them to the feed.
+      } else if (user.username && user.hasCompletedOnboarding === false && pathname !== "/welcome") {
+        // Force new users to complete the onboarding flow
+        router.push("/welcome");
+      } else if (user.username && user.hasCompletedOnboarding !== false && isAuthPage) {
+        // If user is signed in, has a username, has completed onboarding, and is on an auth page, send them to the feed.
         const redirectTo = pathname.includes('showMoodCheckIn=true') ? '/feed?showMoodCheckIn=true' : '/feed';
         router.push(redirectTo);
       }
