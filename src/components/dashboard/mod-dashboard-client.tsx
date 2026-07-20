@@ -90,6 +90,22 @@ export function ModDashboardClient() {
                                     <p><span className="font-semibold text-muted-foreground">Reporter UID:</span> {report.reporterId}</p>
                                 </div>
                             </CardContent>
+                            <div className="px-6 pb-6 pt-0 flex gap-2">
+                                <a 
+                                    href={`/vent?id=${report.ventId || report.targetId}`} 
+                                    className="text-xs inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-8 px-3"
+                                >
+                                    View in App
+                                </a>
+                                <a 
+                                    href={`https://console.firebase.google.com/project/studio-6635404237-5ab92/firestore/databases/-default-/data/~2FpublicVents~2F${report.ventId || report.targetId}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-xs inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 px-3"
+                                >
+                                    View in Firebase
+                                </a>
+                            </div>
                         </Card>
                     ))}
                 </div>
