@@ -222,7 +222,7 @@ export function VentForm() {
 
     // Server-side AI safety check (authoritative, context-aware)
     let aiModerationAction = moderationAction;
-    if (isPublic) {
+    if (isPublic && isIncognito) {
       const aiResult = await analyzeContentSafety(text, 'vent');
       if (aiResult.success && aiResult.data) {
         const aiData = aiResult.data;
@@ -248,6 +248,7 @@ export function VentForm() {
         userId: user.uid,
         authorName: user.username,
         authorPhotoURL: user.photoURL,
+        authorRole: user.role || 'user',
         timestamp: serverTimestamp(),
         expiresAt: expiresInHours > 0 ? Timestamp.fromDate(new Date(Date.now() + expiresInHours * 60 * 60 * 1000)) : null,
     };

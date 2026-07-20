@@ -77,12 +77,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               const { displayName, email, photoURL, uid } = firebaseUser;
               const ownerEmails = ['mrsharmaabhyuday@gmail.com'];
               const adminEmails = ['ventingsupport@gmail.com'];
+              const moderatorEmails = ['ventingmoderation@gmail.com'];
               
-              let role: 'owner' | 'admin' | 'user' = 'user';
+              let role: 'owner' | 'admin' | 'moderator' | 'user' = 'user';
               const userEmail = email || '';
 
               if (ownerEmails.includes(userEmail)) {
                 role = 'owner';
+              } else if (moderatorEmails.includes(userEmail)) {
+                role = 'moderator';
               } else if (adminEmails.includes(userEmail)) {
                 role = 'admin';
               }

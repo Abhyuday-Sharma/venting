@@ -1,4 +1,4 @@
-import { DashboardClient } from "./dashboard-client";
+import { DashboardClient } from "@/components/dashboard/dashboard-client";
 import { Suspense } from "react";
 
 export default function DashboardPage() {

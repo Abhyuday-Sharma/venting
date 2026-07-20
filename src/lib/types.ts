@@ -1,13 +1,21 @@
 
 import type { Timestamp } from "firebase/firestore";
 
+export interface MoodInsights {
+  summary: string;
+  triggers: string[];
+  strengths: string[];
+  gentleReframe: string;
+  overallTrend: 'improving' | 'stable' | 'declining' | 'fluctuating';
+}
+
 export interface UserProfile {
   uid: string;
   email: string | null;
   displayName: string | null;
   username: string | null;
   photoURL: string | null;
-  role?: 'owner' | 'admin' | 'user';
+  role?: 'owner' | 'admin' | 'moderator' | 'user';
   settings?: {
     profileVisibility?: 'public' | 'anonymous';
     defaultPostingMode?: 'private' | 'public';
@@ -21,6 +29,8 @@ export interface UserProfile {
   hasCompletedOnboarding?: boolean;
   ventCount?: number;
   publicVentCount?: number;
+  lastInsightGeneratedAt?: Timestamp;
+  currentInsights?: MoodInsights;
 }
 
 export const ventCategories = ["Work", "Relationships", "Family", "Health", "Personal Growth", "General"] as const;
@@ -41,6 +51,7 @@ export interface Vent {
   reportCount?: number;
   authorName?: string;
   authorPhotoURL?: string | null;
+  authorRole?: string;
   hearts?: number;
   hugs?: number;
   comments?: number;
@@ -54,6 +65,7 @@ export interface Comment {
     userId: string;
     authorName: string;
     authorPhotoURL: string | null;
+    authorRole?: string;
     text: string;
     timestamp: Timestamp;
     ventId: string;
@@ -87,6 +99,8 @@ export interface Report {
   timestamp: Timestamp;
   targetId: string; // The ID of the vent or comment being reported
   targetType: 'vent' | 'comment';
+  ventId?: string; // Always populated in global reports collection for easy linking
+  status?: 'pending' | 'resolved';
 }
 
 export interface AuditLog {

@@ -29,6 +29,7 @@ import { useSearchParams } from "next/navigation";
 import { EndSessionAcknowledgement } from "@/components/layout/end-session-acknowledgement";
 import { ReflectionPromptCard } from "@/components/dashboard/reflection-prompt-card";
 import { MoodInsightsCard } from "@/components/dashboard/mood-insights-card";
+import { ModDashboardClient } from "@/components/dashboard/mod-dashboard-client";
 
 export function DashboardClient() {
   const { user, loading: authLoading } = useAuth();
@@ -183,6 +184,9 @@ export function DashboardClient() {
     }
   };
 
+  if (user && (user.role === 'owner' || user.role === 'moderator')) {
+    return <ModDashboardClient />;
+  }
 
   if (authLoading || loading) {
     return (
@@ -256,7 +260,7 @@ export function DashboardClient() {
             )}
             <MoodChart vents={writtenVents} chartTitle="Vent Mood Journey" chartDescription="A visualization of your moods from written vents." />
             {user && (
-              <MoodInsightsCard vents={writtenVents} username={user.username || 'Friend'} />
+              <MoodInsightsCard vents={writtenVents} user={user} />
             )}
             <VentHistory vents={writtenVents} onDeleteVent={handleDeleteVent} />
           </>

@@ -86,7 +86,7 @@ export function AppHeader() {
                   href="/dashboard"
                   className="transition-colors hover:text-foreground/80 text-foreground/60"
               >
-                  Dashboard
+                  {user.role === 'owner' || user.role === 'moderator' ? 'Report History' : 'Dashboard'}
               </Link>
             )}
             {!isAuthPage && (
@@ -135,7 +135,7 @@ export function AppHeader() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => router.push('/dashboard')}>
                     <LayoutDashboard className="mr-2 h-4 w-4" />
-                    <span>Dashboard</span>
+                    <span>{user.role === 'owner' || user.role === 'moderator' ? 'Report History' : 'Dashboard'}</span>
                   </DropdownMenuItem>
                    <DropdownMenuItem onClick={() => router.push('/feed')}>
                     <MessageSquare className="mr-2 h-4 w-4" />

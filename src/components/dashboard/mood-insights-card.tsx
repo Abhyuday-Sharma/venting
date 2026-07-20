@@ -1,28 +1,22 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { generateMoodInsights } from "@/actions/ai";
 import { BrainCircuit, TrendingUp, TrendingDown, Minus, Activity, Lightbulb, AlertTriangle, Sparkles, Info } from "lucide-react";
-import type { Vent } from "@/lib/types";
-import { format } from "date-fns";
+import type { Vent, UserProfile, MoodInsights } from "@/lib/types";
+import { format, differenceInDays } from "date-fns";
 import { getDate } from "@/lib/date-utils";
+import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 interface MoodInsightsCardProps {
   vents: Vent[];
-  username: string;
-}
-
-interface MoodInsights {
-  summary: string;
-  triggers: string[];
-  strengths: string[];
-  gentleReframe: string;
-  overallTrend: 'improving' | 'stable' | 'declining' | 'fluctuating';
+  user: UserProfile;
 }
 
 const trendConfig = {
@@ -32,36 +26,64 @@ const trendConfig = {
   fluctuating: { label: "Fluctuating", icon: Activity, className: "text-violet-600 dark:text-violet-400 bg-violet-500/10 border-violet-500/20" },
 };
 
-export function MoodInsightsCard({ vents, username }: MoodInsightsCardProps) {
-  const [insights, setInsights] = useState<MoodInsights | null>(null);
+export function MoodInsightsCard({ vents, user }: MoodInsightsCardProps) {
+  const [insights, setInsights] = useState<MoodInsights | null>(user.currentInsights || null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const hasEnoughVents = vents.length >= 3;
 
-  const handleGenerate = async () => {
-    setLoading(true);
-    setError(null);
+  useEffect(() => {
+    if (!hasEnoughVents) return;
 
-    const ventData = vents.slice(0, 20).map((vent) => {
-      const date = getDate(vent.timestamp);
-      return {
-        text: vent.text,
-        mood: vent.mood,
-        category: vent.category || "General",
-        date: date ? format(date, "MMM d, yyyy") : "Unknown date",
-      };
-    });
+    const checkAndGenerateInsights = async () => {
+      const now = new Date();
+      const lastGeneratedDate = user.lastInsightGeneratedAt?.toDate();
+      const daysSinceLastGeneration = lastGeneratedDate ? differenceInDays(now, lastGeneratedDate) : Infinity;
 
-    const result = await generateMoodInsights(ventData, username);
+      const latestVentTimestamp = vents.length > 0 && vents[0].timestamp ? vents[0].timestamp.toDate() : new Date(0);
+      const hasNewVents = lastGeneratedDate ? latestVentTimestamp > lastGeneratedDate : true;
 
-    if (result.success && result.data) {
-      setInsights(result.data);
-    } else {
-      setError(result.error || "Something went wrong.");
-    }
-    setLoading(false);
-  };
+      const shouldGenerate = (daysSinceLastGeneration >= 7 && hasNewVents) || !user.currentInsights;
+
+      if (shouldGenerate) {
+        setLoading(true);
+        setError(null);
+
+        const ventData = vents.slice(0, 20).map((vent) => {
+          const date = getDate(vent.timestamp);
+          return {
+            text: vent.text,
+            mood: vent.mood,
+            category: vent.category || "General",
+            date: date ? format(date, "MMM d, yyyy") : "Unknown date",
+          };
+        });
+
+        const result = await generateMoodInsights(ventData, user.username || 'Friend');
+
+        if (result.success && result.data) {
+          setInsights(result.data);
+          try {
+            await updateDoc(doc(db, "users", user.uid), {
+              currentInsights: result.data,
+              lastInsightGeneratedAt: serverTimestamp()
+            });
+          } catch (e) {
+            console.error("Failed to save insights to profile:", e);
+          }
+        } else {
+          setError(result.error || "Something went wrong.");
+        }
+        setLoading(false);
+      } else if (user.currentInsights && !insights) {
+          setInsights(user.currentInsights);
+      }
+    };
+
+    checkAndGenerateInsights();
+  }, [hasEnoughVents, user.uid, vents.length]); // Re-run if they cross the 3 vent threshold or user changes. We use vents.length as a simple trigger, the inner logic prevents infinite loops.
+
 
   if (!hasEnoughVents) {
     const ventsNeeded = 3 - vents.length;
@@ -112,12 +134,8 @@ export function MoodInsightsCard({ vents, username }: MoodInsightsCardProps) {
           <div className="text-center py-6 space-y-3">
             <Sparkles className="h-10 w-10 text-muted-foreground/40 mx-auto" />
             <p className="text-sm text-muted-foreground">
-              Analyze your recent vents to uncover emotional patterns, triggers, and strengths.
+              Analyzing your recent vents to uncover emotional patterns, triggers, and strengths...
             </p>
-            <Button onClick={handleGenerate} className="mt-2">
-              <BrainCircuit className="mr-2 h-4 w-4" />
-              Generate Insights
-            </Button>
           </div>
         )}
 
@@ -138,8 +156,8 @@ export function MoodInsightsCard({ vents, username }: MoodInsightsCardProps) {
           <div className="text-center py-6 space-y-3">
             <AlertTriangle className="h-8 w-8 text-destructive/60 mx-auto" />
             <p className="text-sm text-muted-foreground">{error}</p>
-            <Button variant="outline" onClick={handleGenerate} size="sm">
-              Try Again
+            <Button variant="outline" onClick={() => window.location.reload()} size="sm">
+              Reload Page
             </Button>
           </div>
         )}
@@ -207,10 +225,10 @@ export function MoodInsightsCard({ vents, username }: MoodInsightsCardProps) {
             <Info className="h-3 w-3" />
             <span>AI-generated reflections based on {vents.length} vents · Not clinical assessments</span>
           </div>
-          <Button variant="outline" size="sm" onClick={handleGenerate} className="w-full sm:w-auto">
-            <BrainCircuit className="mr-2 h-3.5 w-3.5" />
-            Regenerate
-          </Button>
+          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/40 mt-1">
+            <Sparkles className="h-3 w-3" />
+            <span>Insights update automatically each week based on new vents.</span>
+          </div>
         </CardFooter>
       )}
     </Card>

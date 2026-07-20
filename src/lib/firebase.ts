@@ -311,6 +311,28 @@ export async function submitReportAndTakeAction(
         const reportsCollection = collection(db, 'publicVents', target.type === 'vent' ? target.id : ventId!, 'reports');
         await addDoc(reportsCollection, reportData);
         
+        // Save to global reports collection for Moderation Dashboard
+        const globalReportData = { ...reportData, ventId: target.type === 'vent' ? target.id : ventId, status: 'pending' };
+        await addDoc(collection(db, 'reports'), globalReportData);
+        
+        // Notify Admins and Moderators
+        try {
+            const adminQuery = query(collection(db, 'users'), where('role', 'in', ['owner', 'moderator']));
+            const adminDocs = await getDocs(adminQuery);
+            adminDocs.forEach(adminDoc => {
+                const adminId = adminDoc.id;
+                addDoc(collection(db, 'users', adminId, 'notifications'), {
+                    type: 'system',
+                    message: `A ${target.type} has been reported for ${reasonCategory}. Reason: ${reason}`,
+                    timestamp: serverTimestamp(),
+                    read: false,
+                    relatedVentId: target.type === 'vent' ? target.id : ventId,
+                });
+            });
+        } catch (e) {
+            console.error("Failed to notify admins", e);
+        }
+        
         return { success: true, contentHidden };
 
     } catch (error: any) {
@@ -483,7 +505,7 @@ export async function deleteUserAccount(user: UserProfile) {
 }
 
 export async function adminDeletePublicVent(vent: Vent, actor: UserProfile, reason: string) {
-    if (actor.role !== 'owner' && actor.role !== 'admin') throw new Error("You do not have permission to perform this action.");
+    if (actor.role !== 'owner' && actor.role !== 'admin' && actor.role !== 'moderator') throw new Error("You do not have permission to perform this action.");
     if (!vent.id || !vent.userId) throw new Error("Invalid vent data provided.");
 
     const batch = writeBatch(db);
@@ -509,3 +531,38 @@ export async function adminDeletePublicVent(vent: Vent, actor: UserProfile, reas
 
     await batch.commit();
 }
+
+
+export async function adminDeleteComment(ventId: string, comment: Comment, actor: UserProfile, reason: string) {
+    if (actor.role !== 'owner' && actor.role !== 'admin' && actor.role !== 'moderator') throw new Error("You do not have permission to perform this action.");
+    
+    const batch = writeBatch(db);
+    const commentRef = doc(db, 'publicVents', ventId, 'comments', comment.id);
+    batch.delete(commentRef);
+
+    const auditLogRef = doc(collection(db, 'auditLogs'));
+    batch.set(auditLogRef, {
+        actorId: actor.uid, actorUsername: actor.username,
+        action: 'ADMIN_DELETE_COMMENT', targetId: comment.id,
+        targetOwnerId: comment.userId, reason: reason, timestamp: serverTimestamp(),
+    });
+
+    await batch.commit();
+}
+
+
+export async function getGlobalReports(): Promise<Report[]> {
+    const reportsCollection = collection(db, 'reports');
+    const q = query(reportsCollection, orderBy('timestamp', 'desc'));
+    try {
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Report));
+    } catch (serverError: any) {
+        if (serverError.code === 'permission-denied') {
+            errorEmitter.emit('permission-error', new FirestorePermissionError({ path: reportsCollection.path, operation: 'list' }));
+        }
+        console.error("getGlobalReports error:", serverError);
+        return [];
+    }
+}
+

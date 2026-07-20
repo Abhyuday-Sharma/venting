@@ -23,6 +23,7 @@ import Image from 'next/image';
 import { Checkbox } from '../ui/checkbox';
 import { LegalDocViewer } from './legal-doc-viewer';
 import { Loader2 } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
 
 const GoogleIcon = () => (
     <svg className="mr-2 h-4 w-4" viewBox="0 0 48 48" role="img" aria-label="Google icon">
@@ -48,6 +49,7 @@ const Logo = () => (
 export function LoginForm() {
   const { toast } = useToast();
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   
   const [loading, setLoading] = useState<null | 'google' | 'email-signup' | 'email-signin'>(null);
   
@@ -197,7 +199,21 @@ export function LoginForm() {
       setLoading(null);
     }
   };
-
+  if (authLoading || user) {
+    return (
+      <>
+        <div className="absolute inset-0 animated-gradient -z-10" />
+        <div className="relative w-full h-full max-w-6xl mx-auto flex items-center justify-center p-4 sm:p-8">
+            <div className="flex flex-col items-center gap-4">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p className="text-sm text-muted-foreground font-medium animate-pulse">
+                {user ? 'Redirecting to your dashboard...' : 'Loading...'}
+              </p>
+            </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

@@ -111,7 +111,8 @@ export function CommentSheet({ vent, isOpen, onOpenChange, onCommentAdded }: Com
             return;
         }
 
-        // Empathy check (skip if user clicked "Post Anyway")
+        // Empathy check disabled to save costs
+        /*
         if (!skipEmpathyCheck && !parentId) {
             setIsCheckingEmpathy(true);
             try {
@@ -126,13 +127,15 @@ export function CommentSheet({ vent, isOpen, onOpenChange, onCommentAdded }: Com
             }
             setIsCheckingEmpathy(false);
         }
+        */
 
         // Clear any existing empathy nudge
         setEmpathyNudge(null);
 
         setIsPosting(true);
 
-        // Server-side AI safety check
+        // Server-side AI safety check disabled to save costs
+        /*
         try {
             const safetyResult = await analyzeContentSafety(text, 'comment');
             if (safetyResult.success && safetyResult.data && safetyResult.data.action.blockImmediately) {
@@ -147,12 +150,14 @@ export function CommentSheet({ vent, isOpen, onOpenChange, onCommentAdded }: Com
         } catch {
             // If AI safety check fails, proceed (client-side check already passed)
         }
+        */
 
         try {
             const commentData: Omit<Comment, 'id' | 'timestamp' | 'ventId' | 'replies'> = {
                 userId: user.uid,
                 authorName: user.username,
                 authorPhotoURL: user.photoURL,
+                authorRole: user.role || 'user',
                 text: text,
                 parentId: parentId
             };

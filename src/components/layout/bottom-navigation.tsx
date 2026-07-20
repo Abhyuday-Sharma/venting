@@ -17,7 +17,7 @@ export function BottomNavigation() {
 
   const navItems = [
     {
-      label: "Dashboard",
+      label: user?.role === 'owner' || user?.role === 'moderator' ? "History" : "Dashboard",
       href: "/dashboard",
       icon: LayoutDashboard,
     },

@@ -227,10 +227,15 @@ export function PublicFeed() {
     };
 
     const handleAdminDelete = async (ventToDelete: Vent) => {
-        if (!user || (user.role !== 'owner' && user.role !== 'admin') || !adminDeleteReason.trim()) {
+        if (!user || (user.role !== 'owner' && user.role !== 'admin' && user.role !== 'moderator') || !adminDeleteReason.trim()) {
             toast({ variant: "destructive", title: "Permission Denied or Reason Missing" });
             return;
-        };
+        }
+        
+        if (ventToDelete.isIncognito) {
+            toast({ variant: "destructive", title: "Cannot Delete Anonymous Vent", description: "Anonymous vents are handled by AI moderation." });
+            return;
+        }
     
         setIsDeleting(true);
         try {
@@ -328,9 +333,13 @@ export function PublicFeed() {
                                     <div className="flex-1">
                                         <div className="flex justify-between items-center">
                                             {isClickableAuthor ? (
-                                                <Link href={`/u/${vent.authorName}`} className="font-semibold hover:underline">
-                                                    {vent.authorName}
-                                                </Link>
+                                                <div className="flex items-center gap-2">
+                                                    <Link href={`/u/${vent.authorName}`} className="font-semibold hover:underline">
+                                                        {vent.authorName}
+                                                    </Link>
+                                                    {vent.authorRole === 'owner' && <Badge className="bg-amber-500 hover:bg-amber-600 text-[10px] px-1.5 py-0">FOUNDER</Badge>}
+                                                    {vent.authorRole === 'moderator' && <Badge className="bg-blue-500 hover:bg-blue-600 text-[10px] px-1.5 py-0">MODERATOR</Badge>}
+                                                </div>
                                             ) : (
                                                 <p className="font-semibold">{vent.authorName}</p>
                                             )}

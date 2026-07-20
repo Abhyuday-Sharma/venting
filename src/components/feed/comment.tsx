@@ -6,6 +6,7 @@ import { formatDistanceToNow } from "date-fns";
 import { Timestamp } from "firebase/firestore";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
 import type { Comment } from "@/lib/types";
@@ -23,6 +24,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { adminDeleteComment } from "@/lib/firebase";
 import { submitReportAndTakeAction } from "@/lib/firebase";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { ReportReasonCategory } from "@/lib/types";
@@ -53,6 +55,10 @@ export function CommentWithReplies({ comment, ventId, onReply, isPosting, onComm
     const [reportReason, setReportReason] = useState("");
     const [reportCategory, setReportCategory] = useState<ReportReasonCategory | ''>('');
     const [isSubmittingReport, setIsSubmittingReport] = useState(false);
+    
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [adminDeleteReason, setAdminDeleteReason] = useState("");
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const hasReplies = comment.replies && comment.replies.length > 0;
     const isBanned = user?.banStatus && user.banStatus !== 'none';
@@ -96,6 +102,26 @@ export function CommentWithReplies({ comment, ventId, onReply, isPosting, onComm
         }
     };
     
+    const handleAdminDelete = async () => {
+        if (!user || (user.role !== 'owner' && user.role !== 'admin' && user.role !== 'moderator') || !adminDeleteReason.trim()) {
+            toast({ variant: "destructive", title: "Permission Denied or Reason Missing" });
+            return;
+        }
+        setIsDeleting(true);
+        try {
+            await adminDeleteComment(ventId, comment, user, adminDeleteReason);
+            toast({ title: "Comment Deleted" });
+            setIsDeleteDialogOpen(false);
+            // We just hide it in UI since we don't have a direct callback to remove it from the list here
+            onCommentReported(comment.id); 
+        } catch (error: any) {
+            toast({ variant: "destructive", title: "Deletion Failed", description: error.message });
+        } finally {
+            setIsDeleting(false);
+            setAdminDeleteReason("");
+        }
+    };
+    
     if (comment.isHidden) {
         return (
             <div className="text-sm text-muted-foreground italic bg-muted/50 rounded-lg p-3 ml-11">
@@ -114,7 +140,11 @@ export function CommentWithReplies({ comment, ventId, onReply, isPosting, onComm
                 </Avatar>
                 <div className="flex-1 bg-muted/50 rounded-lg p-3">
                     <div className="flex items-baseline gap-2">
-                        <p className="font-semibold text-sm">{comment.authorName}</p>
+                        <div className="flex items-center gap-2">
+                            <p className="font-semibold text-sm">{comment.authorName}</p>
+                            {comment.authorRole === 'owner' && <Badge className="bg-amber-500 hover:bg-amber-600 text-[10px] px-1.5 py-0">FOUNDER</Badge>}
+                            {comment.authorRole === 'moderator' && <Badge className="bg-blue-500 hover:bg-blue-600 text-[10px] px-1.5 py-0">MODERATOR</Badge>}
+                        </div>
                         <p className="text-xs text-muted-foreground">
                             {comment.timestamp ? formatDistanceToNow((comment.timestamp as Timestamp).toDate(), { addSuffix: true }) : 'just now'}
                         </p>
@@ -137,9 +167,41 @@ export function CommentWithReplies({ comment, ventId, onReply, isPosting, onComm
                         {isExpanded ? 'Hide replies' : `Show ${comment.replies!.length} ${comment.replies!.length === 1 ? 'reply' : 'replies'}`}
                     </Button>
                 )}
+                
+                {user && (user.role === 'owner' || user.role === 'admin' || user.role === 'moderator') && (
+                    <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="sm" className="text-xs h-auto py-1 px-2 text-destructive hover:text-destructive hover:bg-destructive/10">
+                                Delete
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Comment as Moderator?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone. Please provide a reason for the audit log.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <div className="grid gap-4 py-4">
+                                <Textarea 
+                                    placeholder="Reason for deletion..."
+                                    value={adminDeleteReason}
+                                    onChange={(e) => setAdminDeleteReason(e.target.value)}
+                                />
+                            </div>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleAdminDelete} className="bg-destructive hover:bg-destructive/90" disabled={isDeleting || !adminDeleteReason.trim()}>
+                                    {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Delete Comment"}
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                )}
+                
                 <AlertDialog open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}>
                     <Button 
-                        variant="ghost" 
+                        variant="ghost"  
                         size="sm" 
                         className="text-xs h-auto py-1 px-2 text-muted-foreground"
                         onClick={() => {
