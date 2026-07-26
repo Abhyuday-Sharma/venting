@@ -12,10 +12,11 @@ import { formatDistanceToNow } from "date-fns";
 import { Timestamp, doc, updateDoc, increment, arrayUnion, arrayRemove, collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Heart, Hand, Flag, User as UserIcon, ShieldAlert, Loader2, EyeOff, Clock } from "lucide-react";
+import { MessageCircle, Heart, HeartHandshake, Flag, User as UserIcon, ShieldAlert, Loader2, EyeOff, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import { useReactionBurst, useStaggerAnimate } from "@/hooks/use-anime";
 import { CommentSheet } from "./comment-sheet";
 import Link from "next/link";
 import {
@@ -67,6 +68,8 @@ export function PublicFeed() {
     const { toast } = useToast();
     const searchParams = useSearchParams();
     const router = useRouter();
+    const { triggerBurst } = useReactionBurst();
+    const containerRef = useStaggerAnimate<HTMLDivElement>(".glass-card");
     const [vents, setVents] = useState<Vent[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedVentId, setSelectedVentId] = useState<string | null>(null);
@@ -301,7 +304,7 @@ export function PublicFeed() {
                         </Button>
                     ))}
                 </div>
-                <div className="mt-8 space-y-6">
+                <div ref={containerRef} className="mt-8 space-y-6">
                     {filteredVents.length === 0 ? (
                          <div className="text-center py-16 px-4 border-2 border-dashed rounded-lg bg-card/50">
                             <h2 className="text-2xl font-semibold mb-2 font-headline">No vents found</h2>
@@ -370,7 +373,10 @@ export function PublicFeed() {
                                             variant="ghost"
                                             size="sm"
                                             className="hover:scale-110 active:scale-90 transition-transform duration-150 hover:text-red-500"
-                                            onClick={() => handleReaction(vent.id!, 'hearts')}
+                                            onClick={(e) => {
+                                              triggerBurst(e, 'heart');
+                                              handleReaction(vent.id!, 'hearts');
+                                            }}
                                         >
                                             <Heart className={`mr-2 h-4 w-4 transition-all ${vent.heartedBy?.includes(user?.uid || '') ? 'text-red-500 fill-red-500 drop-shadow-[0_0_6px_rgba(239,68,68,0.8)]' : ''}`} />
                                             {vent.hearts || 0}
@@ -378,10 +384,14 @@ export function PublicFeed() {
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            className="hover:scale-110 active:scale-90 transition-transform duration-150 hover:text-yellow-500"
-                                            onClick={() => handleReaction(vent.id!, 'hugs')}
+                                            className="hover:scale-110 active:scale-90 transition-transform duration-150 hover:text-blue-500"
+                                            onClick={(e) => {
+                                              triggerBurst(e, 'hug');
+                                              handleReaction(vent.id!, 'hugs');
+                                            }}
+                                            title="Send a Hug"
                                         >
-                                            <Hand className={`mr-2 h-4 w-4 transition-all ${vent.huggedBy?.includes(user?.uid || '') ? 'text-yellow-500 drop-shadow-[0_0_6px_rgba(234,179,8,0.8)]' : ''}`} />
+                                            <HeartHandshake className={`mr-2 h-4 w-4 transition-all ${vent.huggedBy?.includes(user?.uid || '') ? 'text-blue-500 drop-shadow-[0_0_6px_rgba(59,130,246,0.8)]' : ''}`} />
                                             {vent.hugs || 0}
                                         </Button>
                                         <Tooltip>

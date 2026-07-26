@@ -5,10 +5,13 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { generateReflectionPrompts } from "@/actions/ai";
-import { Sparkles, X, ChevronDown, ChevronUp } from "lucide-react";
+import { generateReflectionPrompts, generateMicroActionItem } from "@/actions/ai";
+import { Sparkles, X, ChevronDown, ChevronUp, Loader2, Pin } from "lucide-react";
 import type { Vent } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
+import { db } from "@/lib/firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 interface ReflectionPromptCardProps {
   vent: Vent;
@@ -20,12 +23,56 @@ interface ReflectionPrompt {
 }
 
 export function ReflectionPromptCard({ vent }: ReflectionPromptCardProps) {
+  const { user } = useAuth();
   const [prompts, setPrompts] = useState<ReflectionPrompt[]>([]);
   const [acknowledgement, setAcknowledgement] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [dismissed, setDismissed] = useState(false);
   const [expanded, setExpanded] = useState(true);
   const [error, setError] = useState(false);
+
+  const [actionItem, setActionItem] = useState<string>("");
+  const [comfortMessage, setComfortMessage] = useState<string>("");
+  const [generatingAction, setGeneratingAction] = useState(false);
+  const [pinned, setPinned] = useState(false);
+
+  const handleGenerateAction = async () => {
+    setGeneratingAction(true);
+    const result = await generateMicroActionItem(vent.text, vent.category || "General");
+    if (result.success && result.data) {
+      setActionItem(result.data.actionItem);
+      setComfortMessage(result.data.comfortMessage);
+    }
+    setGeneratingAction(false);
+  };
+
+  const handlePinAction = async () => {
+    if (!actionItem) return;
+    try {
+      if (user) {
+        await addDoc(collection(db, "users", user.uid, "goals"), {
+          text: actionItem,
+          category: vent.category || "General",
+          completed: false,
+          createdAt: serverTimestamp(),
+        });
+      } else {
+        const localGoalsRaw = localStorage.getItem("guest_goals");
+        const localGoals = localGoalsRaw ? JSON.parse(localGoalsRaw) : [];
+        localGoals.push({
+          id: "goal_" + Math.random().toString(36).substr(2, 9),
+          text: actionItem,
+          category: vent.category || "General",
+          completed: false,
+          createdAt: Date.now(),
+        });
+        localStorage.setItem("guest_goals", JSON.stringify(localGoals));
+      }
+      setPinned(true);
+    } catch (e) {
+      console.error("Failed to pin goal:", e);
+    }
+  };
 
   useEffect(() => {
     if (!vent.text || vent.isPublic) {
@@ -141,7 +188,41 @@ export function ReflectionPromptCard({ vent }: ReflectionPromptCardProps) {
             ))}
           </div>
 
-          <p className="text-[11px] text-muted-foreground/60 text-center pt-1">
+          {!actionItem && !generatingAction && (
+            <div className="mt-4 pt-4 border-t border-border/30 flex flex-col items-center gap-2">
+              <p className="text-xs text-muted-foreground text-center">Would you like a gentle, 5-minute action item based on this reflection?</p>
+              <Button variant="outline" size="sm" onClick={handleGenerateAction} className="text-xs border-primary/20 hover:bg-primary/5">
+                Generate 5-minute action item
+              </Button>
+            </div>
+          )}
+
+          {generatingAction && (
+            <div className="mt-4 pt-4 border-t border-border/30 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              <span>Generating a mindful action for you...</span>
+            </div>
+          )}
+
+          {actionItem && (
+            <div className="mt-4 pt-4 border-t border-border/30 space-y-3">
+              <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 text-left relative overflow-hidden">
+                <span className="text-[10px] font-semibold text-primary uppercase tracking-wider block">Suggested Micro-Goal</span>
+                <p className="text-sm font-medium mt-1 text-foreground">{actionItem}</p>
+                {comfortMessage && <p className="text-xs text-muted-foreground mt-2 italic">"{comfortMessage}"</p>}
+              </div>
+              {!pinned ? (
+                <Button size="sm" onClick={handlePinAction} className="w-full text-xs gap-1.5">
+                  <Pin className="h-3 w-3" />
+                  Add to My Dashboard Goals
+                </Button>
+              ) : (
+                <p className="text-xs text-green-600 dark:text-green-400 font-semibold text-center py-1">✓ Added to your goals list</p>
+              )}
+            </div>
+          )}
+
+          <p className="text-[11px] text-muted-foreground/60 text-center pt-2">
             AI-generated reflections · Not clinical advice
           </p>
         </CardContent>

@@ -33,7 +33,7 @@ export function BottomNavigation() {
       isPrimary: true,
     },
     {
-      label: "Moments",
+      label: "Bright Spots",
       href: "/moments",
       icon: Smile,
     },

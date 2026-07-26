@@ -114,3 +114,25 @@ export async function checkCommentEmpathy(
     };
   }
 }
+
+import { generateActionItemFlow, type ActionItemOutput } from "@/ai/flows/ai-action-item";
+
+/**
+ * Generates a 5-minute micro-action item based on a user's vent.
+ */
+export async function generateMicroActionItem(
+  text: string,
+  category: string
+): Promise<{ success: boolean; data?: ActionItemOutput; error?: string }> {
+  if (!text || text.trim().length === 0) {
+    return { success: false, error: "No text provided for generating action item." };
+  }
+  try {
+    const result = await generateActionItemFlow({ text, category });
+    return { success: true, data: result };
+  } catch (error) {
+    console.error("Error generating micro-action item:", error);
+    return { success: false, error: "Failed to generate action item." };
+  }
+}
+

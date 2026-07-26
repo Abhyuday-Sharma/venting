@@ -113,6 +113,13 @@ service cloud.firestore {
         // Owner can delete their notifications
         allow delete: if isOwner(userId);
       }
+
+      // ── Goals Subcollection ──
+      // /users/{userId}/goals/{goalId}
+      match /goals/{goalId} {
+        // Only the owner can read and write their goals
+        allow read, write: if isOwner(userId);
+      }
     }
 
     // ─────────────────────────────────────────────────────────

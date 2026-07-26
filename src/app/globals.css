@@ -174,4 +174,70 @@
     50%  { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
   }
+
+  /* Burn & Dissolve Animation */
+  @keyframes burn-dissolve {
+    0% {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      filter: blur(0px) brightness(1);
+    }
+    30% {
+      opacity: 0.9;
+      filter: blur(2px) brightness(1.8) drop-shadow(0 0 15px hsl(var(--destructive)));
+      transform: scale(1.02) translateY(-2px);
+    }
+    60% {
+      filter: blur(8px) brightness(2.5) drop-shadow(0 0 30px #f59e0b);
+      transform: scale(0.95) translateY(-15px) skewX(5deg);
+    }
+    100% {
+      opacity: 0;
+      filter: blur(25px) brightness(4) drop-shadow(0 0 50px #ef4444);
+      transform: scale(0.7) translateY(-40px) skewX(-15deg);
+    }
+  }
+
+  /* Container glow during burn */
+  @keyframes burn-glow {
+    0%, 100% {
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+    50% {
+      box-shadow: 0 0 40px 10px rgba(239, 68, 68, 0.4), 0 0 60px 20px rgba(245, 158, 11, 0.2);
+      border-color: rgba(239, 68, 68, 0.6);
+    }
+  }
+
+  .animate-burn-dissolve {
+    animation: burn-dissolve 2.2s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
+  }
+
+  .animate-burn-glow {
+    animation: burn-glow 2.2s ease-in-out forwards;
+  }
+
+  /* Full page burn flash overlay */
+  @keyframes page-burn-flash {
+    0% { opacity: 0; backdrop-filter: blur(0px); }
+    30% { opacity: 0.3; backdrop-filter: blur(2px); }
+    60% { opacity: 0.6; backdrop-filter: blur(4px); }
+    100% { opacity: 0; backdrop-filter: blur(0px); }
+  }
+
+  .animate-page-burn-flash {
+    animation: page-burn-flash 2.2s ease-out forwards;
+  }
+
+  /* Consoling Message Animation */
+  @keyframes message-fade-out {
+    0% { opacity: 0; transform: translateY(15px) scale(0.98); }
+    15% { opacity: 1; transform: translateY(0) scale(1); }
+    85% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-15px) scale(1.02); }
+  }
+
+  .animate-message-fade {
+    animation: message-fade-out 4s ease-in-out forwards;
+  }
 }

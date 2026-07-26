@@ -8,6 +8,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
+import { cn } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -72,37 +73,61 @@ export function AppHeader() {
             <Logo />
           </Link>
         </div>
-        <nav className="hidden md:flex flex-1 items-center space-x-6 text-sm font-medium">
+        <nav className="hidden md:flex flex-1 items-center space-x-3 lg:space-x-6 text-sm font-medium">
             {!isAuthPage && (
               <Link
                   href="/feed"
-                  className="transition-colors hover:text-foreground/80 text-foreground/60"
+                  className={cn(
+                    "transition-all hover:text-foreground relative py-1",
+                    pathname === "/feed" ? "text-foreground font-semibold" : "text-muted-foreground"
+                  )}
               >
                   Public Feed
+                  {pathname === "/feed" && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                  )}
               </Link>
             )}
             {user && (
               <Link
                   href="/dashboard"
-                  className="transition-colors hover:text-foreground/80 text-foreground/60"
+                  className={cn(
+                    "transition-all hover:text-foreground relative py-1",
+                    pathname === "/dashboard" ? "text-foreground font-semibold" : "text-muted-foreground"
+                  )}
               >
                   {user.role === 'owner' || user.role === 'moderator' ? 'Report History' : 'Dashboard'}
+                  {pathname === "/dashboard" && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                  )}
               </Link>
             )}
             {!isAuthPage && (
               <Link
                   href="/vent"
-                  className="transition-colors hover:text-foreground/80 text-foreground/60"
+                  className={cn(
+                    "transition-all hover:text-foreground relative py-1",
+                    pathname === "/vent" ? "text-foreground font-semibold" : "text-muted-foreground"
+                  )}
               >
                   Vent
+                  {pathname === "/vent" && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                  )}
               </Link>
             )}
             {user && (
                 <Link
                     href="/moments"
-                    className="transition-colors hover:text-foreground/80 text-foreground/60"
+                    className={cn(
+                      "transition-all hover:text-foreground relative py-1",
+                      pathname === "/moments" ? "text-foreground font-semibold" : "text-muted-foreground"
+                    )}
                 >
-                    Moments
+                    Bright Spots
+                    {pathname === "/moments" && (
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                    )}
                 </Link>
             )}
         </nav>
@@ -143,7 +168,7 @@ export function AppHeader() {
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => router.push('/moments')}>
                     <Smile className="mr-2 h-4 w-4" />
-                    <span>Happy Moments</span>
+                    <span>Bright Spots</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => router.push('/vent')}>
                     <PenSquare className="mr-2 h-4 w-4" />

@@ -20,6 +20,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Checkbox } from '../ui/checkbox';
 import { LegalDocViewer } from './legal-doc-viewer';
 import { Loader2 } from 'lucide-react';
@@ -219,10 +220,10 @@ export function LoginForm() {
     <>
     <LegalDocViewer type={showLegal} onOpenChange={() => setShowLegal(null)} />
     <div className="absolute inset-0 animated-gradient -z-10" />
-    <div className="relative w-full h-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-20 p-4 sm:p-8">
+    <div className="relative w-full h-full max-w-5xl mx-auto flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-16 p-4 sm:p-8">
         
         {/* Floating Quotes - Hidden on mobile, visible on large screens */}
-        <div className="hidden lg:flex flex-col justify-center max-w-lg w-full h-[300px]">
+        <div className="hidden lg:flex flex-1 flex-col justify-center items-center max-w-md">
            <div className="relative h-32 w-full flex items-center justify-center text-center">
              {quotes.map((quote, idx) => (
                <p
@@ -237,57 +238,49 @@ export function LoginForm() {
            </div>
         </div>
 
-        <Card className="w-full max-w-[420px] z-10 glass-card shadow-lg">
-            <CardHeader className="text-center p-6 pb-2 sm:p-8 sm:pb-4">
-                <div className="hidden sm:flex justify-center mb-4 sm:mb-6">
+        <Card className="w-full max-w-[400px] z-10 glass-card shadow-lg">
+            <CardHeader className="text-center px-5 pt-5 pb-1">
+                <div className="hidden sm:flex justify-center mb-2">
                     <Logo />
                 </div>
-                <p className="font-medium text-foreground/80 tracking-wide pb-1 text-sm sm:text-base hidden sm:block">Express. Release. Reflect.</p>
-                <CardDescription className="text-xs sm:text-sm">A safe space for your thoughts. Sign in to continue.</CardDescription>
+                <p className="font-medium text-foreground/80 tracking-wide pb-0.5 text-sm hidden sm:block">Express. Release. <span className="bg-gradient-to-r from-[hsl(238,76%,67%)] to-[hsl(270,67%,60%)] bg-clip-text text-transparent">Grow.</span></p>
+                <CardDescription className="text-xs">A safe space for your thoughts. Sign in to continue.</CardDescription>
             </CardHeader>
-            <CardContent className="grid gap-3 sm:gap-4 p-6 pt-2 sm:p-8 sm:pt-4">
+            <CardContent className="grid gap-2 px-5 pt-1 pb-4">
               <Tabs defaultValue="signin" className="w-full" onValueChange={(value) => setActiveTab(value)}>
-                <TabsList className="grid w-full grid-cols-2 h-9 sm:h-10">
-                  <TabsTrigger value="signin" className="text-xs sm:text-sm">Sign In</TabsTrigger>
-                  <TabsTrigger value="signup" className="text-xs sm:text-sm">Sign Up</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-2 h-8">
+                  <TabsTrigger value="signin" className="text-xs">Sign In</TabsTrigger>
+                  <TabsTrigger value="signup" className="text-xs">Sign Up</TabsTrigger>
                 </TabsList>
                 
-                <TabsContent value="signin" className="space-y-2.5 sm:space-y-4 pt-2 sm:pt-4">
-                  <div className="space-y-1 sm:space-y-2">
-                    <Label htmlFor="email-signin" className="text-xs sm:text-sm">Email</Label>
-                    <Input id="email-signin" type="email" placeholder="m@example.com" value={signInEmail} onChange={(e) => setSignInEmail(e.target.value)} required disabled={!!loading} className="h-9 sm:h-10" />
+                <TabsContent value="signin" className="space-y-2 pt-2">
+                  <div className="space-y-1">
+                    <Label htmlFor="email-signin" className="text-xs">Email</Label>
+                    <Input id="email-signin" type="email" placeholder="m@example.com" value={signInEmail} onChange={(e) => setSignInEmail(e.target.value)} required disabled={!!loading} className="h-8" />
                   </div>
-                  <div className="space-y-1 sm:space-y-2">
-                    <Label htmlFor="password-signin" className="text-xs sm:text-sm">Password</Label>
-                    <Input id="password-signin" type="password" value={signInPassword} onChange={(e) => setSignInPassword(e.target.value)} required disabled={!!loading} className="h-9 sm:h-10" />
+                  <div className="space-y-1">
+                    <Label htmlFor="password-signin" className="text-xs">Password</Label>
+                    <Input id="password-signin" type="password" value={signInPassword} onChange={(e) => setSignInPassword(e.target.value)} required disabled={!!loading} className="h-8" />
                   </div>
-                  <Button onClick={handleEmailSignIn} disabled={!!loading} className="w-full h-9 sm:h-10 text-xs sm:text-sm">
-                      {loading === 'email-signin' ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Sign In'}
+                  <Button onClick={handleEmailSignIn} disabled={!!loading} className="w-full h-8 text-xs">
+                      {loading === 'email-signin' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Sign In'}
                   </Button>
 
-                  {/* Forgot Password */}
                   {!showForgotPassword ? (
                     <button
                       type="button"
-                      className="text-[10px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors w-full text-center mt-0.5"
+                      className="text-[10px] text-muted-foreground hover:text-foreground transition-colors w-full text-center"
                       onClick={() => { setShowForgotPassword(true); setResetEmail(signInEmail); setResetSent(false); }}
                     >
                       Forgot password?
                     </button>
                   ) : resetSent ? (
-                    <p className="text-[10px] sm:text-xs text-center text-green-600 dark:text-green-400 mt-0.5">
+                    <p className="text-[10px] text-center text-green-600 dark:text-green-400">
                       ✓ Reset link sent! Check your inbox.
                     </p>
                   ) : (
-                    <div className="space-y-1.5 pt-1">
-                      <Input
-                        type="email"
-                        placeholder="Enter your email"
-                        value={resetEmail}
-                        onChange={(e) => setResetEmail(e.target.value)}
-                        disabled={resetLoading}
-                        className="h-8 text-xs"
-                      />
+                    <div className="space-y-1.5">
+                      <Input type="email" placeholder="Enter your email" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} disabled={resetLoading} className="h-7 text-xs" />
                       <div className="flex gap-2">
                         <Button variant="ghost" size="sm" className="flex-1 h-7 text-[10px]" onClick={() => setShowForgotPassword(false)}>Cancel</Button>
                         <Button size="sm" className="flex-1 h-7 text-[10px]" onClick={handleForgotPassword} disabled={resetLoading}>
@@ -298,63 +291,54 @@ export function LoginForm() {
                   )}
                 </TabsContent>
 
-                <TabsContent value="signup" className="space-y-2.5 sm:space-y-4 pt-2 sm:pt-4">
-                  <div className="space-y-1 sm:space-y-2">
-                    <Label htmlFor="email-signup" className="text-xs sm:text-sm">Email</Label>
-                    <Input id="email-signup" type="email" placeholder="m@example.com" value={signUpEmail} onChange={(e) => setSignUpEmail(e.target.value)} required disabled={!!loading} className="h-9 sm:h-10" />
+                <TabsContent value="signup" className="space-y-2 pt-2">
+                  <div className="space-y-1">
+                    <Label htmlFor="email-signup" className="text-xs">Email</Label>
+                    <Input id="email-signup" type="email" placeholder="m@example.com" value={signUpEmail} onChange={(e) => setSignUpEmail(e.target.value)} required disabled={!!loading} className="h-8" />
                   </div>
-                  <div className="space-y-1 sm:space-y-2">
-                    <Label htmlFor="password-signup" className="text-xs sm:text-sm">Password</Label>
-                    <Input id="password-signup" type="password" value={signUpPassword} onChange={(e) => setSignUpPassword(e.target.value)} required disabled={!!loading} className="h-9 sm:h-10" />
+                  <div className="space-y-1">
+                    <Label htmlFor="password-signup" className="text-xs">Password</Label>
+                    <Input id="password-signup" type="password" value={signUpPassword} onChange={(e) => setSignUpPassword(e.target.value)} required disabled={!!loading} className="h-8" />
                   </div>
-
-                  <div className="space-y-1.5 sm:space-y-2">
+                  <div className="space-y-1">
                     <div className="flex items-start space-x-2">
                         <Checkbox id="terms" checked={agreedToTerms} onCheckedChange={(checked) => setAgreedToTerms(Boolean(checked))} disabled={!!loading} className="mt-0.5 h-3.5 w-3.5" />
-                        <Label htmlFor="terms" className="text-xs font-normal leading-tight peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                            I agree to the <Button variant="link" size="sm" className="p-0 h-auto text-xs text-primary hover:underline" onClick={() => setShowLegal("terms")}>Terms and Conditions</Button>.
+                        <Label htmlFor="terms" className="text-[11px] font-normal leading-tight">
+                            I agree to the <Button variant="link" size="sm" className="p-0 h-auto text-[11px] text-primary hover:underline" onClick={() => setShowLegal("terms")}>Terms and Conditions</Button>.
                         </Label>
                     </div>
                      <div className="flex items-start space-x-2">
                         <Checkbox id="policy" checked={agreedToPolicy} onCheckedChange={(checked) => setAgreedToPolicy(Boolean(checked))} disabled={!!loading} className="mt-0.5 h-3.5 w-3.5" />
-                        <Label htmlFor="policy" className="text-xs font-normal leading-tight peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                            I agree to the <Button variant="link" size="sm" className="p-0 h-auto text-xs text-primary hover:underline" onClick={() => setShowLegal("privacy")}>Privacy Policy</Button>.
+                        <Label htmlFor="policy" className="text-[11px] font-normal leading-tight">
+                            I agree to the <Button variant="link" size="sm" className="p-0 h-auto text-[11px] text-primary hover:underline" onClick={() => setShowLegal("privacy")}>Privacy Policy</Button>.
                         </Label>
                     </div>
                   </div>
-
-                  <div className="grid grid-cols-2 gap-2 pt-1">
-                    <Button variant="outline" onClick={handleDecline} disabled={!!loading} className="h-9 sm:h-10 text-xs sm:text-sm">Decline</Button>
-                    <Button onClick={handleEmailSignUp} disabled={isSignUpButtonDisabled} className="h-9 sm:h-10 text-xs sm:text-sm">
-                        {loading === 'email-signup' ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Sign Up'}
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button variant="outline" onClick={handleDecline} disabled={!!loading} className="h-8 text-xs">Decline</Button>
+                    <Button onClick={handleEmailSignUp} disabled={isSignUpButtonDisabled} className="h-8 text-xs">
+                        {loading === 'email-signup' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Sign Up'}
                     </Button>
                   </div>
-
                 </TabsContent>
               </Tabs>
               
-              <div className="relative my-0.5 sm:my-1">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-[10px] sm:text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    {activeTab === 'signin' ? 'Or sign in with' : 'Or sign up with'}
-                  </span>
+              <div className="relative my-0.5">
+                <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+                <div className="relative flex justify-center text-[10px] uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">{activeTab === 'signin' ? 'Or sign in with' : 'Or sign up with'}</span>
                 </div>
               </div>
 
-              <Button variant="outline" onClick={handleGoogleSignIn} disabled={!!loading || (activeTab === 'signup' && isSignUpButtonDisabled)} className="w-full h-9 sm:h-10 text-xs sm:text-sm">
-                  {loading === 'google' ? <Loader2 className="h-4 w-4 animate-spin" /> : <><GoogleIcon /> {activeTab === 'signup' ? 'Sign up with Google' : 'Sign in with Google'}</>}
+              <Button variant="outline" onClick={handleGoogleSignIn} disabled={!!loading || (activeTab === 'signup' && isSignUpButtonDisabled)} className="w-full h-8 text-xs">
+                  {loading === 'google' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <><GoogleIcon /> {activeTab === 'signup' ? 'Sign up with Google' : 'Sign in with Google'}</>}
               </Button>
-              <div className="pt-2">
-                <Button 
-                    variant="ghost" 
-                    onClick={() => router.push('/welcome')} 
-                    disabled={!!loading} 
-                    className="w-full h-9 sm:h-10 text-xs sm:text-sm text-muted-foreground hover:text-foreground"
-                >
+              <div className="flex flex-col items-center pt-0.5">
+                <Button variant="ghost" onClick={() => router.push('/welcome')} disabled={!!loading} className="w-full h-7 text-[11px] text-muted-foreground hover:text-foreground">
                     Explore Venting as a Guest
+                </Button>
+                <Button asChild variant="link" className="w-full h-5 text-[10px] text-muted-foreground hover:text-foreground">
+                    <Link href="/showcase">✨ Discover what Venting is all about</Link>
                 </Button>
               </div>
             </CardContent>

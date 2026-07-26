@@ -37,7 +37,7 @@ export default function MainLayout({
                         <Link href="/about">About</Link>
                     </Button>
                     <Button asChild variant="link">
-                        <Link href="/moments">Moments</Link>
+                        <Link href="/moments">Bright Spots</Link>
                     </Button>
                     <Button asChild variant="link">
                         <Link href="/feedback">Feedback</Link>

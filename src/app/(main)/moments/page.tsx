@@ -5,7 +5,7 @@
 import { useState } from "react";
 import ProtectedPage from "@/components/auth/protected-page";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Award, Feather, HandHeart, Leaf, Loader2, Sparkles, Sun, Sunrise, BookHeart } from "lucide-react";
+import { Award, Feather, HeartHandshake, Leaf, Loader2, Sparkles, Sun, Sunrise, BookHeart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/hooks/use-auth";
@@ -137,7 +137,7 @@ export default function MomentsPage() {
                         <div className="flex justify-center items-center gap-4">
                            <Sun className="h-10 w-10 text-amber-500/80" />
                             <h1 className="text-4xl md:text-5xl font-headline font-semibold text-amber-800 dark:text-amber-300">
-                                Happy & Neutral Moments
+                                Bright Spots
                             </h1>
                              <Leaf className="h-10 w-10 text-green-600/70 dark:text-green-400/70 transform -scale-x-100" />
                         </div>
@@ -148,7 +148,7 @@ export default function MomentsPage() {
                             <Button asChild>
                                 <Link href="/moments/my-moments">
                                     <BookHeart className="mr-2 h-4 w-4" />
-                                    View My Moments
+                                    View My Bright Spots
                                 </Link>
                             </Button>
                         </div>
@@ -176,7 +176,7 @@ export default function MomentsPage() {
                              onMomentSaved={triggerAcknowledgement}
                         />
                          <InteractiveMomentCard
-                            icon={<HandHeart className="h-6 w-6" />}
+                            icon={<HeartHandshake className="h-6 w-6" />}
                             title="Gratitude Corner"
                             prompt="What are you thankful for? Perhaps a friend checking in, or the beautiful evening sky."
                              cardClass="border-rose-500/10"

@@ -80,7 +80,10 @@ export function FeedbackForm() {
         <CardDescription>
           This is a new platform, and your feedback is crucial for helping us
           improve and fix bugs. Thank you for taking the time to share your
-          thoughts!
+          thoughts! You can also reach out directly at{" "}
+          <a href="mailto:support@venting.in" className="underline font-medium hover:text-primary transition-colors">
+            support@venting.in
+          </a>.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">

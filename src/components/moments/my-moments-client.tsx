@@ -67,7 +67,7 @@ export function MyMomentsClient() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold font-headline">My Private Moments</h1>
+        <h1 className="text-3xl font-bold font-headline">My Bright Spots</h1>
         <p className="text-muted-foreground">
           A journal of your saved wins, joys, and reflections.
         </p>
@@ -113,12 +113,12 @@ export function MyMomentsClient() {
           <CardHeader>
             <CardTitle className="flex items-center justify-center">
               <BookHeart className="mr-2 h-8 w-8 text-muted-foreground" />
-              No Moments Saved Yet
+              No Bright Spots Saved Yet
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">
-              Your private moments will appear here once you save them.
+              Your private bright spots will appear here once you save them.
             </p>
           </CardContent>
         </Card>

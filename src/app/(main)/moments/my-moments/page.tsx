@@ -13,13 +13,13 @@ export default function MyMomentsPage() {
         <Button asChild variant="ghost" className="mb-4 pl-1">
           <Link href="/moments">
             <ChevronLeft className="h-4 w-4 mr-2" />
-            Back to Happy Moments
+            Back to Bright Spots
           </Link>
         </Button>
         <Suspense
           fallback={
             <div className="container mx-auto p-4 md:p-8">
-              Loading your moments...
+              Loading your bright spots...
             </div>
           }
         >
