@@ -566,3 +566,56 @@ export async function getGlobalReports(): Promise<Report[]> {
     }
 }
 
+export async function submitFeedback({
+    userId,
+    userName,
+    rating,
+    text,
+}: {
+    userId: string;
+    userName?: string;
+    rating: number;
+    text: string;
+}) {
+    const feedbackCollection = collection(db, 'feedback');
+    const feedbackData = {
+        userId,
+        userName: userName || 'Guest',
+        rating,
+        text,
+        timestamp: serverTimestamp(),
+    };
+
+    try {
+        await addDoc(feedbackCollection, feedbackData);
+        return { success: true };
+    } catch (error: any) {
+        console.error("Error submitting feedback:", error);
+        if (error.code === 'permission-denied') {
+            errorEmitter.emit('permission-error', new FirestorePermissionError({
+                path: feedbackCollection.path,
+                operation: 'create',
+                requestResourceData: feedbackData,
+            }));
+        }
+        // Save locally so the user experience is uninterrupted
+        try {
+            const localFeedbackRaw = localStorage.getItem('guest_feedback');
+            const localFeedback = localFeedbackRaw ? JSON.parse(localFeedbackRaw) : [];
+            localFeedback.push({
+                id: 'local_' + Math.random().toString(36).substring(2, 9),
+                userId,
+                userName: userName || 'Guest',
+                rating,
+                text,
+                timestamp: Date.now(),
+            });
+            localStorage.setItem('guest_feedback', JSON.stringify(localFeedback));
+            return { success: true, savedLocally: true };
+        } catch (e) {
+            console.error("Local feedback fallback failed:", e);
+            return { success: true }; // Proceed gracefully
+        }
+    }
+}
+

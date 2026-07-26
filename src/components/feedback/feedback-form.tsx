@@ -15,11 +15,8 @@ import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { submitFeedback } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
-
-import { submitFeedbackServerAction } from "@/actions/feedback";
 
 export function FeedbackForm() {
   const { user } = useAuth();
@@ -40,74 +37,29 @@ export function FeedbackForm() {
     }
 
     setIsSubmitting(true);
-    let success = false;
-
-    // Layer 1: Client-side Firestore addDoc
     try {
-      const feedbackCollection = collection(db, "feedback");
-      await addDoc(feedbackCollection, {
+      await submitFeedback({
         userId: user?.uid || "guest_user",
         userName: user?.username || "Guest",
         rating,
         text,
-        timestamp: serverTimestamp(),
       });
-      success = true;
-    } catch (clientErr) {
-      console.warn("Client-side feedback submission failed, trying Server Action fallback...", clientErr);
-    }
 
-    // Layer 2: Server Action fallback if client-side was blocked by cloud rules
-    if (!success) {
-      try {
-        const res = await submitFeedbackServerAction({
-          userId: user?.uid || "guest_user",
-          userName: user?.username || "Guest",
-          rating,
-          text,
-        });
-        if (res.success) {
-          success = true;
-        }
-      } catch (serverErr) {
-        console.warn("Server Action feedback submission failed, saving locally...", serverErr);
-      }
-    }
-
-    // Layer 3: Local Storage fallback so user is never blocked
-    if (!success) {
-      try {
-        const localFeedbackRaw = localStorage.getItem("guest_feedback");
-        const localFeedback = localFeedbackRaw ? JSON.parse(localFeedbackRaw) : [];
-        localFeedback.push({
-          id: "local_" + Math.random().toString(36).substring(2, 9),
-          userId: user?.uid || "guest_user",
-          userName: user?.username || "Guest",
-          rating,
-          text,
-          timestamp: Date.now(),
-        });
-        localStorage.setItem("guest_feedback", JSON.stringify(localFeedback));
-        success = true;
-      } catch (localErr) {
-        console.error("Local feedback storage error:", localErr);
-      }
-    }
-
-    setIsSubmitting(false);
-
-    if (success) {
       toast({
         title: "Feedback Submitted!",
         description: "Thank you for helping us improve the platform.",
       });
+      setText("");
       router.push(user ? "/dashboard" : "/feed");
-    } else {
+    } catch (error: any) {
+      console.error("Error submitting feedback:", error);
       toast({
         variant: "destructive",
         title: "Submission Failed",
-        description: "Could not save your feedback. Please try again.",
+        description: "Could not submit your feedback. Please try again later.",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
