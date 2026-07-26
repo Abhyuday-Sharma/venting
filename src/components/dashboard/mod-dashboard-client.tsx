@@ -85,7 +85,7 @@ export function ModDashboardClient() {
                             </CardHeader>
                             <CardContent>
                                 <div className="bg-muted/30 p-3 rounded-md space-y-2 text-sm">
-                                    <p><span className="font-semibold text-muted-foreground">Category:</span> <Badge variant="secondary" className="ml-1">{report.reasonCategory}</Badge></p>
+                                    <div className="flex items-center gap-1"><span className="font-semibold text-muted-foreground">Category:</span> <Badge variant="secondary">{report.reasonCategory}</Badge></div>
                                     <p><span className="font-semibold text-muted-foreground">Reason Details:</span> {report.reason || 'No additional details provided.'}</p>
                                     <p><span className="font-semibold text-muted-foreground">Reporter UID:</span> {report.reporterId}</p>
                                 </div>
