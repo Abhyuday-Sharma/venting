@@ -113,3 +113,11 @@ export interface AuditLog {
     reason: string;
     timestamp: Timestamp;
 }
+
+export interface FeedbackItem {
+  id: string;
+  userId: string;
+  rating: number;
+  text: string;
+  timestamp: Timestamp;
+}
