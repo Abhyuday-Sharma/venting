@@ -222,6 +222,17 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────────────────────────────────
+    // FEEDBACK COLLECTION
+    // /feedback/{feedbackId}
+    // ─────────────────────────────────────────────────────────
+    match /feedback/{feedbackId} {
+      allow read: if isAdmin();
+      allow create: if isAuthed() && isNotBanned()
+        && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // ─────────────────────────────────────────────────────────
     // DENY ALL OTHER PATHS
     // ─────────────────────────────────────────────────────────
     match /{document=**} {
