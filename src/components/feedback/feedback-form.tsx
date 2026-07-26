@@ -28,15 +28,6 @@ export function FeedbackForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    if (!user) {
-      toast({
-        variant: "destructive",
-        title: "Not authenticated",
-        description: "You must be logged in to submit feedback.",
-      });
-      return;
-    }
-
     if (text.trim().length < 10) {
       toast({
         variant: "destructive",
@@ -50,7 +41,8 @@ export function FeedbackForm() {
     try {
       const feedbackCollection = collection(db, "feedback");
       await addDoc(feedbackCollection, {
-        userId: user.uid,
+        userId: user?.uid || "guest_user",
+        userName: user?.username || "Guest",
         rating,
         text,
         timestamp: serverTimestamp(),
@@ -60,13 +52,13 @@ export function FeedbackForm() {
         title: "Feedback Submitted!",
         description: "Thank you for helping us improve the platform.",
       });
-      router.push("/dashboard");
-    } catch (error) {
+      router.push(user ? "/dashboard" : "/feed");
+    } catch (error: any) {
       console.error("Error submitting feedback:", error);
       toast({
         variant: "destructive",
         title: "Submission Failed",
-        description: "Could not submit your feedback. Please try again later.",
+        description: error?.message || "Could not submit your feedback. Please try again later.",
       });
     } finally {
       setIsSubmitting(false);
