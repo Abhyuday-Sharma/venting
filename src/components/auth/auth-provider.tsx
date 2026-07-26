@@ -64,11 +64,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           const userDocRef = doc(db, "users", firebaseUser.uid);
           
           unsubscribeProfile = onSnapshot(userDocRef, (docSnap) => {
+            const ownerEmails = ['mrsharmaabhyuday@gmail.com'];
+            const adminEmails = ['ventingsupport@gmail.com'];
+            const moderatorEmails = ['ventingmoderation@gmail.com'];
+            const userEmail = firebaseUser.email || '';
+
             if (docSnap.exists()) {
-              // If the user's profile exists in Firestore, set it in our state.
+              const data = docSnap.data();
+              let expectedRole = data.role;
+              if (!expectedRole) {
+                if (ownerEmails.includes(userEmail)) expectedRole = 'owner';
+                else if (moderatorEmails.includes(userEmail)) expectedRole = 'moderator';
+                else if (adminEmails.includes(userEmail)) expectedRole = 'admin';
+                else expectedRole = 'user';
+              }
+
               const userProfile = {
                 uid: docSnap.id,
-                ...docSnap.data(),
+                ...data,
+                role: expectedRole,
               } as UserProfile;
               setUser(userProfile);
               setLoading(false);

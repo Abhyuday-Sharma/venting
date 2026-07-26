@@ -20,6 +20,12 @@ export function ModDashboardClient() {
 
     useEffect(() => {
         if (!user || authLoading) return;
+
+        const isPrivileged = user.role === 'owner' || user.role === 'admin' || user.role === 'moderator';
+        if (!isPrivileged) {
+            setLoading(false);
+            return;
+        }
         
         // Subscribe to Community Reports
         const reportsQuery = query(collection(db, 'reports'), orderBy('timestamp', 'desc'));
@@ -27,7 +33,7 @@ export function ModDashboardClient() {
             const fetchedReports = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Report));
             setReports(fetchedReports);
         }, (error) => {
-            console.error("Failed to fetch reports:", error);
+            console.warn("Could not fetch reports (permission or network):", error.message);
         });
 
         // Subscribe to User App Feedback
@@ -37,7 +43,7 @@ export function ModDashboardClient() {
             setFeedbackList(fetchedFeedback);
             setLoading(false);
         }, (error) => {
-            console.error("Failed to fetch feedback:", error);
+            console.warn("Could not fetch feedback (permission or network):", error.message);
             setLoading(false);
         });
 
