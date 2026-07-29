@@ -20,6 +20,7 @@ export interface UserProfile {
     profileVisibility?: 'public' | 'anonymous';
     defaultPostingMode?: 'private' | 'public';
     language?: string;
+    disableMoodTracking?: boolean;
   };
   usernameLastChanged?: Timestamp;
   hasSupported?: boolean;

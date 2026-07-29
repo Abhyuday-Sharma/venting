@@ -94,26 +94,35 @@ export function MoodChart({ vents, chartTitle, chartDescription }: MoodChartProp
       <CardContent>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <AreaChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
+              <defs>
+                <linearGradient id="colorMood" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
               <XAxis 
                 dataKey="date" 
                 stroke="hsl(var(--muted-foreground))"
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
+                tickMargin={10}
+                minTickGap={15}
               />
               {showEmojisOnAxis ? (
                 <YAxis 
                   domain={[1, 10]} 
                   ticks={[1, 2, 4, 6, 7, 9, 10]}
                   stroke="hsl(var(--muted-foreground))"
-                  fontSize={14}
+                  fontSize={18}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={formatYAxisEmojis}
                   padding={{ top: 10, bottom: 10 }}
                   interval={0}
+                  width={45}
                 />
               ) : (
                 <YAxis 
@@ -123,18 +132,19 @@ export function MoodChart({ vents, chartTitle, chartDescription }: MoodChartProp
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
+                  width={30}
                 />
               )}
               <Tooltip content={<CustomTooltip />} />
               <Area 
-                type="monotone" 
+                type="monotoneX" 
                 dataKey="mood" 
                 stroke="hsl(var(--primary))" 
-                fillOpacity={0.4} 
-                fill="hsl(var(--chart-2))" 
-                strokeWidth={2}
-                dot={{ r: 4, fill: 'hsl(var(--primary))', stroke: 'hsl(var(--background))', strokeWidth: 2 }}
-                activeDot={{ r: 6, fill: 'hsl(var(--primary))', stroke: 'hsl(var(--background))', strokeWidth: 2 }}
+                fillOpacity={1} 
+                fill="url(#colorMood)" 
+                strokeWidth={3}
+                dot={{ r: 5, fill: 'hsl(var(--background))', stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
+                activeDot={{ r: 7, fill: 'hsl(var(--primary))', stroke: 'hsl(var(--background))', strokeWidth: 3 }}
               />
             </AreaChart>
           </ResponsiveContainer>

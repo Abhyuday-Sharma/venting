@@ -34,6 +34,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { PrivacyPolicyText, TermsOfServiceText } from "@/components/auth/legal-text";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
 import { ThemeToggle } from "./theme-toggle";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { errorEmitter } from "@/firebase/error-emitter";
@@ -55,6 +56,7 @@ export function SettingsForm() {
   const [profileVisibility, setProfileVisibility] = useState('public');
   const [defaultPostingMode, setDefaultPostingMode] = useState('private');
   const [language, setLanguage] = useState('en-US');
+  const [disableMoodTracking, setDisableMoodTracking] = useState(false);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -69,6 +71,7 @@ export function SettingsForm() {
         setProfileVisibility(user.settings?.profileVisibility || 'public');
         setDefaultPostingMode(user.settings?.defaultPostingMode || 'private');
         setLanguage(user.settings?.language || 'en-US');
+        setDisableMoodTracking(user.settings?.disableMoodTracking || false);
         setNewUsername(user.username || '');
         if (user.usernameLastChanged) {
             const lastChangedDate = (user.usernameLastChanged as Timestamp).toDate();
@@ -92,7 +95,7 @@ export function SettingsForm() {
     router.push('/login');
   };
 
-  const handleSettingChange = (setting: { [key: string]: string }) => {
+  const handleSettingChange = (setting: { [key: string]: string | boolean }) => {
     if (!user) return;
     setIsSubmitting(true);
     const userDocRef = doc(db, 'users', user.uid);
@@ -443,6 +446,25 @@ export function SettingsForm() {
                   </SelectContent>
               </Select>
             <p className="text-xs text-muted-foreground">This sets your preferred language for features like Speech-to-Text.</p>
+          </div>
+
+          <Separator />
+          
+          <div className="space-y-4">
+            <div className="flex items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <Label className="text-base">Daily Mood Check-ins</Label>
+                <p className="text-sm text-muted-foreground">Prompt me to log my mood every 12 hours.</p>
+              </div>
+              <Switch 
+                checked={!disableMoodTracking} 
+                onCheckedChange={(checked) => {
+                  setDisableMoodTracking(!checked);
+                  handleSettingChange({ disableMoodTracking: !checked });
+                }}
+                disabled={isSubmitting}
+              />
+            </div>
           </div>
 
           <Separator />
