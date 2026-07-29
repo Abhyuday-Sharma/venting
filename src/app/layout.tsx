@@ -1,4 +1,3 @@
-
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
@@ -13,20 +12,55 @@ import { BottomNavigation } from '@/components/layout/bottom-navigation';
 import ShaderBackground from '@/components/layout/shader-background-wrapper';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://www.venting.in'),
-  title: 'Venting – Anonymous Emotional Wellness Platform | Venting.in',
+  metadataBase: new URL('https://venting.in'),
+  title: {
+    default: 'Venting – Anonymous Emotional Wellness Platform | Venting.in',
+    template: '%s | Venting.in',
+  },
   description: 'Join Venting.in, the anonymous emotional wellness platform. A safe, private, and supportive space to express your thoughts, track your mood, and heal together.',
+  keywords: [
+    'emotional wellness',
+    'anonymous venting',
+    'mental health support',
+    'safe space',
+    'mood tracker',
+    'anonymous mental health',
+    'online venting',
+    'feelings journal',
+    'venting platform',
+    'venting.in',
+  ],
+  authors: [{ name: 'Venting.in Team', url: 'https://venting.in' }],
+  category: 'Emotional Wellness',
+  publisher: 'Venting.in',
+  creator: 'Venting.in',
+  applicationName: 'Venting',
+  referrer: 'origin-when-cross-origin',
   manifest: '/manifest.json',
+  alternates: {
+    canonical: 'https://venting.in',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   openGraph: {
     title: 'Venting – Anonymous Emotional Wellness Platform',
-    description: 'Join Venting.in, the anonymous emotional wellness platform. A safe, private space to express your thoughts and heal.',
-    url: 'https://www.venting.in',
+    description: 'Join Venting.in, the anonymous emotional wellness platform. A safe, private, and supportive space to express your thoughts, track your mood, and heal together.',
+    url: 'https://venting.in',
     siteName: 'Venting.in',
     images: [
       {
-        url: '/app_icon.png',
-        width: 512,
-        height: 512,
+        url: 'https://venting.in/og-image.png',
+        width: 1200,
+        height: 630,
         alt: 'Venting.in Logo',
       },
     ],
@@ -34,31 +68,73 @@ export const metadata: Metadata = {
     type: 'website',
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'Venting – Anonymous Emotional Wellness Platform',
-    description: 'Join Venting.in, the anonymous emotional wellness platform. A safe, private space to express your thoughts and heal.',
-    images: ['/app_icon.png'],
+    description: 'Join Venting.in, the anonymous emotional wellness platform. A safe, private, and supportive space to express your thoughts, track your mood, and heal together.',
+    images: ['https://venting.in/og-image.png'],
+    creator: '@venting_in',
   },
-  icons: [
-    {
-      media: '(prefers-color-scheme: light)',
-      url: '/icon-light.png',
-      href: '/icon-light.png',
-    },
-    {
-      media: '(prefers-color-scheme: dark)',
-      url: '/icon-dark.png',
-      href: '/icon-dark.png',
-    }
-  ],
+  icons: {
+    icon: [
+      { url: '/icon-light.png', media: '(prefers-color-scheme: light)' },
+      { url: '/icon-dark.png', media: '(prefers-color-scheme: dark)' },
+      { url: '/icon.png', sizes: 'any' },
+    ],
+    apple: [
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: '/venting_180.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
 };
 
 export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#090d16' },
+  ],
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
+  maximumScale: 5,
   userScalable: false,
 };
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Venting.in',
+    url: 'https://venting.in',
+    logo: 'https://venting.in/og-image.png',
+    description: 'Anonymous emotional wellness and mental health support platform.',
+    sameAs: [],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Venting.in',
+    url: 'https://venting.in',
+    description: 'Express your thoughts anonymously, track your mood, and connect with a supportive community.',
+    publisher: {
+      '@type': 'Organization',
+      name: 'Venting.in',
+      logo: 'https://venting.in/og-image.png',
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'Venting',
+    operatingSystem: 'All',
+    applicationCategory: 'HealthApplication',
+    description: 'Anonymous emotional wellness platform and mood tracking application.',
+    url: 'https://venting.in',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+  },
+];
 
 export default function RootLayout({
   children,
@@ -76,6 +152,10 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Venting" />
         <meta name="mobile-web-app-capable" content="yes" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       </head>
       <body className="font-body antialiased animated-gradient min-h-screen">
         <ThemeProvider

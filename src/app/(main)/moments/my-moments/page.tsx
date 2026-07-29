@@ -1,10 +1,22 @@
-
 import ProtectedPage from "@/components/auth/protected-page";
 import { MyMomentsClient } from "@/components/moments/my-moments-client";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "My Bright Spots",
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
+};
 
 export default function MyMomentsPage() {
   return (

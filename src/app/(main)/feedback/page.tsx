@@ -1,10 +1,22 @@
-
 import { FeedbackForm } from "@/components/feedback/feedback-form";
 import ProtectedPage from "@/components/auth/protected-page";
 import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Feedback",
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
+};
 
 export default function FeedbackPage() {
   return (

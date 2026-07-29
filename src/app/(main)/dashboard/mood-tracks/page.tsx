@@ -1,6 +1,19 @@
 import ProtectedPage from "@/components/auth/protected-page";
 import { MoodTracksClient } from "@/components/dashboard/mood-tracks-client";
 import { Suspense } from "react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Mood Tracks",
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
+};
 
 export default function MoodTracksPage() {
   return (

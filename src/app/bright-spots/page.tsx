@@ -1,16 +1,16 @@
 import { Metadata } from 'next';
-import { MomentsClient } from './moments-client';
+import { MomentsClient } from '../(main)/moments/moments-client';
 
 export const metadata: Metadata = {
   title: 'Bright Spots & Daily Moments',
   description: 'A private, reflective space to record your small victories, gratitude, and quiet daily moments on Venting.in.',
   alternates: {
-    canonical: 'https://venting.in/moments',
+    canonical: 'https://venting.in/bright-spots',
   },
   openGraph: {
     title: 'Bright Spots & Daily Moments | Venting.in',
     description: 'A private, reflective space to record your small victories, gratitude, and quiet daily moments.',
-    url: 'https://venting.in/moments',
+    url: 'https://venting.in/bright-spots',
     siteName: 'Venting.in',
     images: [
       {
@@ -35,6 +35,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default function MomentsPage() {
+export default function BrightSpotsPage() {
   return <MomentsClient />;
 }

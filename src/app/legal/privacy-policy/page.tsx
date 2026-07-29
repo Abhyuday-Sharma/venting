@@ -6,8 +6,37 @@ import Link from "next/link";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy & AI Data Protection | Venting",
-  description: "Read how Venting protects your personal data, guarantees zero AI model training, and enforces strict serverless privacy standards.",
+  title: "Privacy Policy & Data Protection",
+  description: "Read how Venting.in protects your personal data, guarantees zero AI model training, and enforces strict serverless privacy standards.",
+  alternates: {
+    canonical: "https://venting.in/legal/privacy-policy",
+  },
+  openGraph: {
+    title: "Privacy Policy & Data Protection | Venting.in",
+    description: "Read how Venting.in protects your personal data, guarantees zero AI model training, and enforces strict serverless privacy standards.",
+    url: "https://venting.in/legal/privacy-policy",
+    siteName: "Venting.in",
+    images: [
+      {
+        url: "https://venting.in/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Venting Privacy Policy",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Privacy Policy & Data Protection | Venting.in",
+    description: "Read how Venting.in protects your personal data, guarantees zero AI model training, and enforces strict serverless privacy standards.",
+    images: ["https://venting.in/og-image.png"],
+    creator: "@venting_in",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function PrivacyPolicyPage() {

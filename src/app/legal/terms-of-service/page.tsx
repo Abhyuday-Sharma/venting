@@ -6,8 +6,37 @@ import Link from "next/link";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms and Conditions | Venting",
+  title: "Terms and Conditions",
   description: "Terms and conditions governing the use of Venting, automated AI features, safety moderation, and community behavior rules.",
+  alternates: {
+    canonical: "https://venting.in/legal/terms-of-service",
+  },
+  openGraph: {
+    title: "Terms and Conditions | Venting.in",
+    description: "Terms and conditions governing the use of Venting, automated AI features, safety moderation, and community behavior rules.",
+    url: "https://venting.in/legal/terms-of-service",
+    siteName: "Venting.in",
+    images: [
+      {
+        url: "https://venting.in/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Venting Terms of Service",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Terms and Conditions | Venting.in",
+    description: "Terms and conditions governing the use of Venting, automated AI features, safety moderation, and community behavior rules.",
+    images: ["https://venting.in/og-image.png"],
+    creator: "@venting_in",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function TermsOfServicePage() {

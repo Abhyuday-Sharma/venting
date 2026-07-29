@@ -1,7 +1,19 @@
-
 import { CreateUsernameForm } from '@/components/auth/create-username-form';
 import ProtectedPage from '@/components/auth/protected-page';
 import { Suspense } from 'react';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Create Username",
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
+};
 
 export default function CreateUsernamePage() {
   return (

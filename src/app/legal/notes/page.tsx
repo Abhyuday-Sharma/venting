@@ -6,8 +6,37 @@ import Link from "next/link";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Legal Notes & AI Disclosure | Venting",
-  description: "Official legal notes, AI execution disclosures, intellectual property rights, and health disclaimers for Venting.",
+  title: "Legal Notes & AI Disclosure",
+  description: "Official legal notes, AI execution disclosures, intellectual property rights, and health disclaimers for Venting.in.",
+  alternates: {
+    canonical: "https://venting.in/legal/notes",
+  },
+  openGraph: {
+    title: "Legal Notes & AI Disclosure | Venting.in",
+    description: "Official legal notes, AI execution disclosures, intellectual property rights, and health disclaimers for Venting.in.",
+    url: "https://venting.in/legal/notes",
+    siteName: "Venting.in",
+    images: [
+      {
+        url: "https://venting.in/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Venting Legal Notes",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Legal Notes & AI Disclosure | Venting.in",
+    description: "Official legal notes, AI execution disclosures, intellectual property rights, and health disclaimers for Venting.in.",
+    images: ["https://venting.in/og-image.png"],
+    creator: "@venting_in",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function LegalNotesPage() {
