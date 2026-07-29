@@ -14,10 +14,10 @@ import ShaderBackground from '@/components/layout/shader-background-wrapper';
 export const metadata: Metadata = {
   metadataBase: new URL('https://venting.in'),
   title: {
-    default: 'Venting – Anonymous Emotional Wellness Platform | Venting.in',
+    default: 'Express. Release. Grow. | Venting.in',
     template: '%s | Venting.in',
   },
-  description: 'Join Venting.in, the anonymous emotional wellness platform. A safe, private, and supportive space to express your thoughts, track your mood, and heal together.',
+  description: 'AI-powered anonymous emotional wellness. A safe, private space to express your thoughts, release what weighs you down, and grow through your emotions.',
   keywords: [
     'emotional wellness',
     'anonymous venting',
@@ -69,8 +69,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Venting – Anonymous Emotional Wellness Platform',
-    description: 'Join Venting.in, the anonymous emotional wellness platform. A safe, private, and supportive space to express your thoughts, track your mood, and heal together.',
+    title: 'Express. Release. Grow. | Venting.in',
+    description: 'AI-powered anonymous emotional wellness. A safe, private space to express your thoughts, release what weighs you down, and grow through your emotions.',
     images: ['https://venting.in/og-image.png'],
     creator: '@venting_in',
   },
