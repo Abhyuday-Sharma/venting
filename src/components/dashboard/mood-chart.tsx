@@ -1,13 +1,12 @@
-
 "use client";
 
 import { useMemo } from 'react';
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { format } from 'date-fns';
+import { ActivityCalendar, ThemeInput } from 'react-activity-calendar';
+import { format, parseISO } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import type { Vent } from '@/lib/types';
-import { Timestamp } from 'firebase/firestore';
 import { getDate } from '@/lib/date-utils';
+import { useTheme } from 'next-themes';
 
 interface MoodChartProps {
   vents: Vent[];
@@ -26,52 +25,62 @@ const moodEmojiMap: { [key: number]: string } = {
     10: '😁',
 };
 
-const formatYAxisEmojis = (tickItem: number) => {
-    return moodEmojiMap[tickItem] || '';
+// Map 1-10 scale to 0-4 levels for the calendar
+const getMoodLevel = (mood: number): 0 | 1 | 2 | 3 | 4 => {
+    if (mood <= 2) return 1;
+    if (mood <= 5) return 2;
+    if (mood <= 8) return 3;
+    if (mood <= 10) return 4;
+    return 0;
 };
 
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    const data = payload[0].payload;
-    return (
-      <div className="rounded-lg border bg-background p-2 shadow-sm">
-        <div className="grid grid-cols-2 gap-2">
-          <div className="flex flex-col space-y-1">
-            <span className="text-sm text-muted-foreground">Date</span>
-            <span className="font-bold">{label}</span>
-          </div>
-          <div className="flex flex-col space-y-1">
-            <span className="text-sm text-muted-foreground">Mood</span>
-            <span className="font-bold">{moodEmojiMap[data.mood] || ''} {data.mood}</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return null;
+// We create a custom theme so the calendar uses our app's primary color
+// Using standard tailwind zinc/amber shades for a sleek look
+const explicitTheme: ThemeInput = {
+    light: ['#f4f4f5', '#fde047', '#facc15', '#eab308', '#ca8a04'], // Zinc 100 -> Amber 300-700
+    dark: ['#27272a', '#4d7c0f', '#65a30d', '#84cc16', '#a3e635'], // Zinc 800 -> Lime 700-400 (Github style)
 };
 
 export function MoodChart({ vents, chartTitle, chartDescription }: MoodChartProps) {
-  const chartData = useMemo(() => {
-    if (!vents || vents.length === 0) return [];
+  const { resolvedTheme } = useTheme();
+
+  const { calendarData, latestYear } = useMemo(() => {
+    if (!vents || vents.length === 0) return { calendarData: [], latestYear: new Date().getFullYear() };
     
     const ventsWithDates = vents.map(vent => {
       const date = getDate(vent.timestamp);
       return { ...vent, date };
-    }).filter((vent): vent is typeof vent & { date: Date } => vent.date !== null); // Filter out any vents that might have a missing timestamp
+    }).filter((vent): vent is typeof vent & { date: Date } => vent.date !== null);
 
-    const sortedVents = ventsWithDates.sort((a, b) => a.date.getTime() - b.date.getTime());
+    // Group by YYYY-MM-DD
+    const grouped = ventsWithDates.reduce((acc, vent) => {
+        const dateStr = format(vent.date, 'yyyy-MM-dd');
+        if (!acc[dateStr]) {
+            acc[dateStr] = { date: dateStr, count: 0, sum: 0, latestEmoji: vent.mood };
+        }
+        acc[dateStr].count += 1;
+        acc[dateStr].sum += vent.mood;
+        return acc;
+    }, {} as Record<string, { date: string, count: number, sum: number, latestEmoji: number }>);
 
-    return sortedVents.map(vent => ({
-      date: format(vent.date, 'MMM d'),
-      mood: vent.mood,
-    }));
+    let maxYear = 2000;
+
+    const data = Object.values(grouped).map(day => {
+        const avgMood = Math.round(day.sum / day.count);
+        const year = parseInt(day.date.substring(0, 4));
+        if (year > maxYear) maxYear = year;
+        
+        return {
+            date: day.date,
+            count: avgMood, // We'll use count field to store the mood score for the tooltip
+            level: getMoodLevel(avgMood)
+        };
+    });
+
+    return { calendarData: data, latestYear: maxYear };
   }, [vents]);
 
-  const showEmojisOnAxis = chartTitle === "Daily Mood Check-in History";
-
-  if (chartData.length < 2) {
+  if (calendarData.length === 0) {
     return (
         <Card className="shadow-lg">
             <CardHeader>
@@ -85,69 +94,45 @@ export function MoodChart({ vents, chartTitle, chartDescription }: MoodChartProp
     );
   }
 
+  // Find emoji closest to average mood
+  const getClosestEmoji = (moodScore: number) => {
+      const keys = Object.keys(moodEmojiMap).map(Number).sort((a,b) => a-b);
+      const closest = keys.reduce((prev, curr) => 
+          Math.abs(curr - moodScore) < Math.abs(prev - moodScore) ? curr : prev
+      );
+      return moodEmojiMap[closest];
+  }
+
   return (
-    <Card className="shadow-lg">
+    <Card className="shadow-lg overflow-hidden">
       <CardHeader>
         <CardTitle>{chartTitle}</CardTitle>
         <CardDescription>{chartDescription}</CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
-              <defs>
-                <linearGradient id="colorMood" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-              <XAxis 
-                dataKey="date" 
-                stroke="hsl(var(--muted-foreground))"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                tickMargin={10}
-                minTickGap={15}
-              />
-              {showEmojisOnAxis ? (
-                <YAxis 
-                  domain={[1, 10]} 
-                  ticks={[1, 2, 4, 6, 7, 9, 10]}
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={18}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={formatYAxisEmojis}
-                  padding={{ top: 10, bottom: 10 }}
-                  interval={0}
-                  width={45}
-                />
-              ) : (
-                <YAxis 
-                  domain={[1, 10]} 
-                  ticks={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                  width={30}
-                />
-              )}
-              <Tooltip content={<CustomTooltip />} />
-              <Area 
-                type="monotoneX" 
-                dataKey="mood" 
-                stroke="hsl(var(--primary))" 
-                fillOpacity={1} 
-                fill="url(#colorMood)" 
-                strokeWidth={3}
-                dot={{ r: 5, fill: 'hsl(var(--background))', stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
-                activeDot={{ r: 7, fill: 'hsl(var(--primary))', stroke: 'hsl(var(--background))', strokeWidth: 3 }}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+      <CardContent className="overflow-x-auto pb-6">
+        <div className="min-w-[700px] flex justify-center p-4">
+            <ActivityCalendar 
+                data={calendarData} 
+                theme={explicitTheme}
+                colorScheme={resolvedTheme === 'dark' ? 'dark' : 'light'}
+                labels={{
+                    legend: {
+                        less: 'Lower Mood',
+                        more: 'Higher Mood'
+                    },
+                    months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    weekdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                    totalCount: `Mood Check-ins in ${latestYear}`
+                }}
+                renderBlock={(block: any, activity: any) => (
+                    <div 
+                        title={`${format(parseISO(activity.date), 'MMM d, yyyy')}: ${getClosestEmoji(activity.count)} (Score: ${activity.count})`}
+                        className="outline-none"
+                    >
+                        {block}
+                    </div>
+                )}
+            />
         </div>
       </CardContent>
     </Card>
