@@ -43,6 +43,9 @@ export default function MainLayout({
                         <Link href="/legal/terms-of-service">Terms</Link>
                     </Button>
                     <Button asChild variant="link">
+                        <Link href="/legal/notes">Legal Notes</Link>
+                    </Button>
+                    <Button asChild variant="link">
                         <Link href="/legal/privacy-policy">Privacy</Link>
                     </Button>
                 </div>
