@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { ActivityCalendar, ThemeInput } from 'react-activity-calendar';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, subDays, eachDayOfInterval, isAfter, isBefore } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import type { Vent } from '@/lib/types';
 import { getDate } from '@/lib/date-utils';
@@ -16,26 +16,30 @@ interface MoodChartProps {
 
 // Map mood scores to emojis
 const moodEmojiMap: { [key: number]: string } = {
+    0: 'No entry',
     1: '😭',
     2: '😢',
+    3: '☹️',
     4: '☁️',
+    5: '😐',
     6: '🙂',
     7: '😊',
+    8: '😀',
     9: '😄',
     10: '😁',
 };
 
 // Map 1-10 scale to 0-4 levels for the calendar
 const getMoodLevel = (mood: number): 0 | 1 | 2 | 3 | 4 => {
-    if (mood <= 2) return 1;
-    if (mood <= 5) return 2;
+    if (mood === 0) return 0;
+    if (mood <= 3) return 1;
+    if (mood <= 6) return 2;
     if (mood <= 8) return 3;
     if (mood <= 10) return 4;
     return 0;
 };
 
 // We create a custom theme so the calendar uses our app's primary color
-// Using standard tailwind zinc/amber shades for a sleek look
 const explicitTheme: ThemeInput = {
     light: ['#f4f4f5', '#fde047', '#facc15', '#eab308', '#ca8a04'], // Zinc 100 -> Amber 300-700
     dark: ['#27272a', '#4d7c0f', '#65a30d', '#84cc16', '#a3e635'], // Zinc 800 -> Lime 700-400 (Github style)
@@ -45,35 +49,65 @@ export function MoodChart({ vents, chartTitle, chartDescription }: MoodChartProp
   const { resolvedTheme } = useTheme();
 
   const { calendarData, latestYear } = useMemo(() => {
-    if (!vents || vents.length === 0) return { calendarData: [], latestYear: new Date().getFullYear() };
+    const today = new Date();
+    const oneYearAgo = subDays(today, 365);
+    let minDate = oneYearAgo;
+
+    if (!vents || vents.length === 0) {
+        // Return an empty year if no vents
+        const emptyData = eachDayOfInterval({ start: oneYearAgo, end: today }).map(d => ({
+            date: format(d, 'yyyy-MM-dd'),
+            count: 0,
+            level: 0 as 0|1|2|3|4
+        }));
+        return { calendarData: emptyData, latestYear: today.getFullYear() };
+    }
     
     const ventsWithDates = vents.map(vent => {
       const date = getDate(vent.timestamp);
       return { ...vent, date };
     }).filter((vent): vent is typeof vent & { date: Date } => vent.date !== null);
 
+    ventsWithDates.forEach(v => {
+        if (isBefore(v.date, minDate)) {
+            minDate = v.date;
+        }
+    });
+
     // Group by YYYY-MM-DD
     const grouped = ventsWithDates.reduce((acc, vent) => {
         const dateStr = format(vent.date, 'yyyy-MM-dd');
         if (!acc[dateStr]) {
-            acc[dateStr] = { date: dateStr, count: 0, sum: 0, latestEmoji: vent.mood };
+            acc[dateStr] = { count: 0, sum: 0 };
         }
         acc[dateStr].count += 1;
         acc[dateStr].sum += vent.mood;
         return acc;
-    }, {} as Record<string, { date: string, count: number, sum: number, latestEmoji: number }>);
+    }, {} as Record<string, { count: number, sum: number }>);
 
-    let maxYear = 2000;
+    // Generate all days from minDate to today
+    const allDays = eachDayOfInterval({ start: minDate, end: today });
+    let maxYear = today.getFullYear();
 
-    const data = Object.values(grouped).map(day => {
-        const avgMood = Math.round(day.sum / day.count);
-        const year = parseInt(day.date.substring(0, 4));
+    const data = allDays.map(d => {
+        const dateStr = format(d, 'yyyy-MM-dd');
+        const dayData = grouped[dateStr];
+        const year = d.getFullYear();
         if (year > maxYear) maxYear = year;
+
+        if (dayData) {
+            const avgMood = Math.round(dayData.sum / dayData.count);
+            return {
+                date: dateStr,
+                count: avgMood,
+                level: getMoodLevel(avgMood)
+            };
+        }
         
         return {
-            date: day.date,
-            count: avgMood, // We'll use count field to store the mood score for the tooltip
-            level: getMoodLevel(avgMood)
+            date: dateStr,
+            count: 0,
+            level: 0 as 0|1|2|3|4
         };
     });
 
