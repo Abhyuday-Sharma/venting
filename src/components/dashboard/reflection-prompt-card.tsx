@@ -75,7 +75,7 @@ export function ReflectionPromptCard({ vent }: ReflectionPromptCardProps) {
   };
 
   useEffect(() => {
-    if (!vent.text || vent.isPublic) {
+    if (!vent.text) {
       setLoading(false);
       return;
     }
@@ -100,7 +100,7 @@ export function ReflectionPromptCard({ vent }: ReflectionPromptCardProps) {
     fetchPrompts();
   }, [vent]);
 
-  if (dismissed || error || vent.isPublic) {
+  if (dismissed || error) {
     return null;
   }
 

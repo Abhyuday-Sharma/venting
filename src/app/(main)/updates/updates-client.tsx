@@ -151,7 +151,7 @@ const AI_FEATURES = [
     icon: Sparkles,
     title: 'Qualitative Mood Insights',
     tag: 'Dashboard Analytics',
-    description: 'Analyzes recurring emotional themes across your recent private vents to provide compassionate, high-level wellness summaries.',
+    description: 'Analyzes recurring emotional themes across your recent public and private vents to provide compassionate, high-level wellness summaries.',
     whereItRuns: 'Runs on demand in your personal dashboard when requested.',
     howToUse: 'Go to your Dashboard and click "Generate AI Mood Insights" (requires at least 3 vents).'
   },
@@ -161,7 +161,7 @@ const AI_FEATURES = [
     tag: 'Stress Relief',
     description: 'Translates heavy emotional vent text into one simple, actionable 5-minute task to help reset your focus.',
     whereItRuns: 'Processes server-side when requested after posting a vent.',
-    howToUse: 'Available on the vent completion screen right after you share a vent.'
+    howToUse: 'Available on your dashboard after sharing any vent (public or private).'
   },
   {
     icon: Languages,

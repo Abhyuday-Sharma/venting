@@ -334,7 +334,7 @@ export function DashboardClient() {
                 </Button>
               </div>
             </div>
-            {user && showReflection && writtenVents.length > 0 && !writtenVents[0].isPublic && (
+            {user && showReflection && writtenVents.length > 0 && (
               <div className="dash-item">
                 <ReflectionPromptCard vent={writtenVents[0]} />
               </div>
@@ -353,7 +353,7 @@ export function DashboardClient() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {goals.length === 0 ? (
-                  <p className="text-sm text-muted-foreground italic py-2">No active micro-goals right now. Try generating one after your next private vent.</p>
+                  <p className="text-sm text-muted-foreground italic py-2">No active micro-goals right now. Try generating one after your next vent.</p>
                 ) : (
                   <div className="space-y-2">
                     {goals.map((goal) => (
