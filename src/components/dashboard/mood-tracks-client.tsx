@@ -78,19 +78,19 @@ export function MoodTracksClient() {
   
   return (
     <div className="container mx-auto p-4 md:p-8 space-y-8">
-        <div className="flex justify-between items-start">
+        <div className="space-y-4">
             <div>
-                <h1 className="text-3xl font-bold font-headline">{user?.username}'s Mood Tracks</h1>
-                <p className="text-muted-foreground">A history of your daily mood check-ins.</p>
+                <h1 className="text-2xl md:text-3xl font-bold font-headline">{user?.username}&apos;s Mood Tracks</h1>
+                <p className="text-sm text-muted-foreground">A history of your daily mood check-ins.</p>
             </div>
-             <div className="flex items-center gap-2">
+             <div className="flex flex-wrap items-center gap-2">
                 <Button asChild variant="outline" size="sm">
-                    <Link href="/dashboard"><ChevronLeft className="mr-2 h-4 w-4"/>Back to Dashboard</Link>
+                    <Link href="/dashboard"><ChevronLeft className="mr-1.5 h-3.5 w-3.5"/>Back</Link>
                 </Button>
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
                         <Button variant="destructive" size="sm" disabled={moodLogs.length === 0}>
-                            <Trash2 className="mr-2" /> Reset Mood Tracks
+                            <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Reset Tracks
                         </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
