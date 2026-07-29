@@ -40,15 +40,6 @@ export default function MainLayout({
                         <Link href="/updates">Updates & AI Info</Link>
                     </Button>
                     <Button asChild variant="link">
-                        <Link href="/moments">Bright Spots</Link>
-                    </Button>
-                    <Button asChild variant="link">
-                        <Link href="/feedback">Feedback</Link>
-                    </Button>
-                    <Button asChild variant="link">
-                        <Link href="/support">Support</Link>
-                    </Button>
-                    <Button asChild variant="link">
                         <Link href="/legal/terms-of-service">Terms</Link>
                     </Button>
                     <Button asChild variant="link">
