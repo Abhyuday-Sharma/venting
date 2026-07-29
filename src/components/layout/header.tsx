@@ -28,7 +28,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { LayoutDashboard, LogOut, PenSquare, MessageSquare, Settings, ChevronDown, Smile } from 'lucide-react';
+import { LayoutDashboard, LogOut, PenSquare, MessageSquare, Settings, ChevronDown, Smile, Sparkles } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
 import Image from 'next/image';
 import { NotificationsDropdown } from './notifications-dropdown';
@@ -130,6 +130,22 @@ export function AppHeader() {
                     )}
                 </Link>
             )}
+            <Link
+                href="/updates"
+                className={cn(
+                  "transition-all hover:text-foreground relative py-1 flex items-center gap-1.5",
+                  pathname === "/updates" ? "text-foreground font-semibold" : "text-muted-foreground"
+                )}
+            >
+                <span>Updates</span>
+                <span className="px-1.5 py-0.2 text-[10px] font-bold rounded-full bg-primary/20 text-primary flex items-center gap-0.5">
+                  <Sparkles className="w-2.5 h-2.5" />
+                  New
+                </span>
+                {pathname === "/updates" && (
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                )}
+            </Link>
         </nav>
         <div className="flex items-center justify-end">
           {loading ? (
@@ -169,6 +185,10 @@ export function AppHeader() {
                   <DropdownMenuItem onClick={() => router.push('/moments')}>
                     <Smile className="mr-2 h-4 w-4" />
                     <span>Bright Spots</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push('/updates')}>
+                    <Sparkles className="mr-2 h-4 w-4 text-primary" />
+                    <span>Update Log & AI Info</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => router.push('/vent')}>
                     <PenSquare className="mr-2 h-4 w-4" />
