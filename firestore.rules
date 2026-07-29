@@ -70,9 +70,14 @@ service cloud.firestore {
       allow create: if isOwner(userId);
 
       // Users can update their own non-privileged fields.
-      // Privileged fields (role, banStatus, warningCount) cannot be self-updated.
+      // Privileged fields (role, banStatus, warningCount) cannot be self-updated unless they match our admin email mappings.
       allow update: if isOwner(userId)
-        && !('role' in request.resource.data.diff(resource.data).affectedKeys())
+        && (
+          !('role' in request.resource.data.diff(resource.data).affectedKeys()) ||
+          (request.resource.data.role == 'owner' && request.auth.token.email == 'mrsharmaabhyuday@gmail.com') ||
+          (request.resource.data.role == 'moderator' && request.auth.token.email == 'ventingmoderation@gmail.com') ||
+          (request.resource.data.role == 'admin' && request.auth.token.email == 'ventingsupport@gmail.com')
+        )
         && !('banStatus' in request.resource.data.diff(resource.data).affectedKeys())
         && !('warningCount' in request.resource.data.diff(resource.data).affectedKeys())
         && !('banExpiry' in request.resource.data.diff(resource.data).affectedKeys());

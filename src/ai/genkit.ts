@@ -1,6 +1,6 @@
 import {genkit} from 'genkit';
 import {groq} from 'genkitx-groq';
-import {openAI} from '@genkit-ai/compat-oai/openai';
+import {openAICompatible} from '@genkit-ai/compat-oai';
 import { config } from 'dotenv';
 
 config();
@@ -14,7 +14,13 @@ if (process.env.GROQ_API_KEY) {
 }
 
 if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'your_openai_api_key_here') {
-    plugins.push(openAI({ apiKey: process.env.OPENAI_API_KEY }));
+    plugins.push(
+      openAICompatible({
+        name: 'openai',
+        apiKey: process.env.OPENAI_API_KEY,
+        baseURL: 'https://models.inference.ai.azure.com',
+      })
+    );
 } else {
     console.warn("OPENAI_API_KEY is not set.");
 }

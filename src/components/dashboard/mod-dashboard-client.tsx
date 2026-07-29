@@ -71,21 +71,21 @@ export function ModDashboardClient() {
     }
 
     return (
-        <div className="container mx-auto p-4 md:p-8 space-y-8">
+        <div className="container mx-auto p-4 md:p-8 space-y-6 overflow-x-hidden">
             <div>
-                <h1 className="text-3xl font-bold font-headline">Admin Command Center</h1>
-                <p className="text-muted-foreground">Monitor community safety reports and review live user feedback.</p>
+                <h1 className="text-2xl md:text-3xl font-bold font-headline">Admin Command Center</h1>
+                <p className="text-sm text-muted-foreground">Monitor community safety reports and review live user feedback.</p>
             </div>
 
             <Tabs defaultValue="reports" className="w-full">
-                <TabsList className="grid w-full max-w-md grid-cols-2 mb-6">
-                    <TabsTrigger value="reports" className="flex items-center gap-2">
-                        <ShieldAlert className="h-4 w-4" />
-                        Community Reports ({reports.length})
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                    <TabsTrigger value="reports" className="flex items-center gap-1.5 text-xs sm:text-sm">
+                        <ShieldAlert className="h-3.5 w-3.5 shrink-0" />
+                        <span>Reports ({reports.length})</span>
                     </TabsTrigger>
-                    <TabsTrigger value="feedback" className="flex items-center gap-2">
-                        <MessageSquareHeart className="h-4 w-4" />
-                        User Feedback ({feedbackList.length})
+                    <TabsTrigger value="feedback" className="flex items-center gap-1.5 text-xs sm:text-sm">
+                        <MessageSquareHeart className="h-3.5 w-3.5 shrink-0" />
+                        <span>Feedback ({feedbackList.length})</span>
                     </TabsTrigger>
                 </TabsList>
 
@@ -99,32 +99,32 @@ export function ModDashboardClient() {
                     ) : (
                         reports.map((report) => (
                             <Card key={report.id} className="glass-card">
-                                <CardHeader className="pb-2">
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <CardTitle className="text-lg flex items-center gap-2">
+                                <CardHeader className="pb-2 px-4 md:px-6">
+                                    <div className="space-y-1.5">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <CardTitle className="text-base md:text-lg">
                                                 Reported {report.targetType === 'vent' ? 'Vent' : 'Comment'}
-                                                <Badge variant={report.status === 'resolved' ? 'outline' : 'destructive'}>
-                                                    {report.status || 'pending'}
-                                                </Badge>
                                             </CardTitle>
-                                            <p className="text-xs text-muted-foreground mt-1">
-                                                Report ID: {report.id} | Target ID: {report.targetId} {report.ventId ? `| Vent ID: ${report.ventId}` : ''}
-                                            </p>
+                                            <Badge variant={report.status === 'resolved' ? 'outline' : 'destructive'} className="text-xs">
+                                                {report.status || 'pending'}
+                                            </Badge>
+                                            <span className="text-xs text-muted-foreground ml-auto">
+                                                {report.timestamp ? formatDistanceToNow((report.timestamp as Timestamp).toDate(), { addSuffix: true }) : ''}
+                                            </span>
                                         </div>
-                                        <span className="text-xs text-muted-foreground">
-                                            {report.timestamp ? formatDistanceToNow((report.timestamp as Timestamp).toDate(), { addSuffix: true }) : ''}
-                                        </span>
+                                        <p className="text-xs text-muted-foreground truncate">
+                                            ID: {report.id?.slice(0, 8)}… | Target: {report.targetId?.slice(0, 8)}…
+                                        </p>
                                     </div>
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="px-4 md:px-6">
                                     <div className="bg-muted/30 p-3 rounded-md space-y-2 text-sm">
-                                        <div className="flex items-center gap-1"><span className="font-semibold text-muted-foreground">Category:</span> <Badge variant="secondary">{report.reasonCategory}</Badge></div>
-                                        <p><span className="font-semibold text-muted-foreground">Reason Details:</span> {report.reason || 'No additional details provided.'}</p>
-                                        <p><span className="font-semibold text-muted-foreground">Reporter UID:</span> {report.reporterId}</p>
+                                        <div className="flex flex-wrap items-center gap-1"><span className="font-semibold text-muted-foreground">Category:</span> <Badge variant="secondary">{report.reasonCategory}</Badge></div>
+                                        <p className="break-words"><span className="font-semibold text-muted-foreground">Reason:</span> {report.reason || 'No details provided.'}</p>
+                                        <p className="truncate"><span className="font-semibold text-muted-foreground">Reporter:</span> {report.reporterId?.slice(0, 12)}…</p>
                                     </div>
                                 </CardContent>
-                                <div className="px-6 pb-6 pt-0 flex gap-2">
+                                <div className="px-4 md:px-6 pb-4 md:pb-6 pt-0 flex flex-wrap gap-2">
                                     <a 
                                         href={`/feed?ventId=${report.ventId || report.targetId}${report.targetType === 'comment' ? '&openComments=true' : ''}`} 
                                         className="text-xs inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring bg-primary text-primary-foreground shadow hover:bg-primary/90 h-8 px-3"
@@ -137,7 +137,7 @@ export function ModDashboardClient() {
                                         rel="noopener noreferrer"
                                         className="text-xs inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 px-3 gap-1"
                                     >
-                                        View in Firebase <ExternalLink className="h-3 w-3" />
+                                        Firebase <ExternalLink className="h-3 w-3" />
                                     </a>
                                 </div>
                             </Card>
@@ -155,40 +155,40 @@ export function ModDashboardClient() {
                     ) : (
                         feedbackList.map((item) => (
                             <Card key={item.id} className="glass-card">
-                                <CardHeader className="pb-2">
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <CardTitle className="text-lg flex items-center gap-2">
+                                <CardHeader className="pb-2 px-4 md:px-6">
+                                    <div className="space-y-1.5">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <CardTitle className="text-base md:text-lg">
                                                 User Feedback
-                                                <Badge className="bg-amber-500/20 text-amber-600 dark:text-amber-300 border-amber-500/30 flex items-center gap-1">
-                                                    <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
-                                                    {item.rating} / 5 Stars
-                                                </Badge>
                                             </CardTitle>
-                                            <p className="text-xs text-muted-foreground mt-1">
-                                                Feedback ID: {item.id} | User ID: {item.userId}
-                                            </p>
+                                            <Badge className="bg-amber-500/20 text-amber-600 dark:text-amber-300 border-amber-500/30 flex items-center gap-1 text-xs">
+                                                <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
+                                                {item.rating}/5
+                                            </Badge>
+                                            <span className="text-xs text-muted-foreground ml-auto">
+                                                {item.timestamp ? formatDistanceToNow((item.timestamp as Timestamp).toDate(), { addSuffix: true }) : ''}
+                                            </span>
                                         </div>
-                                        <span className="text-xs text-muted-foreground">
-                                            {item.timestamp ? formatDistanceToNow((item.timestamp as Timestamp).toDate(), { addSuffix: true }) : ''}
-                                        </span>
+                                        <p className="text-xs text-muted-foreground truncate">
+                                            ID: {item.id?.slice(0, 8)}… | User: {item.userId?.slice(0, 12)}…
+                                        </p>
                                     </div>
                                 </CardHeader>
-                                <CardContent>
-                                    <div className="bg-muted/30 p-4 rounded-md space-y-2">
-                                        <p className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed">
+                                <CardContent className="px-4 md:px-6">
+                                    <div className="bg-muted/30 p-3 md:p-4 rounded-md">
+                                        <p className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed break-words">
                                             "{item.text}"
                                         </p>
                                     </div>
                                 </CardContent>
-                                <div className="px-6 pb-6 pt-0 flex gap-2">
+                                <div className="px-4 md:px-6 pb-4 md:pb-6 pt-0 flex gap-2">
                                     <a 
                                         href={`https://console.firebase.google.com/project/studio-6635404237-5ab92/firestore/databases/-default-/data/~2Ffeedback~2F${item.id}`} 
                                         target="_blank" 
                                         rel="noopener noreferrer"
                                         className="text-xs inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 px-3 gap-1"
                                     >
-                                        View in Firebase Console <ExternalLink className="h-3 w-3" />
+                                        Firebase <ExternalLink className="h-3 w-3" />
                                     </a>
                                 </div>
                             </Card>

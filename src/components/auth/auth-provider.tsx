@@ -6,7 +6,7 @@ import { onAuthStateChanged, getRedirectResult, type User } from "firebase/auth"
 import { auth, db } from "@/lib/firebase";
 import type { UserProfile } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
-import { doc, onSnapshot, setDoc, Unsubscribe } from "firebase/firestore";
+import { doc, onSnapshot, setDoc, updateDoc, Unsubscribe } from "firebase/firestore";
 import { usePathname, useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 
@@ -71,18 +71,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
             if (docSnap.exists()) {
               const data = docSnap.data();
-              let expectedRole = data.role;
-              if (!expectedRole) {
-                if (ownerEmails.includes(userEmail)) expectedRole = 'owner';
-                else if (moderatorEmails.includes(userEmail)) expectedRole = 'moderator';
-                else if (adminEmails.includes(userEmail)) expectedRole = 'admin';
-                else expectedRole = 'user';
+              let computedRole = data.role;
+              if (ownerEmails.includes(userEmail)) {
+                computedRole = 'owner';
+              } else if (moderatorEmails.includes(userEmail)) {
+                computedRole = 'moderator';
+              } else if (adminEmails.includes(userEmail)) {
+                computedRole = 'admin';
+              } else if (!computedRole) {
+                computedRole = 'user';
+              }
+
+              if (data.role !== computedRole) {
+                updateDoc(userDocRef, { role: computedRole }).catch((err) => {
+                  console.warn("Failed to auto-update user role in Firestore:", err.message);
+                });
               }
 
               const userProfile = {
                 uid: docSnap.id,
                 ...data,
-                role: expectedRole,
+                role: computedRole,
               } as UserProfile;
               setUser(userProfile);
               setLoading(false);

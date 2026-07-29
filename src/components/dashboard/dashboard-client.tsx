@@ -302,16 +302,16 @@ export function DashboardClient() {
           </div>
         ) : (
           <>
-            <div className="dash-item flex justify-between items-start">
+            <div className="dash-item space-y-4">
               <div>
-                <h1 className="text-3xl font-bold font-headline">{user?.username || 'Guest'}'s Reflections</h1>
-                <p className="text-muted-foreground">Visualize your mood trends from written vents and review your history.</p>
+                <h1 className="text-2xl md:text-3xl font-bold font-headline">{user?.username || 'Guest'}&apos;s Reflections</h1>
+                <p className="text-sm text-muted-foreground">Visualize your mood trends from written vents and review your history.</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive" size="sm" disabled={writtenVents.length === 0}>
-                      <Trash2 className="mr-2" /> Reset Reflections
+                      <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Reset Reflections
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
@@ -330,7 +330,7 @@ export function DashboardClient() {
                   </AlertDialogContent>
                 </AlertDialog>
                 <Button asChild variant="outline" size="sm">
-                  <Link href="/dashboard/mood-tracks"><BarChart3 className="mr-2"/>View Mood Tracks</Link>
+                  <Link href="/dashboard/mood-tracks"><BarChart3 className="mr-1.5 h-3.5 w-3.5"/>View Mood Tracks</Link>
                 </Button>
               </div>
             </div>
