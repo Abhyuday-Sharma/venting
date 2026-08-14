@@ -125,7 +125,6 @@ export function DashboardClient() {
     if (authLoading) return;
 
     if (user?.uid) {
-      setLoading(true);
       const unsubscribe = getVentsForUser(user.uid, (userVents) => {
         setVents(userVents);
         setLoading(false);
