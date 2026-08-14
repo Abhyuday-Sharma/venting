@@ -80,7 +80,6 @@
   
   html, body {
     overflow-x: hidden;
-    overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
   }
 
