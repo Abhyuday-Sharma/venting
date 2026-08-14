@@ -91,14 +91,14 @@ service cloud.firestore {
       // ── Private Vents Subcollection ──
       // /users/{userId}/vents/{ventId}
       match /vents/{ventId} {
-        // Only the owner can read their private vents
-        allow read: if isOwner(userId);
+        // Only the owner can read their private vents. Admins can read them to process deletions.
+        allow read: if isOwner(userId) || isAdmin();
 
         // Only the owner can create/update their vents, and only if not banned
         allow create, update: if isOwner(userId) && isNotBanned();
 
-        // Owner can delete their own vents
-        allow delete: if isOwner(userId);
+        // Owner can delete their own vents. Admins can delete any vent (for moderation).
+        allow delete: if isOwner(userId) || isAdmin();
       }
 
       // ── Notifications Subcollection ──
