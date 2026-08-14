@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -30,11 +30,15 @@ export function MoodInsightsCard({ vents, user }: MoodInsightsCardProps) {
   const [insights, setInsights] = useState<MoodInsights | null>(user.currentInsights || null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Ultimate safeguard to prevent infinite API loops
+  const hasGeneratedThisSession = useRef(false);
 
   const hasEnoughVents = vents.length >= 3;
 
   useEffect(() => {
     if (!hasEnoughVents) return;
+    if (hasGeneratedThisSession.current) return;
 
     const checkAndGenerateInsights = async () => {
       const now = new Date();
@@ -47,6 +51,7 @@ export function MoodInsightsCard({ vents, user }: MoodInsightsCardProps) {
       const shouldGenerate = (daysSinceLastGeneration >= 7 && hasNewVents) || !user.currentInsights;
 
       if (shouldGenerate) {
+        hasGeneratedThisSession.current = true;
         setLoading(true);
         setError(null);
 
