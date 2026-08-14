@@ -51,7 +51,7 @@ export function DashboardClient() {
   useEffect(() => {
     if (authLoading) return;
 
-    if (user) {
+    if (user?.uid) {
       const q = query(collection(db, "users", user.uid, "goals"), orderBy("createdAt", "desc"));
       const unsubscribe = onSnapshot(q, (snapshot) => {
         const userGoals = snapshot.docs.map(doc => ({
@@ -62,7 +62,7 @@ export function DashboardClient() {
         setLoadingGoals(false);
       });
       return () => unsubscribe();
-    } else {
+    } else if (!user) {
       try {
         const localGoalsRaw = localStorage.getItem('guest_goals');
         if (localGoalsRaw) {
@@ -75,7 +75,7 @@ export function DashboardClient() {
       }
       setLoadingGoals(false);
     }
-  }, [user, authLoading]);
+  }, [user?.uid, authLoading]);
 
   const handleToggleGoal = async (goalId: string, currentCompleted: boolean) => {
     try {
@@ -124,14 +124,14 @@ export function DashboardClient() {
   useEffect(() => {
     if (authLoading) return;
 
-    if (user) {
+    if (user?.uid) {
       setLoading(true);
       const unsubscribe = getVentsForUser(user.uid, (userVents) => {
         setVents(userVents);
         setLoading(false);
       });
       return () => unsubscribe();
-    } else {
+    } else if (!user) {
       // Load guest vents from localStorage
       try {
         const localVentsRaw = localStorage.getItem('guest_vents');
@@ -151,7 +151,7 @@ export function DashboardClient() {
       }
       setLoading(false);
     }
-  }, [user, authLoading]);
+  }, [user?.uid, authLoading]);
 
   useEffect(() => {
     try {
