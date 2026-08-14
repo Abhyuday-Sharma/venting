@@ -2,6 +2,7 @@
   "name": "Venting",
   "short_name": "Venting",
   "description": "Welcome to Venting, a secure, judgment-free journal designed for your mental well-being. Whether you need to rant, reflect, or simply get things off your chest, Venting provides a private space for your unfiltered thoughts. Track your moods, look back on your emotional journey, and find peace of mind. Your thoughts belong to you, and with Venting, they finally have a safe place to land.",
+  "id": "/?source=pwa",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#09090b",
