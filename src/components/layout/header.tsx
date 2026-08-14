@@ -57,7 +57,9 @@ export function AppHeader() {
   const handleSignOut = async () => {
     await signOut(auth);
     setShowSignOutDialog(false);
-    router.push('/login');
+    setTimeout(() => {
+        router.push('/login');
+    }, 100);
   };
 
   const getInitials = (name: string | null | undefined) => {

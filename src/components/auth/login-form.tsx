@@ -79,16 +79,12 @@ export function LoginForm() {
   const [quoteIndex, setQuoteIndex] = useState(0);
 
   useEffect(() => {
-    // Strictly prevent any scrolling on the page when this form is visible
-    document.body.style.overflow = 'hidden';
-    
     const interval = setInterval(() => {
       setQuoteIndex((prev) => (prev + 1) % quotes.length);
     }, 6000);
     
     return () => {
       clearInterval(interval);
-      document.body.style.overflow = '';
     };
   }, []);
 
@@ -204,7 +200,7 @@ export function LoginForm() {
     return (
       <>
         <div className="absolute inset-0 animated-gradient -z-10" />
-        <div className="relative w-full h-full max-w-6xl mx-auto flex items-center justify-center p-4 sm:p-8">
+        <div className="relative w-full flex-1 mx-auto flex items-center justify-center p-4 sm:p-8">
             <div className="flex flex-col items-center gap-4">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
               <p className="text-sm text-muted-foreground font-medium animate-pulse">
@@ -219,8 +215,8 @@ export function LoginForm() {
   return (
     <>
     <LegalDocViewer type={showLegal} onOpenChange={() => setShowLegal(null)} />
-    <div className="absolute inset-0 animated-gradient -z-10" />
-    <div className="relative w-full h-full max-w-5xl mx-auto flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-16 p-4 sm:p-8">
+    <div className="absolute inset-0 animated-gradient -z-10 fixed" />
+    <div className="relative w-full flex-1 max-w-5xl mx-auto flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-16 p-4 sm:p-8">
         
         {/* Floating Quotes - Hidden on mobile, visible on large screens */}
         <div className="hidden lg:flex flex-1 flex-col justify-center items-center max-w-md">

@@ -1,12 +1,20 @@
 "use client";
 
 import { useMemo } from 'react';
-import { ActivityCalendar, ThemeInput } from 'react-activity-calendar';
-import { format, parseISO, subDays, eachDayOfInterval, isAfter, isBefore } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import type { Vent } from '@/lib/types';
 import { getDate } from '@/lib/date-utils';
 import { useTheme } from 'next-themes';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid
+} from 'recharts';
+import { format, subDays, eachDayOfInterval, isAfter } from 'date-fns';
 
 interface MoodChartProps {
   vents: Vent[];
@@ -14,69 +22,39 @@ interface MoodChartProps {
   chartDescription: string;
 }
 
-// Map mood scores to emojis
 const moodEmojiMap: { [key: number]: string } = {
-    0: 'No entry',
-    1: '😭',
-    2: '😢',
-    3: '☹️',
-    4: '☁️',
-    5: '😐',
-    6: '🙂',
-    7: '😊',
-    8: '😀',
-    9: '😄',
-    10: '😁',
+    1: '😭', 2: '😢', 3: '☹️', 4: '☁️', 5: '😐',
+    6: '🙂', 7: '😊', 8: '😀', 9: '😄', 10: '😁',
 };
 
-// Map 1-10 scale to 0-4 levels for the calendar
-const getMoodLevel = (mood: number): 0 | 1 | 2 | 3 | 4 => {
-    if (mood === 0) return 0;
-    if (mood <= 3) return 1;
-    if (mood <= 6) return 2;
-    if (mood <= 8) return 3;
-    if (mood <= 10) return 4;
-    return 0;
-};
-
-// We create a custom theme so the calendar uses our app's primary color
-const explicitTheme: ThemeInput = {
-    light: ['#f4f4f5', '#fde047', '#facc15', '#eab308', '#ca8a04'], // Zinc 100 -> Amber 300-700
-    dark: ['#27272a', '#4d7c0f', '#65a30d', '#84cc16', '#a3e635'], // Zinc 800 -> Lime 700-400 (Github style)
-};
+const getClosestEmoji = (moodScore: number) => {
+    if (!moodScore) return '';
+    const keys = Object.keys(moodEmojiMap).map(Number).sort((a,b) => a-b);
+    const closest = keys.reduce((prev, curr) => 
+        Math.abs(curr - moodScore) < Math.abs(prev - moodScore) ? curr : prev
+    );
+    return moodEmojiMap[closest];
+}
 
 export function MoodChart({ vents, chartTitle, chartDescription }: MoodChartProps) {
   const { resolvedTheme } = useTheme();
 
-  const { calendarData, latestYear } = useMemo(() => {
+  const chartData = useMemo(() => {
     const today = new Date();
-    const oneYearAgo = subDays(today, 365);
-    let minDate = oneYearAgo;
+    const minDate = subDays(today, 30); // Show last 30 days
 
     if (!vents || vents.length === 0) {
-        // Return an empty year if no vents
-        const emptyData = eachDayOfInterval({ start: oneYearAgo, end: today }).map(d => ({
-            date: format(d, 'yyyy-MM-dd'),
-            count: 0,
-            level: 0 as 0|1|2|3|4
-        }));
-        return { calendarData: emptyData, latestYear: today.getFullYear() };
+        return [];
     }
     
     const ventsWithDates = vents.map(vent => {
       const date = getDate(vent.timestamp);
       return { ...vent, date };
-    }).filter((vent): vent is typeof vent & { date: Date } => vent.date !== null);
-
-    ventsWithDates.forEach(v => {
-        if (isBefore(v.date, minDate)) {
-            minDate = v.date;
-        }
-    });
+    }).filter((vent): vent is typeof vent & { date: Date } => vent.date !== null && isAfter(vent.date, minDate));
 
     // Group by YYYY-MM-DD
     const grouped = ventsWithDates.reduce((acc, vent) => {
-        const dateStr = format(vent.date, 'yyyy-MM-dd');
+        const dateStr = format(vent.date, 'MMM dd');
         if (!acc[dateStr]) {
             acc[dateStr] = { count: 0, sum: 0 };
         }
@@ -85,36 +63,33 @@ export function MoodChart({ vents, chartTitle, chartDescription }: MoodChartProp
         return acc;
     }, {} as Record<string, { count: number, sum: number }>);
 
-    // Generate all days from minDate to today
+    // Generate all days from minDate to today to ensure continuous line
     const allDays = eachDayOfInterval({ start: minDate, end: today });
-    let maxYear = today.getFullYear();
 
     const data = allDays.map(d => {
-        const dateStr = format(d, 'yyyy-MM-dd');
+        const dateStr = format(d, 'MMM dd');
         const dayData = grouped[dateStr];
-        const year = d.getFullYear();
-        if (year > maxYear) maxYear = year;
-
+        
         if (dayData) {
             const avgMood = Math.round(dayData.sum / dayData.count);
             return {
                 date: dateStr,
-                count: avgMood,
-                level: getMoodLevel(avgMood)
+                mood: avgMood,
+                emoji: getClosestEmoji(avgMood)
             };
         }
         
         return {
             date: dateStr,
-            count: 0,
-            level: 0 as 0|1|2|3|4
+            mood: null, // Recharts will connect across nulls if connectNulls={true}
+            emoji: ''
         };
     });
 
-    return { calendarData: data, latestYear: maxYear };
+    return data;
   }, [vents]);
 
-  if (calendarData.length === 0) {
+  if (chartData.length === 0 || !vents || vents.length === 0) {
     return (
         <Card className="shadow-lg">
             <CardHeader>
@@ -122,20 +97,31 @@ export function MoodChart({ vents, chartTitle, chartDescription }: MoodChartProp
                 <CardDescription>{chartDescription}</CardDescription>
             </CardHeader>
             <CardContent className="h-[300px] flex items-center justify-center">
-                <p className="text-muted-foreground">Not enough data to display a chart. Keep adding entries to see your trends.</p>
+                <p className="text-muted-foreground text-sm">Not enough data in the last 30 days. Add some vents to see your mood trend!</p>
             </CardContent>
         </Card>
     );
   }
 
-  // Find emoji closest to average mood
-  const getClosestEmoji = (moodScore: number) => {
-      const keys = Object.keys(moodEmojiMap).map(Number).sort((a,b) => a-b);
-      const closest = keys.reduce((prev, curr) => 
-          Math.abs(curr - moodScore) < Math.abs(prev - moodScore) ? curr : prev
+  const isDark = resolvedTheme === 'dark';
+  const strokeColor = isDark ? '#a3e635' : '#ca8a04'; // Lime 400 or Amber 600
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      if (data.mood === null) return null;
+      return (
+        <div className="bg-background/95 border border-border p-3 rounded-lg shadow-xl backdrop-blur-md">
+          <p className="text-sm font-medium mb-1">{label}</p>
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">{data.emoji}</span>
+            <span className="text-sm font-semibold">Mood: {data.mood}/10</span>
+          </div>
+        </div>
       );
-      return moodEmojiMap[closest];
-  }
+    }
+    return null;
+  };
 
   return (
     <Card className="shadow-lg overflow-hidden">
@@ -143,30 +129,48 @@ export function MoodChart({ vents, chartTitle, chartDescription }: MoodChartProp
         <CardTitle>{chartTitle}</CardTitle>
         <CardDescription>{chartDescription}</CardDescription>
       </CardHeader>
-      <CardContent className="overflow-x-auto pb-6">
-        <div className="min-w-[700px] flex justify-center p-4">
-            <ActivityCalendar 
-                data={calendarData} 
-                theme={explicitTheme}
-                colorScheme={resolvedTheme === 'dark' ? 'dark' : 'light'}
-                labels={{
-                    legend: {
-                        less: 'Lower Mood',
-                        more: 'Higher Mood'
-                    },
-                    months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                    weekdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-                    totalCount: `Mood Check-ins in ${latestYear}`
-                }}
-                renderBlock={(block: any, activity: any) => (
-                    <div 
-                        title={`${format(parseISO(activity.date), 'MMM d, yyyy')}: ${getClosestEmoji(activity.count)} (Score: ${activity.count})`}
-                        className="outline-none"
-                    >
-                        {block}
-                    </div>
-                )}
-            />
+      <CardContent className="pb-6 pt-4 pr-6">
+        <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                    data={chartData}
+                    margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                >
+                    <defs>
+                        <linearGradient id="colorMood" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor={strokeColor} stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor={strokeColor} stopOpacity={0}/>
+                        </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? '#333' : '#eee'} />
+                    <XAxis 
+                        dataKey="date" 
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 12, fill: isDark ? '#888' : '#666' }}
+                        tickMargin={10}
+                        minTickGap={20}
+                    />
+                    <YAxis 
+                        domain={[1, 10]}
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 12, fill: isDark ? '#888' : '#666' }}
+                        tickCount={5}
+                    />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Area 
+                        type="monotone" 
+                        dataKey="mood" 
+                        stroke={strokeColor} 
+                        strokeWidth={3}
+                        fillOpacity={1} 
+                        fill="url(#colorMood)" 
+                        connectNulls={true}
+                        activeDot={{ r: 6, strokeWidth: 0, fill: strokeColor }}
+                    />
+                </AreaChart>
+            </ResponsiveContainer>
         </div>
       </CardContent>
     </Card>

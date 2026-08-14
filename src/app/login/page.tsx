@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <div className="w-full min-h-[calc(100vh-56px)] flex items-center justify-center overflow-y-auto py-6">
+    <div className="w-full flex flex-col min-h-[100dvh]">
       <Suspense fallback={<div className="flex-1 flex items-center justify-center">Loading...</div>}>
         <LoginForm />
       </Suspense>
