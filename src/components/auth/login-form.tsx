@@ -79,12 +79,18 @@ export function LoginForm() {
   const [quoteIndex, setQuoteIndex] = useState(0);
 
   useEffect(() => {
+    // Force clear any stuck styles from interrupted Radix UI dialogs (like the logout popup)
+    document.body.style.pointerEvents = 'auto';
+    document.body.style.overflow = 'auto';
+
     const interval = setInterval(() => {
       setQuoteIndex((prev) => (prev + 1) % quotes.length);
     }, 6000);
     
     return () => {
       clearInterval(interval);
+      document.body.style.pointerEvents = '';
+      document.body.style.overflow = '';
     };
   }, []);
 
