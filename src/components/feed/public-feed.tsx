@@ -308,7 +308,7 @@ export function PublicFeed() {
                     {filteredVents.length === 0 ? (
                          <div className="text-center py-16 px-4 border-2 border-dashed rounded-lg bg-card/50">
                             <h2 className="text-2xl font-semibold mb-2 font-headline">No vents found</h2>
-                            <p className="text-muted-foreground">There are no public vents in the "{filterCategory}" category yet.</p>
+                            <p className="text-muted-foreground">There are no public vents in the &quot;{filterCategory}&quot; category yet.</p>
                         </div>
                     ) : (
                         filteredVents.map((vent, index) => {

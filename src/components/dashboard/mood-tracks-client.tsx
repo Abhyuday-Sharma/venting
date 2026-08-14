@@ -127,7 +127,7 @@ export function MoodTracksClient() {
                 </CardHeader>
                 <CardContent>
                     <p className="text-muted-foreground mb-6">
-                        You haven't logged any quick mood check-ins. They will appear here once you do.
+                        You haven&apos;t logged any quick mood check-ins. They will appear here once you do.
                     </p>
                     <Link href="/dashboard" className="text-sm text-primary hover:underline">
                         Return to Dashboard

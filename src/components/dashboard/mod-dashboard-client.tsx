@@ -177,7 +177,7 @@ export function ModDashboardClient() {
                                 <CardContent className="px-4 md:px-6">
                                     <div className="bg-muted/30 p-3 md:p-4 rounded-md">
                                         <p className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed break-words">
-                                            "{item.text}"
+                                            &quot;{item.text}&quot;
                                         </p>
                                     </div>
                                 </CardContent>

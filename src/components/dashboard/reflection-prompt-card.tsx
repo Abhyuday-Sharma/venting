@@ -209,7 +209,7 @@ export function ReflectionPromptCard({ vent }: ReflectionPromptCardProps) {
               <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 text-left relative overflow-hidden">
                 <span className="text-[10px] font-semibold text-primary uppercase tracking-wider block">Suggested Micro-Goal</span>
                 <p className="text-sm font-medium mt-1 text-foreground">{actionItem}</p>
-                {comfortMessage && <p className="text-xs text-muted-foreground mt-2 italic">"{comfortMessage}"</p>}
+                {comfortMessage && <p className="text-xs text-muted-foreground mt-2 italic">&quot;{comfortMessage}&quot;</p>}
               </div>
               {!pinned ? (
                 <Button size="sm" onClick={handlePinAction} className="w-full text-xs gap-1.5">

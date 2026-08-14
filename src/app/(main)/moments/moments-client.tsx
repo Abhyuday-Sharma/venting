@@ -95,7 +95,7 @@ const InteractiveMomentCard = ({
                 </div>
             </CardHeader>
             <CardContent className="flex-1 space-y-4">
-                <p className="text-muted-foreground italic">"{prompt}"</p>
+                <p className="text-muted-foreground italic">&quot;{prompt}&quot;</p>
                 <Textarea 
                     value={text}
                     onChange={(e) => setText(e.target.value)}
@@ -196,7 +196,7 @@ export function MomentsClient() {
 
                     <footer className="text-center mt-12 md:mt-16">
                         <p className="text-lg text-gray-600 dark:text-gray-400">
-                            It's okay to share your light and your resilience.
+                            It&apos;s okay to share your light and your resilience.
                         </p>
                     </footer>
                 </main>

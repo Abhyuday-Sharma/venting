@@ -294,8 +294,8 @@ export function DashboardClient() {
         )}
         {vents.length === 0 ? (
           <div className="dash-item text-center py-16 px-4 border-2 border-dashed rounded-lg bg-card/50">
-            <h2 className="text-2xl font-semibold mb-2 font-headline">I'm glad you came, {user?.username || 'Guest'}!</h2>
-            <p className="text-muted-foreground mb-6">You haven't recorded any vents yet. Let it all out!</p>
+            <h2 className="text-2xl font-semibold mb-2 font-headline">I&apos;m glad you came, {user?.username || 'Guest'}!</h2>
+            <p className="text-muted-foreground mb-6">You haven&apos;t recorded any vents yet. Let it all out!</p>
             <Button asChild size="lg">
               <Link href="/vent"><PlusCircle className="mr-2 h-4 w-4" />Create Your First Vent</Link>
             </Button>

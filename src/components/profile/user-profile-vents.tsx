@@ -140,7 +140,7 @@ export function UserProfileVents({ initialVents }: { initialVents: Vent[] }) {
         return (
             <div className="text-center py-16 px-4 border-2 border-dashed rounded-lg bg-card/50">
                 <h2 className="text-2xl font-semibold mb-2 font-headline">No public vents yet.</h2>
-                <p className="text-muted-foreground">This user hasn't shared anything publicly.</p>
+                <p className="text-muted-foreground">This user hasn&apos;t shared anything publicly.</p>
             </div>
         );
     }

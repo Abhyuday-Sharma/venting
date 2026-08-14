@@ -108,7 +108,7 @@ export function WelcomeClient() {
           </div>
           <h2 className="text-3xl font-headline text-center mb-4">Add to Home Screen</h2>
           <p className="text-lg text-muted-foreground text-center mb-12 max-w-sm">
-            For easy app-like access, tap the Share button in your browser and select "Add to Home Screen".
+            For easy app-like access, tap the Share button in your browser and select &quot;Add to Home Screen&quot;.
           </p>
           <Button size="lg" variant="ghost" onClick={nextStep} className="rounded-full px-8 border border-border/40 dark:border-white/10 bg-card/60 dark:bg-white/[0.06] backdrop-blur-md text-foreground hover:bg-card/80 dark:hover:bg-white/[0.12] hover:text-foreground hover:shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 shadow-md cursor-pointer">
             Next

@@ -100,7 +100,7 @@ export function MoodCheckInModal({ isOpen, onOpenChange, user, onMoodSaved, isFi
               : `How are you today, ${user.username}?`}
           </DialogTitle>
           <DialogDescription>
-            Select a mood to quickly log how you're feeling right now.
+            Select a mood to quickly log how you&apos;re feeling right now.
           </DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 py-4">

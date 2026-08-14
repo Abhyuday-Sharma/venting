@@ -232,7 +232,7 @@ export function LoginForm() {
                    idx === quoteIndex ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                  }`}
                >
-                 "{quote}"
+                 &quot;{quote}&quot;
                </p>
              ))}
            </div>

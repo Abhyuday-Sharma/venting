@@ -503,7 +503,7 @@ export default function UpdatesClient() {
                           <div>
                             <h4 className="font-semibold text-emerald-500 uppercase tracking-wider text-[11px] mb-2 flex items-center gap-1.5">
                               <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                              What's Added
+                              What&apos;s Added
                             </h4>
                             <ul className="space-y-1.5 text-muted-foreground pl-3">
                               {release.added.map((item, i) => (
@@ -521,7 +521,7 @@ export default function UpdatesClient() {
                           <div>
                             <h4 className="font-semibold text-blue-400 uppercase tracking-wider text-[11px] mb-2 flex items-center gap-1.5">
                               <span className="w-2 h-2 rounded-full bg-blue-400" />
-                              What's Updated
+                              What&apos;s Updated
                             </h4>
                             <ul className="space-y-1.5 text-muted-foreground pl-3">
                               {release.updated.map((item, i) => (

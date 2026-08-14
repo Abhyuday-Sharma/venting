@@ -149,7 +149,7 @@ function HeroSection() {
         </h1>
         <p className="hero-subtitle text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-xl mx-auto leading-relaxed">
           A safe space for emotional expression, self-reflection, and community
-          support. This is more than just venting. It's a platform built for growth.
+          support. This is more than just venting. It&apos;s a platform built for growth.
         </p>
       </div>
 
@@ -585,7 +585,7 @@ function AIToolsSection() {
             </span>
           </h2>
           <p className="text-muted-foreground text-base sm:text-lg max-w-lg mx-auto">
-            Venting uses AI quietly in the background. It's never intrusive, always
+            Venting uses AI quietly in the background. It&apos;s never intrusive, always
             supportive. It helps you reflect, grow, and stay safe.
           </p>
         </div>

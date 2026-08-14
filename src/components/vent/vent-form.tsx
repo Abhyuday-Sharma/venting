@@ -37,8 +37,20 @@ import { generateIncognitoName, getIncognitoAvatar } from "@/lib/incognito";
 import { SafetySupportModal } from "@/components/layout/safety-support-modal";
 import { analyzeContentSafety } from "@/actions/ai";
 
-// @ts-ignore
-const SpeechRecognition = typeof window !== 'undefined' ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
+// The Web Speech API is unevenly implemented and absent from lib.dom, so the
+// two vendor spellings are declared here rather than suppressed.
+type SpeechRecognitionCtor = new () => any;
+type SpeechRecognitionWindow = Window & {
+  SpeechRecognition?: SpeechRecognitionCtor;
+  webkitSpeechRecognition?: SpeechRecognitionCtor;
+};
+
+const SpeechRecognition: SpeechRecognitionCtor | null =
+  typeof window !== 'undefined'
+    ? (window as SpeechRecognitionWindow).SpeechRecognition ||
+      (window as SpeechRecognitionWindow).webkitSpeechRecognition ||
+      null
+    : null;
 
 const MAX_CHARS = 2000;
 
