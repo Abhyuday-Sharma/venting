@@ -41,6 +41,7 @@ export function PWAManager() {
 
     // 2. Do not show anything if already installed
     if (isStandalone()) {
+      document.documentElement.classList.add("is-standalone");
       return;
     }
 

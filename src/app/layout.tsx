@@ -155,6 +155,17 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Venting" />
         <meta name="mobile-web-app-capable" content="yes" />
         <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true || (document.referrer && document.referrer.indexOf('android-app://') !== -1)) {
+                  document.documentElement.classList.add('is-standalone');
+                }
+              } catch (e) {}
+            `,
+          }}
+        />
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />

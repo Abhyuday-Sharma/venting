@@ -219,3 +219,36 @@
     animation: message-fade-out 4s ease-in-out forwards;
   }
 }
+
+/* Mobile Safe Area Handling for PWA & Notch Screens */
+:root {
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+}
+
+.header-safe {
+  padding-top: var(--sat);
+}
+
+.bottom-nav-safe {
+  padding-bottom: var(--sab);
+}
+
+/* Standalone PWA / TWA: when installed on a mobile home screen */
+@media all and (display-mode: standalone) {
+  .header-safe {
+    padding-top: max(34px, env(safe-area-inset-top, 34px));
+  }
+  .bottom-nav-safe {
+    padding-bottom: max(10px, env(safe-area-inset-bottom, 10px));
+  }
+}
+
+/* Fallback if JS detects standalone mode or Android TWA wrapper */
+html.is-standalone .header-safe {
+  padding-top: max(34px, env(safe-area-inset-top, 34px));
+}
+
+html.is-standalone .bottom-nav-safe {
+  padding-bottom: max(10px, env(safe-area-inset-bottom, 10px));
+}

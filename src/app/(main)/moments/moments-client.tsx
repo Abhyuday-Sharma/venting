@@ -129,19 +129,19 @@ export function MomentsClient() {
     return (
         <ProtectedPage>
             <div className="min-h-screen bg-amber-50/20 dark:bg-slate-900/20">
-                <main className="container mx-auto px-4 py-12 md:py-16">
-                    <header className="text-center mb-12 md:mb-16">
-                        <div className="flex justify-center items-center gap-4">
-                           <Sun className="h-10 w-10 text-amber-500/80" />
-                            <h1 className="text-4xl md:text-5xl font-headline font-semibold text-amber-800 dark:text-amber-300">
+                <main className="container mx-auto px-4 py-6 md:py-16">
+                    <header className="text-center mb-8 md:mb-16">
+                        <div className="flex justify-center items-center gap-3 md:gap-4">
+                           <Sun className="h-8 w-8 md:h-10 md:w-10 text-amber-500/80" />
+                            <h1 className="text-3xl md:text-5xl font-headline font-semibold text-amber-800 dark:text-amber-300">
                                 Bright Spots
                             </h1>
-                             <Leaf className="h-10 w-10 text-green-600/70 dark:text-green-400/70 transform -scale-x-100" />
+                             <Leaf className="h-8 w-8 md:h-10 md:w-10 text-green-600/70 dark:text-green-400/70 transform -scale-x-100" />
                         </div>
-                        <p className="mt-4 text-lg text-amber-700/80 dark:text-amber-300/80 max-w-2xl mx-auto">
+                        <p className="mt-3 md:mt-4 text-sm md:text-lg text-amber-700/80 dark:text-amber-300/80 max-w-2xl mx-auto">
                             A private space to record your small joys, quiet victories, and the relief of making it through the day.
                         </p>
-                        <div className="mt-8">
+                        <div className="mt-5 md:mt-8">
                             <Button asChild>
                                 <Link href="/moments/my-moments">
                                     <BookHeart className="mr-2 h-4 w-4" />
