@@ -96,6 +96,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: false,
+  viewportFit: 'cover',
 };
 
 const jsonLd = [

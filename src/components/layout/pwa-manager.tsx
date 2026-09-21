@@ -13,10 +13,14 @@ const isIos = () => {
   return /iphone|ipad|ipod/.test(userAgent);
 };
 
-// Detect if running as standalone PWA
+// Detect if running as standalone PWA or TWA
 const isStandalone = () => {
   if (typeof window === "undefined") return false;
-  return window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    (window.navigator as any).standalone === true ||
+    (typeof document !== "undefined" && document.referrer.includes("android-app://"))
+  );
 };
 
 export function PWAManager() {

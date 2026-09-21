@@ -276,10 +276,14 @@ export function PublicFeed() {
 
     return (
         <TooltipProvider>
-            <div className="relative container mx-auto p-4 md:p-8 overflow-hidden">
-                {/* Ambient glow orbs */}
-                <div className="ambient-orb w-96 h-96 bg-blue-400 dark:bg-blue-600 -top-20 -right-20 -z-10" />
-                <div className="ambient-orb w-72 h-72 bg-purple-300 dark:bg-indigo-700 bottom-10 -left-10 -z-10" />
+            <div className="relative container mx-auto p-4 md:p-8">
+                {/* Ambient glow orbs. They sit in their own clipped layer: their negative
+                    offsets extend past the viewport, and relying on the document's
+                    overflow-x to hide that lets mobile browsers scroll the feed sideways. */}
+                <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+                    <div className="ambient-orb w-96 h-96 bg-blue-400 dark:bg-blue-600 -top-20 -right-20" />
+                    <div className="ambient-orb w-72 h-72 bg-purple-300 dark:bg-indigo-700 bottom-10 -left-10" />
+                </div>
 
                 <div>
                     <h1 className="text-3xl font-bold font-headline">Public Feed</h1>

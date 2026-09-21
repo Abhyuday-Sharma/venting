@@ -17,6 +17,7 @@ export default function robots(): MetadataRoute.Robots {
         '/legal/',
         '/moments',
         '/support',
+        '/account-deletion',
       ],
       disallow: [
         '/api/',

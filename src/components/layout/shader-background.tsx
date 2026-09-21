@@ -29,12 +29,6 @@ export default function ShaderBackground() {
       color2: "#110b29", // Calming deep indigo
       color3: "#070c1e", // Restful slate
     }
-  } else if (resolvedTheme === "enlighten") {
-    colors = {
-      color1: "#fbe2d3", // Soft sunrise peach
-      color2: "#e0f2f1", // Peaceful minty water
-      color3: "#f3e5f5", // Soft lilac
-    }
   }
 
   return (

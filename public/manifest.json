@@ -1,13 +1,14 @@
 {
   "name": "Venting",
   "short_name": "Venting",
-  "description": "Welcome to Venting, a secure, judgment-free journal designed for your mental well-being. Whether you need to rant, reflect, or simply get things off your chest, Venting provides a private space for your unfiltered thoughts. Track your moods, look back on your emotional journey, and find peace of mind. Your thoughts belong to you, and with Venting, they finally have a safe place to land.",
+  "description": "Welcome to Venting, a secure, judgment-free journal designed for your mental well-being. Whether you need to rant, reflect, or simply get things off your chest, Venting provides a private space for your unfiltered thoughts. Track your moods, look back on your emotional journey, and find peace of mind.",
   "id": "/?source=pwa",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#09090b",
   "theme_color": "#09090b",
   "orientation": "portrait",
+  "categories": ["health", "lifestyle", "social"],
   "icons": [
     {
       "src": "/venting_192.png",
@@ -20,6 +21,29 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Vent Now",
+      "short_name": "Vent",
+      "description": "Express your thoughts and emotions privately",
+      "url": "/vent",
+      "icons": [{ "src": "/venting_192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Public Feed",
+      "short_name": "Feed",
+      "description": "Read and connect with the community anonymously",
+      "url": "/feed",
+      "icons": [{ "src": "/venting_192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Bright Spots",
+      "short_name": "Moments",
+      "description": "View moments of gratitude and relief",
+      "url": "/moments",
+      "icons": [{ "src": "/venting_192.png", "sizes": "192x192" }]
     }
   ],
   "screenshots": [

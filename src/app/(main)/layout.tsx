@@ -51,6 +51,9 @@ export default function MainLayout({
                     <Button asChild variant="link">
                         <Link href="/legal/privacy-policy">Privacy</Link>
                     </Button>
+                    <Button asChild variant="link">
+                        <Link href="/account-deletion">Account Deletion</Link>
+                    </Button>
                 </div>
                 <div className="flex flex-col md:flex-row items-center justify-center md:justify-end gap-2 md:gap-4">
                     <h3 className="text-sm font-semibold text-muted-foreground">Follow Us</h3>
