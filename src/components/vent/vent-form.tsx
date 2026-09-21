@@ -3,6 +3,7 @@
 
 import anime from "animejs";
 import { createBurnEmbers } from "@/lib/anime-presets";
+import { haptics } from "@/lib/haptics";
 import { useState, useEffect, useTransition, useCallback, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
@@ -177,6 +178,9 @@ export function VentForm() {
     }
     setIsBurningAnim(true);
 
+    // Trigger haptic fire-burning sensation
+    haptics.burn();
+
     // Trigger Anime.js particle ash & ember dissolve
     if (cardRef.current) {
       createBurnEmbers(cardRef.current, 24);
@@ -198,6 +202,9 @@ export function VentForm() {
     setTimeout(() => {
       setText("");
       setIsBurningAnim(false);
+
+      // Trigger soothing release vibration
+      haptics.release();
       
       // Reset card styles for next write session if needed
       if (cardRef.current) {
@@ -553,6 +560,7 @@ export function VentForm() {
                   id="burn-switch" 
                   checked={isBurnMode} 
                   onCheckedChange={(val) => {
+                    haptics.tap();
                     setIsBurnMode(val);
                     if (val) setIsPublic(false);
                   }} 
