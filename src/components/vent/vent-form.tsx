@@ -700,8 +700,13 @@ export function VentForm() {
                 {isBurnMode ? (
                   <Button 
                     onClick={handleBurnRelease} 
+                    onPointerDown={() => {
+                      if (text.trim().length > 0 && !isBurningAnim) {
+                        haptics.burn();
+                      }
+                    }}
                     disabled={isBurningAnim || text.trim().length === 0} 
-                    className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white border-0 shadow-lg shadow-orange-500/20"
+                    className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white border-0 shadow-lg shadow-orange-500/20 active:scale-95 transition-transform"
                   >
                     {isBurningAnim ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Flame className="mr-2 h-4 w-4" />}
                     Release & Burn
