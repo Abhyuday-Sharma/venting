@@ -717,11 +717,6 @@ export function VentForm() {
                     {ventId ? 'Update Vent' : 'Vent'}
                   </Button>
                 )}
-                {!user && !isBurnMode && (
-                  <Link href="/saved">
-                    <Button variant="outline">Saved</Button>
-                  </Link>
-                )}
             </div>
           </CardFooter>
         </Card>

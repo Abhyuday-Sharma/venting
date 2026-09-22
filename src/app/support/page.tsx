@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { PublicFooter } from "@/components/layout/public-footer";
 import { Suspense } from 'react';
 import SupportClient from './support-client';
 
@@ -38,8 +39,11 @@ export const metadata: Metadata = {
 
 export default function SupportPage() {
   return (
+    <>
     <Suspense fallback={<div className="container mx-auto max-w-2xl p-4 md:p-8">Loading...</div>}>
       <SupportClient />
     </Suspense>
+    <PublicFooter />
+    </>
   );
 }

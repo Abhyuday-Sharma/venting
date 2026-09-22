@@ -1,6 +1,14 @@
 import { PublicFeed } from "@/components/feed/public-feed";
-import { Suspense } from "react";
 import { Metadata } from "next";
+import { getGuestFeedVents } from "@/lib/guest-feed";
+
+// PublicFeed reads useSearchParams (?ventId=…). On a statically rendered route
+// that forces client-only rendering, so the server HTML would hold no vents.
+// Rendering per request keeps them in the HTML; getGuestFeedVents is cached, so
+// Firestore isn't hit every time. There is deliberately no <Suspense> around
+// PublicFeed: a boundary here streamed the vents in a hidden segment behind a
+// "Loading feed..." fallback, instead of in the page markup itself.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Community Feed & Anonymous Vents",
@@ -36,10 +44,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function FeedPage() {
+export default async function FeedPage() {
+  const initialVents = await getGuestFeedVents();
+
   return (
-    <Suspense fallback={<div className="container mx-auto p-4 md:p-8">Loading feed...</div>}>
-        <PublicFeed />
-    </Suspense>
+    <PublicFeed initialVents={initialVents} />
   );
 }

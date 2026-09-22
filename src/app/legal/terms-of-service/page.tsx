@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { Metadata } from "next";
+import { PublicFooter } from "@/components/layout/public-footer";
 
 export const metadata: Metadata = {
   title: "Terms and Conditions",
@@ -41,11 +42,12 @@ export const metadata: Metadata = {
 
 export default function TermsOfServicePage() {
   return (
+    <>
     <div className="container mx-auto p-4 md:p-8">
       <Button asChild variant="ghost" size="icon" className="mb-4">
-        <Link href="/dashboard">
+        <Link href="/">
           <ChevronLeft className="h-4 w-4" />
-          <span className="sr-only">Back to App</span>
+          <span className="sr-only">Back to home</span>
         </Link>
       </Button>
       <Card className="w-full max-w-4xl mx-auto shadow-lg bg-card/60 backdrop-blur-md border-white/10 dark:border-white/5">
@@ -60,5 +62,7 @@ export default function TermsOfServicePage() {
         </CardContent>
       </Card>
     </div>
+    <PublicFooter />
+    </>
   );
 }

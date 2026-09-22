@@ -306,7 +306,7 @@ export function LoginForm() {
                     <div className="flex items-start space-x-2">
                         <Checkbox id="terms" checked={agreedToTerms} onCheckedChange={(checked) => setAgreedToTerms(Boolean(checked))} disabled={!!loading} className="mt-0.5 h-3.5 w-3.5" />
                         <Label htmlFor="terms" className="text-[11px] font-normal leading-tight">
-                            I agree to the <Button variant="link" size="sm" className="p-0 h-auto text-[11px] text-primary hover:underline" onClick={() => setShowLegal("terms")}>Terms and Conditions</Button>.
+                            I am at least 13 (16 in the EEA) and agree to the <Button variant="link" size="sm" className="p-0 h-auto text-[11px] text-primary hover:underline" onClick={() => setShowLegal("terms")}>Terms and Conditions</Button>.
                         </Label>
                     </div>
                      <div className="flex items-start space-x-2">

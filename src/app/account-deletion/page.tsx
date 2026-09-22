@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { CONTACT_EMAIL } from "@/lib/site-config";
+import { PublicFooter } from "@/components/layout/public-footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft, ShieldCheck, Trash2, Smartphone, Clock, FileText, CheckCircle } from "lucide-react";
@@ -44,11 +46,12 @@ export const metadata: Metadata = {
 
 export default function AccountDeletionPage() {
   return (
+    <>
     <div className="container mx-auto px-4 py-8 md:py-12 max-w-4xl space-y-8">
       {/* Navigation & Header */}
       <div>
         <Button asChild variant="ghost" size="sm" className="mb-4">
-          <Link href="/feed" className="flex items-center gap-1 text-muted-foreground hover:text-foreground">
+          <Link href="/" className="flex items-center gap-1 text-muted-foreground hover:text-foreground">
             <ChevronLeft className="h-4 w-4" />
             <span>Back to Venting</span>
           </Link>
@@ -163,11 +166,13 @@ export default function AccountDeletionPage() {
             Privacy Policy
           </Link>{" "}
           or email our Data Protection Team at{" "}
-          <a href="mailto:support@venting.in" className="underline hover:text-foreground">
-            support@venting.in
+          <a href={`mailto:${CONTACT_EMAIL}`} className="underline hover:text-foreground">
+            {CONTACT_EMAIL}
           </a>.
         </p>
       </div>
     </div>
+    <PublicFooter />
+    </>
   );
 }

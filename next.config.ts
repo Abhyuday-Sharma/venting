@@ -7,6 +7,16 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // Short/legacy aliases that used to serve duplicate copies of a page. They
+  // redirect so each page has one canonical URL, while links already shared
+  // elsewhere (store listings, old posts) keep working.
+  async redirects() {
+    return [
+      { source: '/privacy', destination: '/legal/privacy-policy', permanent: true },
+      { source: '/terms', destination: '/legal/terms-of-service', permanent: true },
+      { source: '/bright-spots', destination: '/moments', permanent: true },
+    ];
+  },
   images: {
     remotePatterns: [
       {

@@ -10,6 +10,9 @@ import { SafetySupportModal } from '@/components/layout/safety-support-modal';
 import { PWAManager } from '@/components/layout/pwa-manager';
 import { BottomNavigation } from '@/components/layout/bottom-navigation';
 import ShaderBackground from '@/components/layout/shader-background-wrapper';
+import Script from 'next/script';
+import { Suspense } from 'react';
+import { ADSENSE_CLIENT_ID } from '@/lib/ads-config';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://venting.in'),
@@ -37,8 +40,11 @@ export const metadata: Metadata = {
   applicationName: 'Venting',
   referrer: 'origin-when-cross-origin',
   manifest: '/manifest.json',
-  alternates: {
-    canonical: 'https://venting.in',
+  // No site-wide canonical: it would be inherited by every page that doesn't set
+  // its own, marking them all as duplicates of the homepage. Pages set their own.
+  other: {
+    // AdSense site ownership. Placeholder until NEXT_PUBLIC_ADSENSE_CLIENT_ID is set.
+    'google-adsense-account': ADSENSE_CLIENT_ID,
   },
   robots: {
     index: true,
@@ -181,16 +187,32 @@ export default function RootLayout({
           <AuthProvider>
             <FirebaseErrorListener />
             <SafetySupportModal />
-            <div className="flex flex-col min-h-screen bg-background/40 backdrop-blur-[2px]">
+            <div className="flex flex-col min-h-screen bg-background/40">
               <AppHeader />
               {children}
             </div>
             <BottomNavigation />
-            <MoodCheckInManager />
+            {/* Reads useSearchParams; public pages now render on the server, so it needs a boundary. */}
+            <Suspense fallback={null}>
+              <MoodCheckInManager />
+            </Suspense>
             <PWAManager />
             <Toaster />
           </AuthProvider>
         </ThemeProvider>
+        {/*
+          AdSense loader. It only fills the manual <AdSlot> units that pages render
+          (see src/lib/ad-policy.ts); keep Auto ads OFF in the AdSense dashboard.
+          Consent for EEA/UK/CH users comes from AdSense Privacy & messaging,
+          configured in the dashboard, not in code.
+        */}
+        <Script
+          id="adsense-loader"
+          async
+          strategy="afterInteractive"
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}
+          crossOrigin="anonymous"
+        />
       </body>
     </html>
   );

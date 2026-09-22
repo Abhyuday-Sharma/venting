@@ -1,6 +1,20 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
+import { CONTACT_EMAIL } from "@/lib/site-config";
+
+const ExternalLink: React.FC<{ href: string; children: React.ReactNode }> = ({ href, children }) => (
+  <a href={href} target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
+    {children}
+  </a>
+);
+
+const ContactEmail = () => (
+  <a href={`mailto:${CONTACT_EMAIL}`} className="underline hover:text-foreground">
+    {CONTACT_EMAIL}
+  </a>
+);
 
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({
   title,
@@ -71,6 +85,12 @@ export const TermsOfServiceText = () => (
 
     <Section title="3. Eligibility and User Accounts">
       <UL>
+        <li>
+          You must be at least 13 years old to use the platform. If you are in the
+          European Economic Area, you must be at least 16, or the lower minimum age
+          of digital consent set by your country, if one applies.
+        </li>
+        <li>The platform is intended for a general audience and is not directed at children.</li>
         <li>Users must comply with all applicable laws while using the platform.</li>
         <li>
           Some features require account registration using supported
@@ -122,7 +142,8 @@ export const TermsOfServiceText = () => (
         <UL>
             <li>Users may express emotions such as sadness, anger, stress, or frustration.</li>
             <li>Strong emotional language is allowed if not directed at others.</li>
-            <li>Users are responsible for the content they post.</li>
+            <li>Users are responsible for the content they post, including vents, comments and profile details.</li>
+            <li>Do not post other people&apos;s personal information or anything you do not have the right to share.</li>
         </UL>
       </SubSection>
       <SubSection title="Public Vents and Interactions">
@@ -133,12 +154,13 @@ export const TermsOfServiceText = () => (
         </UL>
       </SubSection>
        <SubSection title="Prohibited Content">
-        <p>We reserve the right to remove content that:</p>
+        <p>We reserve the right to remove, hide, or restrict the visibility of content that:</p>
         <UL>
             <li>Violates these Terms or community guidelines</li>
             <li>Poses a safety risk to users</li>
             <li>Is unlawful or harmful</li>
         </UL>
+        <p>We may moderate content at any time, with or without notice, and we are not obliged to keep any content available.</p>
       </SubSection>
     </Section>
 
@@ -146,6 +168,7 @@ export const TermsOfServiceText = () => (
         <p>Expressions of emotional distress are allowed.</p>
         <p>Content that promotes, encourages, or instructs self-harm or suicide is strictly prohibited.</p>
         <p>If content indicates severe emotional distress, our automated AI and safety systems may provide supportive resources or crisis information.</p>
+        <p>Public vents that our safety systems flag for severe distress may have interactions limited, and are not shown to visitors who are not signed in.</p>
         <p>The platform does not replace professional mental health care. Users in crisis should seek immediate professional help.</p>
     </Section>
 
@@ -158,15 +181,18 @@ export const TermsOfServiceText = () => (
 
     <Section title="8. Moderation and Reporting">
         <p>Users may report content or behavior that violates these Terms.</p>
-        <p>Reports are reviewed using automated AI evaluation and human moderation review.</p>
+        <p>Signed-in users can report a vent or comment using the flag icon. Anyone, including visitors without an account, can report content through our <Link href="/contact" className="underline hover:text-foreground">Contact page</Link>.</p>
+        <p>Reports are reviewed using automated AI evaluation and human moderation review. Reported content may be hidden while it is under review.</p>
+        <p>Automated safety systems may also review content when it is submitted, before any report is made.</p>
         <p>Moderation actions may include warnings, content removal, or account restrictions.</p>
+        <p>Repeated or serious violations may result in escalating restrictions, including temporary or permanent suspension.</p>
         <p>Abuse of reporting features may result in action against the reporting user.</p>
     </Section>
 
     <Section title="9. Advertisements and Monetization">
-        <p>Advertisements may appear in certain non-intrusive areas of the platform.</p>
-        <p>Venting and emotional expression pages are kept free from disruptive ads.</p>
-        <p>Ads do not use vent content or AI insights for emotional or personalized ad targeting.</p>
+        <p>Advertisements, which may be served by Google AdSense, may appear in certain non-intrusive areas of the platform, such as informational pages and guides.</p>
+        <p>Venting and emotional expression pages are kept free from ads, including the vent composer, your dashboard and mood tracking, and any crisis or support messages.</p>
+        <p>We do not use vent content or AI insights for emotional or personalized ad targeting. How advertising cookies work, and how to opt out, is explained in our <Link href="/legal/privacy-policy" className="underline hover:text-foreground">Privacy Policy</Link>.</p>
     </Section>
 
     <Section title="10. Intellectual Property">
@@ -188,6 +214,10 @@ export const TermsOfServiceText = () => (
         <p>These Terms may be updated periodically to reflect changes in functionality, law, or AI safety requirements. Continued use of the platform constitutes acceptance of updated terms.</p>
     </Section>
 
+    <Section title="14. Contact">
+        <p>Questions about these Terms, or reports about content, can be sent to <ContactEmail /> or through our <Link href="/contact" className="underline hover:text-foreground">Contact page</Link>.</p>
+    </Section>
+
     <div className="mt-8 pt-4 border-t border-white/10">
         <h3 className="font-bold text-center">Final Notice</h3>
         <p className="text-center text-sm text-muted-foreground">This platform is built on trust, empathy, and safety. Users are expected to act responsibly and respectfully while using the website and its services.</p>
@@ -198,27 +228,27 @@ export const TermsOfServiceText = () => (
 export const PrivacyPolicyText = () => (
   <>
     <p className="mb-4 text-sm text-muted-foreground">
-        This Privacy Policy explains how the Venting Platform (“we”, “our”, “us”) collects, uses, stores, and protects user information, including explicit guarantees regarding automated AI data processing. By using the platform, you agree to the practices described in this Privacy Policy.
+        This Privacy Policy explains how the Venting Platform (“we”, “our”, “us”) collects, uses, stores, and protects user information, including how automated AI processing, cookies, analytics, and advertising work on the platform. By using the platform, you agree to the practices described in this Privacy Policy.
     </p>
 
-    <Section title="1. AI Data Privacy & Processing Guarantees">
+    <Section title="1. AI Data Privacy & Processing">
         <p className="font-medium text-foreground">We prioritize your emotional data privacy above all else:</p>
         <SubSection title="a) Zero Model Training Retention">
             <p>
-                Your written vents, private feelings, mood logs, and comments are **NEVER used to train, retrain, or improve third-party or commercial AI models**.
+                Your written vents, private feelings, mood logs, and comments are <strong>never used by Venting to train, retrain, or improve AI models</strong>.
             </p>
         </SubSection>
         <SubSection title="b) Serverless Transient Processing">
             <p>
-                All AI features (Content Safety Analysis, Empathy Checks, Reflection Prompts, Mood Summaries, Micro-Action Items, Multilingual Processing) are executed inside secure, isolated Serverless Actions on backend servers.
+                All AI features (Content Safety Analysis, Empathy Checks, Reflection Prompts, Mood Summaries, Micro-Action Items, Multilingual Processing) are executed inside isolated server actions on our backend. Text is sent to our AI model provider (Groq) only to produce the requested result.
             </p>
             <p>
-                Input text is processed transiently in memory for the exact duration of your request and is discarded immediately after generating safety flags or reflective outputs.
+                Venting does not store the text of these AI requests separately from the vent or comment itself. Our AI provider handles the request under its own terms and data policies.
             </p>
         </SubSection>
-        <SubSection title="c) No Emotional Ad Targeting">
+        <SubSection title="c) Emotional Content Is Never Used for Advertising">
             <p>
-                We do not sell, license, or share user emotional data or AI insights with advertisers or third-party brokers. AI analysis is used strictly for real-time safety, empathy support, and personal wellness features.
+                We do not sell, license, or share your vents, comments, mood logs, or AI safety and moderation results with advertisers or data brokers, and we never use them to target ads. Advertising on the platform works separately, through cookies, as explained in Section 7.
             </p>
         </SubSection>
         <SubSection title="d) Fail-Safe Execution">
@@ -249,8 +279,11 @@ export const PrivacyPolicyText = () => (
                 <li>Reports submitted by users</li>
             </UL>
         </SubSection>
-         <SubSection title="c) Usage & Technical Data">
-            <p>We may collect limited technical data such as device type, browser analytics, and crash logs to improve app performance and stability.</p>
+        <SubSection title="c) Usage & Technical Data">
+            <p>We collect limited technical data, such as device type, browser type, pages visited, and crash logs, to improve app performance and stability. See Section 6 (Analytics).</p>
+        </SubSection>
+        <SubSection title="d) Guest Data Stored on Your Device">
+            <p>If you write vents without an account, they are saved only in your browser&apos;s local storage on your device. They are not uploaded to our servers, and clearing your browser data deletes them.</p>
         </SubSection>
     </Section>
 
@@ -262,40 +295,94 @@ export const PrivacyPolicyText = () => (
                 <li>Execute real-time AI safety moderation and empathy evaluation</li>
                 <li>Generate personal dashboard mood insights upon request</li>
                 <li>Ensure community safety and prevent harassment</li>
+                <li>Understand how the platform is used, so we can improve it</li>
+                <li>Show advertising on eligible pages, as described in Section 7</li>
             </UL>
     </Section>
 
     <Section title="4. Public vs Private Content">
         <UL>
-            <li>Private vents are encrypted and visible only to you.</li>
-            <li>Public vents are visible to other users based on your settings.</li>
+            <li>Private vents are visible only to you. Authorized administrators can access them only where needed to process deletion, legal, or safety requests.</li>
+            <li>Public vents are visible to anyone who visits the platform, including visitors without an account, based on your settings.</li>
             <li>Anonymous posting hides personal identifiers from public view.</li>
         </UL>
     </Section>
 
-    <Section title="5. Data Storage & Security">
+    <Section title="5. Cookies & Local Storage">
+        <p>Cookies and similar technologies (such as browser local storage) are small pieces of data stored on your device. We and our service providers use them for the following purposes:</p>
+        <UL>
+            <li><strong>Essential:</strong> keeping you signed in (Firebase Authentication), and remembering guest vents and preferences such as your theme choice.</li>
+            <li><strong>Analytics:</strong> measuring how the platform is used (Google Analytics for Firebase).</li>
+            <li><strong>Advertising:</strong> serving and measuring ads, where ads are shown (Google AdSense).</li>
+        </UL>
+        <p>You can block or delete cookies in your browser settings. Blocking essential storage may stop sign-in or guest vents from working.</p>
+    </Section>
+
+    <Section title="6. Analytics">
+        <p>We use Google Analytics for Firebase to understand aggregate usage, such as which pages are visited and which devices are used. It collects device and usage information and an app-instance identifier. It does not receive the text of your vents or comments.</p>
+        <p>
+            Learn more in{" "}
+            <ExternalLink href="https://policies.google.com/technologies/partner-sites">How Google uses information from sites or apps that use its services</ExternalLink>.
+        </p>
+    </Section>
+
+    <Section title="7. Advertising">
+        <p>We may use Google AdSense to show ads on certain pages, such as informational pages and guides. We do not show ads in the vent composer, your dashboard, mood tracking, or any crisis or support messages.</p>
+        <UL>
+            <li>Third-party vendors, including Google, use cookies to serve ads based on a user&apos;s prior visits to this website or other websites.</li>
+            <li>Google&apos;s use of advertising cookies enables it and its partners to serve ads to users based on their visits to this site and/or other sites on the Internet.</li>
+            <li>Ads may be personalized (interest-based) or non-personalized, depending on your choices and the privacy laws where you live. In the European Economic Area, the United Kingdom, and Switzerland, you will be asked for consent before personalized ads are used.</li>
+            <li>Advertising cookies are set and read by Google and its partners, not by Venting. We do not pass your vents, comments, mood data, or AI safety and moderation results to them.</li>
+        </UL>
+        <SubSection title="Your advertising choices">
+            <UL>
+                <li>Opt out of personalized advertising from Google in <ExternalLink href="https://adssettings.google.com">Google Ads Settings</ExternalLink>.</li>
+                <li>Opt out of some third-party vendors&apos; use of cookies for personalized advertising at <ExternalLink href="https://www.aboutads.info/choices">www.aboutads.info</ExternalLink>.</li>
+                <li>If you are in Europe, you can also use <ExternalLink href="https://www.youronlinechoices.eu">www.youronlinechoices.eu</ExternalLink>.</li>
+            </UL>
+            <p>Opting out stops personalized ads, but you may still see non-personalized ads.</p>
+        </SubSection>
+    </Section>
+
+    <Section title="8. Service Providers">
+        <p>We rely on these providers to run the platform. Each one processes data only to provide its service:</p>
+        <UL>
+            <li><strong>Google Firebase:</strong> authentication, database, file storage, and analytics.</li>
+            <li><strong>Groq:</strong> AI model inference for safety moderation and reflection features.</li>
+            <li><strong>Stripe:</strong> payment processing for optional donations. We do not store card details.</li>
+            <li><strong>Google AdSense:</strong> advertising, where enabled.</li>
+        </UL>
+    </Section>
+
+    <Section title="9. Data Storage & Security">
         <UL>
             <li>User data is securely stored using Firebase infrastructure.</li>
             <li>Database security rules ensure private data remains accessible only to authorized accounts.</li>
-            <li>We enforce strict encryption standards in transit and at rest.</li>
+            <li>Data is encrypted in transit and at rest by our infrastructure provider.</li>
         </UL>
     </Section>
 
-     <Section title="6. User Rights & Control">
+     <Section title="10. User Rights & Control">
         <p>Users have the right to:</p>
         <UL>
             <li>Edit or delete their content at any time</li>
-            <li>Delete their account and associated data</li>
+            <li>Delete their account and associated data (see <Link href="/account-deletion" className="underline hover:text-foreground">Account Deletion</Link>)</li>
             <li>Control privacy and visibility settings</li>
+            <li>Ask what personal data we hold about them, or ask us to correct it, by contacting us</li>
+            <li>Manage cookies and advertising preferences as described in Sections 5 and 7</li>
         </UL>
     </Section>
-    
-    <Section title="7. Children’s Privacy">
-        <p>This platform is not intended for children under the age required by applicable laws. We do not knowingly collect data from minors.</p>
+
+    <Section title="11. Children’s Privacy">
+        <p>The platform is not directed at children. You must be at least 13 years old to use it, or at least 16 in the European Economic Area (or the lower minimum age of digital consent set by your country, if one applies). We do not knowingly collect personal data from anyone below these ages. If you believe a child has provided us with personal data, contact us and we will delete it.</p>
     </Section>
 
-    <Section title="8. Updates to Policy">
+    <Section title="12. Updates to Policy">
         <p>This policy may be updated to reflect new platform features, AI architecture enhancements, or legal requirements. Continued platform use constitutes acceptance of updated terms.</p>
+    </Section>
+
+    <Section title="13. Contact Us">
+        <p>For privacy questions, data requests, or concerns, email <ContactEmail /> or visit our <Link href="/contact" className="underline hover:text-foreground">Contact page</Link>.</p>
     </Section>
 
     <div className="mt-8 pt-4 border-t border-white/10">
@@ -316,10 +403,10 @@ export const LegalNotesText = () => (
         Venting operates a modern serverless AI architecture designed for privacy, high throughput, and data isolation.
       </p>
       <UL>
-        <li>**Serverless Isolation:** All AI flows run exclusively inside stateless backend server actions.</li>
-        <li>**Transient Memory Processing:** Text payloads are processed in volatile RAM only for the duration of inference.</li>
-        <li>**Zero Persistence in AI Engine:** AI endpoints do not retain log histories or training data of user inputs.</li>
-        <li>**Automated Fallback Net:** Pre-filtering ensures client operations complete reliably even during external network latencies.</li>
+        <li><strong>Serverless Isolation:</strong> All AI flows run exclusively inside stateless backend server actions.</li>
+        <li><strong>Transient Processing:</strong> Text is sent to our AI provider only for the duration of the request that needs it.</li>
+        <li><strong>No Separate AI Logs:</strong> Venting does not keep a separate store of AI inputs or use them as training data.</li>
+        <li><strong>Automated Fallback Net:</strong> Pre-filtering ensures client operations complete reliably even during external network latencies.</li>
       </UL>
     </Section>
 
@@ -342,13 +429,14 @@ export const LegalNotesText = () => (
 
     <Section title="4. Transparency & Release Logs">
       <p>
-        We maintain full operational transparency regarding platform updates, AI pipeline enhancements, and release logs. You can inspect all release history on our official **[Update Log & AI Transparency Hub](/updates)** page.
+        We maintain full operational transparency regarding platform updates, AI pipeline enhancements, and release logs. You can inspect all release history on our official{" "}
+        <Link href="/updates" className="underline hover:text-foreground">Update Log &amp; AI Transparency Hub</Link> page.
       </p>
     </Section>
 
     <div className="mt-8 pt-4 border-t border-white/10">
         <h3 className="font-bold text-center">Legal Notice</h3>
-        <p className="text-center text-sm text-muted-foreground">For legal inquiries, compliance requests, or data protection questions, please reach out through our official platform channels.</p>
+        <p className="text-center text-sm text-muted-foreground">For legal inquiries, compliance requests, or data protection questions, email <ContactEmail /> or use our <Link href="/contact" className="underline hover:text-foreground">Contact page</Link>.</p>
     </div>
   </>
 );

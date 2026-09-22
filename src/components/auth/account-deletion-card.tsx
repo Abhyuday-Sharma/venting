@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { CONTACT_EMAIL } from "@/lib/site-config";
 import { useAuth } from "@/hooks/use-auth";
 import { deleteUserAccount, submitFeedback } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
@@ -91,7 +92,7 @@ export function AccountDeletionCard() {
       toast({
         variant: "destructive",
         title: "Submission Error",
-        description: "Unable to send deletion request. Please contact support@venting.in directly.",
+        description: `Unable to send deletion request. Please contact ${CONTACT_EMAIL} directly.`,
       });
     } finally {
       setIsSubmittingRequest(false);
@@ -185,8 +186,8 @@ export function AccountDeletionCard() {
           </CardTitle>
           <CardDescription>
             If you have uninstalled the Venting app, lost access to your login provider, or need assistance, submit your details below or email us directly at{" "}
-            <a href="mailto:support@venting.in" className="text-primary underline">
-              support@venting.in
+            <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary underline">
+              {CONTACT_EMAIL}
             </a>.
           </CardDescription>
         </CardHeader>

@@ -88,9 +88,9 @@ export default function SupportClient() {
     return (
         <div className="container mx-auto max-w-2xl p-4 md:p-8">
              <Button asChild variant="ghost" size="icon" className="mb-4">
-                <Link href="/dashboard">
+                <Link href="/">
                     <ChevronLeft className="h-4 w-4" />
-                    <span className="sr-only">Back to App</span>
+                    <span className="sr-only">Back to home</span>
                 </Link>
             </Button>
             <Card className="shadow-lg">

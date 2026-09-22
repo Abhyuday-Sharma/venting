@@ -266,3 +266,8 @@ html.is-standalone .header-safe {
 html.is-standalone .bottom-nav-safe {
   padding-bottom: max(10px, env(safe-area-inset-bottom, 10px));
 }
+
+/* No ads inside the installed app (TWA/PWA); see AdSlot. */
+html.is-standalone .ad-slot {
+  display: none;
+}

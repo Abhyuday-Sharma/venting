@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/use-auth';
 import { 
   Sparkles, 
   Cpu, 
@@ -182,6 +183,7 @@ const AI_FEATURES = [
 ];
 
 export default function UpdatesClient() {
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
 
@@ -419,7 +421,7 @@ export default function UpdatesClient() {
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="sm">
-                  <Link href="/dashboard">Dashboard</Link>
+                  {user ? <Link href="/dashboard">Dashboard</Link> : <Link href="/feed">Public Feed</Link>}
                 </Button>
               </div>
             </div>

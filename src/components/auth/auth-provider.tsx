@@ -15,6 +15,31 @@ interface AuthContextType {
   loading: boolean;
 }
 
+/**
+ * Public content routes render immediately instead of behind the auth-loading
+ * skeleton. Auth state only resolves in the browser, so gating these pages meant
+ * the server HTML (what crawlers and no-JS visitors get) was an empty skeleton.
+ * Everything on these routes already treats `user === null` as a guest.
+ * Private routes keep the skeleton so they never flash guest UI.
+ */
+const PUBLIC_CONTENT_PREFIXES = [
+  "/feed",
+  "/about",
+  "/showcase",
+  "/updates",
+  "/guides",
+  "/contact",
+  "/legal",
+  "/support",
+  "/account-deletion",
+];
+
+function isPublicContentRoute(pathname: string | null) {
+  if (!pathname) return false;
+  if (pathname === "/") return true;
+  return PUBLIC_CONTENT_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
 export const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
@@ -159,7 +184,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return; // Don't do anything while auth state is being determined.
     }
 
-    const isAuthPage = pathname === "/login" || pathname === "/create-username";
+    // "/" is the public landing page; signed-in users continue to the feed from it,
+    // as they did when "/" redirected through /login.
+    const isAuthPage = pathname === "/login" || pathname === "/create-username" || pathname === "/";
     const protectedRoutes = ['/settings', '/moments', '/feedback', '/dashboard'];
     const isProtectedRoute = protectedRoutes.some(p => pathname.startsWith(p));
 
@@ -185,7 +212,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider value={{ user, loading }}>
-      {loading ? (
+      {loading && !isPublicContentRoute(pathname) ? (
         <div className="w-full h-screen flex items-center justify-center">
           <Skeleton className="h-screen w-screen" />
         </div>

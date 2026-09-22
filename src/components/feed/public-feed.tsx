@@ -1,11 +1,15 @@
 
 "use client";
 
-import { useEffect, useState, useRef, useMemo } from "react";
+import { Fragment, useEffect, useState, useRef, useMemo } from "react";
 import { useSearchParams, useRouter } from 'next/navigation';
 import { getPublicVents, db, adminDeletePublicVent, submitReportAndTakeAction } from "@/lib/firebase";
 import type { Vent, Comment, Notification, ReportReasonCategory } from "@/lib/types";
 import { ventCategories } from "@/lib/types";
+import { deserializeVent, isVisibleToGuests, type SerializedVent } from "@/lib/feed-visibility";
+import { feedAdPositions } from "@/lib/ad-policy";
+import { AD_SLOTS } from "@/lib/ads-config";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
@@ -48,7 +52,9 @@ const getInitials = (name: string | null | undefined) => {
 };
 
 async function createReactionNotification(vent: Vent, reactingUser: any, reactionType: 'hearts' | 'hugs') {
-    if (vent.userId === reactingUser.uid) return; // Don't notify for own reaction
+    // No uid means the server-rendered copy of an incognito vent that the client
+    // fetch hasn't replaced yet; there is nobody to address the notification to.
+    if (!vent.userId || vent.userId === reactingUser.uid) return; // Don't notify for own reaction
 
     const notifData: Omit<Notification, 'id' | 'timestamp' | 'read'> = {
         type: reactionType === 'hearts' ? 'new_reaction_heart' : 'new_reaction_hug',
@@ -63,15 +69,17 @@ async function createReactionNotification(vent: Vent, reactingUser: any, reactio
     await addDoc(notificationsCollection, { ...notifData, read: false, timestamp: serverTimestamp() });
 }
 
-export function PublicFeed() {
+export function PublicFeed({ initialVents }: { initialVents?: SerializedVent[] }) {
     const { user } = useAuth();
     const { toast } = useToast();
     const searchParams = useSearchParams();
     const router = useRouter();
     const { triggerBurst } = useReactionBurst();
     const containerRef = useStaggerAnimate<HTMLDivElement>(".glass-card");
-    const [vents, setVents] = useState<Vent[]>([]);
-    const [loading, setLoading] = useState(true);
+    // Seeded from the server render (guest-safe list) so the HTML carries real
+    // content; the fetch below then replaces it with the live list.
+    const [vents, setVents] = useState<Vent[]>(() => (initialVents ?? []).map(deserializeVent));
+    const [loading, setLoading] = useState(!initialVents?.length);
     const [selectedVentId, setSelectedVentId] = useState<string | null>(null);
     const [filterCategory, setFilterCategory] = useState<string>('All');
     
@@ -88,7 +96,6 @@ export function PublicFeed() {
     const ventForSheet = useMemo(() => vents.find(v => v.id === selectedVentId), [vents, selectedVentId]);
 
     useEffect(() => {
-        setLoading(true);
         getPublicVents()
             .then(fetchedVents => {
                 setVents(fetchedVents);
@@ -146,10 +153,16 @@ export function PublicFeed() {
     const filteredVents = useMemo(() => {
         return vents.filter(vent => {
             if (vent.isHidden) return false;
+            // Signed-out visitors (including crawlers, which run this code) never see
+            // safety-flagged vents; signed-in users see them as before.
+            if (!user && !isVisibleToGuests(vent)) return false;
             if (filterCategory === 'All') return true;
             return vent.category === filterCategory;
         });
-    }, [vents, filterCategory]);
+    }, [vents, filterCategory, user]);
+
+    // Conservative inline ad spacing; never beside a safety-flagged vent.
+    const adPositions = useMemo(() => feedAdPositions(filteredVents), [filteredVents]);
 
     const handleCommentAdded = (ventId: string, newComment: Comment) => {
         setVents(vents.map(vent => 
@@ -318,8 +331,8 @@ export function PublicFeed() {
                         filteredVents.map((vent, index) => {
                             const isClickableAuthor = !vent.isIncognito && vent.userId;
                             return (
+                        <Fragment key={vent.id}>
                         <Card
-                                key={vent.id}
                                 className={`glass-card card-reveal card-reveal-${Math.min((index % 6) + 1, 6) as 1|2|3|4|5|6}`}
                                 ref={el => { if(vent.id) ventRefs.current[vent.id] = el; }}
                             >
@@ -350,7 +363,7 @@ export function PublicFeed() {
                                             ) : (
                                                 <p className="font-semibold">{vent.authorName}</p>
                                             )}
-                                            <span className="text-xs text-muted-foreground">
+                                            <span className="text-xs text-muted-foreground" suppressHydrationWarning>
                                                 {vent.timestamp ? formatDistanceToNow((vent.timestamp as Timestamp).toDate(), { addSuffix: true }) : ''}
                                             </span>
                                         </div>
@@ -358,7 +371,7 @@ export function PublicFeed() {
                                             <Badge variant={moodBadgeVariant(vent.mood)} className="shadow-sm">Mood: {vent.mood}/10</Badge>
                                             {vent.category && <Badge variant="secondary" className="shadow-sm">{vent.category}</Badge>}
                                             {vent.expiresAt && (
-                                                <Badge variant="outline" className="border-orange-200 dark:border-orange-800 text-orange-600 dark:text-orange-400 flex items-center gap-1 shadow-sm bg-orange-50/50 dark:bg-orange-950/20">
+                                                <Badge suppressHydrationWarning variant="outline" className="border-orange-200 dark:border-orange-800 text-orange-600 dark:text-orange-400 flex items-center gap-1 shadow-sm bg-orange-50/50 dark:bg-orange-950/20">
                                                     <Clock className="h-3 w-3" />
                                                     Expires {formatDistanceToNow((vent.expiresAt as Timestamp).toDate(), { addSuffix: true })}
                                                 </Badge>
@@ -456,6 +469,8 @@ export function PublicFeed() {
                                     </div>
                                 </CardFooter>
                             </Card>
+                            {adPositions.has(index) && <AdSlot slot={AD_SLOTS.feedInline} />}
+                        </Fragment>
                         )})
                     )}
                 </div>

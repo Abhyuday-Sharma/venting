@@ -487,10 +487,10 @@ function CommunitySection() {
             </div>
 
             <Image
-              src="/showcase-feed.png"
+              src="/ventingpublic.jpeg"
               alt="Venting community feed showing anonymous posts with hearts and hugs reactions"
-              width={380}
-              height={300}
+              width={600}
+              height={303}
               className="showcase-mockup-img"
             />
           </div>

@@ -45,7 +45,7 @@ export function BottomNavigation() {
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-t border-white/10 dark:border-white/5 bottom-nav-safe shadow-[0_-8px_32px_rgba(0,0,0,0.1)] transition-[padding] duration-200">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 supports-[backdrop-filter]:bg-background/90 backdrop-blur-md border-t border-border/40 dark:border-white/10 bottom-nav-safe shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
       <nav className="flex justify-around items-center h-16 px-2">
         {navItems.map((item) => {
           const Icon = item.icon;

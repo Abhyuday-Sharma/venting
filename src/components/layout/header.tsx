@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useAuth } from '@/hooks/use-auth';
@@ -51,8 +51,18 @@ export function AppHeader() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const isAuthPage = pathname === '/login' || pathname === '/create-username' || pathname === '/';
+  const isAuthPage = pathname === '/login' || pathname === '/create-username';
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 8);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleSignOut = async () => {
     await signOut(auth);
@@ -68,7 +78,14 @@ export function AppHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/60 backdrop-blur-xl border-white/10 dark:border-white/5 supports-[backdrop-filter]:bg-background/60 header-safe transition-[padding] duration-200">
+    <header
+      className={cn(
+        "sticky top-0 z-50 w-full border-b header-safe transition-[background-color,border-color,box-shadow] duration-200",
+        isScrolled
+          ? "bg-background/95 supports-[backdrop-filter]:bg-background/90 backdrop-blur-md border-border/60 dark:border-white/10 shadow-sm"
+          : "bg-background/85 supports-[backdrop-filter]:bg-background/80 backdrop-blur-md border-border/30 dark:border-white/5 shadow-none"
+      )}
+    >
       <div className="container mx-auto flex h-14 items-center justify-between px-4 md:px-8">
         <div className="flex items-center">
           <Link href="/feed" className="md:mr-6 flex items-center space-x-2">
@@ -131,6 +148,20 @@ export function AppHeader() {
                       <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
                     )}
                 </Link>
+            )}
+            {!isAuthPage && (
+              <Link
+                  href="/guides"
+                  className={cn(
+                    "transition-all hover:text-foreground relative py-1",
+                    pathname.startsWith("/guides") ? "text-foreground font-semibold" : "text-muted-foreground"
+                  )}
+              >
+                  Guides
+                  {pathname.startsWith("/guides") && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+                  )}
+              </Link>
             )}
             <Link
                 href="/updates"

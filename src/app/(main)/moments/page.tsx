@@ -29,9 +29,10 @@ export const metadata: Metadata = {
     images: ['https://venting.in/og-image.png'],
     creator: '@venting_in',
   },
+  // Private, sign-in-only feature: keep it out of search results.
   robots: {
-    index: true,
-    follow: true,
+    index: false,
+    follow: false,
   },
 };
 

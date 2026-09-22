@@ -25,6 +25,13 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Only ever handle our own origin. Third-party traffic (AdSense, DoubleClick,
+  // Google ad services, Firebase, fonts) must go straight to the network,
+  // untouched and uncached.
+  if (new URL(event.request.url).origin !== self.location.origin) {
+    return;
+  }
+
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request).catch(async () => {
