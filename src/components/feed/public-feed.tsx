@@ -248,11 +248,6 @@ export function PublicFeed({ initialVents }: { initialVents?: SerializedVent[] }
             return;
         }
         
-        if (ventToDelete.isIncognito) {
-            toast({ variant: "destructive", title: "Cannot Delete Anonymous Vent", description: "Anonymous vents are handled by AI moderation." });
-            return;
-        }
-    
         setIsDeleting(true);
         try {
             await adminDeletePublicVent(ventToDelete, user, adminDeleteReason);

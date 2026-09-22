@@ -91,8 +91,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           unsubscribeProfile = onSnapshot(userDocRef, (docSnap) => {
             const ownerEmails = ['mrsharmaabhyuday@gmail.com'];
             const adminEmails = ['ventingsupport@gmail.com'];
-            const moderatorEmails = ['ventingmoderation@gmail.com'];
-            const userEmail = firebaseUser.email || '';
+            const moderatorEmails = ['ventingmoderation@gmail.com', 'ventingmoderagtion@gmail.com'];
+            const userEmail = (firebaseUser.email || '').toLowerCase().trim();
 
             if (docSnap.exists()) {
               const data = docSnap.data();
@@ -125,10 +125,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               const { displayName, email, photoURL, uid } = firebaseUser;
               const ownerEmails = ['mrsharmaabhyuday@gmail.com'];
               const adminEmails = ['ventingsupport@gmail.com'];
-              const moderatorEmails = ['ventingmoderation@gmail.com'];
+              const moderatorEmails = ['ventingmoderation@gmail.com', 'ventingmoderagtion@gmail.com'];
               
               let role: 'owner' | 'admin' | 'moderator' | 'user' = 'user';
-              const userEmail = email || '';
+              const userEmail = (email || '').toLowerCase().trim();
 
               if (ownerEmails.includes(userEmail)) {
                 role = 'owner';

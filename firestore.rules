@@ -22,9 +22,26 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
+    // Check if the authenticated user's email belongs to owner/moderator/admin
+    function isAdminEmail() {
+      return isAuthed() && request.auth.token.email != null && (
+        request.auth.token.email.lower() == 'mrsharmaabhyuday@gmail.com' ||
+        request.auth.token.email.lower() == 'ventingmoderation@gmail.com' ||
+        request.auth.token.email.lower() == 'ventingmoderagtion@gmail.com' ||
+        request.auth.token.email.lower() == 'ventingsupport@gmail.com'
+      );
+    }
+
     // Is the user an admin or owner?
     function isAdmin() {
-      return isAuthed() && getUserData().role in ['admin', 'owner', 'moderator'];
+      return isAuthed() && (
+        isAdminEmail() ||
+        (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          'role' in get(/databases/$(database)/documents/users/$(request.auth.uid)).data &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'owner', 'moderator']
+        )
+      );
     }
 
     // Is the user banned?
@@ -74,9 +91,9 @@ service cloud.firestore {
       allow update: if isOwner(userId)
         && (
           !('role' in request.resource.data.diff(resource.data).affectedKeys()) ||
-          (request.resource.data.role == 'owner' && request.auth.token.email == 'mrsharmaabhyuday@gmail.com') ||
-          (request.resource.data.role == 'moderator' && request.auth.token.email == 'ventingmoderation@gmail.com') ||
-          (request.resource.data.role == 'admin' && request.auth.token.email == 'ventingsupport@gmail.com')
+          (request.resource.data.role == 'owner' && request.auth.token.email.lower() == 'mrsharmaabhyuday@gmail.com') ||
+          (request.resource.data.role == 'moderator' && (request.auth.token.email.lower() == 'ventingmoderation@gmail.com' || request.auth.token.email.lower() == 'ventingmoderagtion@gmail.com')) ||
+          (request.resource.data.role == 'admin' && request.auth.token.email.lower() == 'ventingsupport@gmail.com')
         )
         && !('banStatus' in request.resource.data.diff(resource.data).affectedKeys())
         && !('warningCount' in request.resource.data.diff(resource.data).affectedKeys())

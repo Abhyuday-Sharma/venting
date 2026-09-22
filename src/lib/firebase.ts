@@ -506,26 +506,40 @@ export async function deleteUserAccount(user: UserProfile) {
 
 export async function adminDeletePublicVent(vent: Vent, actor: UserProfile, reason: string) {
     if (actor.role !== 'owner' && actor.role !== 'admin' && actor.role !== 'moderator') throw new Error("You do not have permission to perform this action.");
-    if (!vent.id || !vent.userId) throw new Error("Invalid vent data provided.");
+    if (!vent.id) throw new Error("Invalid vent data provided.");
 
     const batch = writeBatch(db);
     
-    const privateVentRef = doc(db, 'users', vent.userId, 'vents', vent.id);
-    const privateVentSnap = await getDoc(privateVentRef);
-    if (privateVentSnap.exists()) batch.delete(privateVentRef);
+    if (vent.userId) {
+        try {
+            const privateVentRef = doc(db, 'users', vent.userId, 'vents', vent.id);
+            const privateVentSnap = await getDoc(privateVentRef);
+            if (privateVentSnap.exists()) batch.delete(privateVentRef);
+        } catch (e) {
+            console.warn("Could not check/delete author private vent copy:", e);
+        }
+    }
 
     const publicVentRef = doc(db, 'publicVents', vent.id);
     batch.delete(publicVentRef);
 
-    const commentsRef = collection(db, 'publicVents', vent.id, 'comments');
-    const commentsSnap = await getDocs(commentsRef);
-    commentsSnap.forEach(commentDoc => batch.delete(commentDoc.ref));
+    try {
+        const commentsRef = collection(db, 'publicVents', vent.id, 'comments');
+        const commentsSnap = await getDocs(commentsRef);
+        commentsSnap.forEach(commentDoc => batch.delete(commentDoc.ref));
+    } catch (e) {
+        console.warn("Could not retrieve comments for deletion:", e);
+    }
     
     const auditLogRef = doc(collection(db, 'auditLogs'));
     const auditLogData = {
-        actorId: actor.uid, actorUsername: actor.username,
-        action: 'ADMIN_DELETE_VENT' as const, targetId: vent.id,
-        targetOwnerId: vent.userId, reason: reason, timestamp: serverTimestamp(),
+        actorId: actor.uid, 
+        actorUsername: actor.username || actor.email || 'Admin',
+        action: 'ADMIN_DELETE_VENT' as const, 
+        targetId: vent.id,
+        targetOwnerId: vent.userId || 'anonymous', 
+        reason: reason, 
+        timestamp: serverTimestamp(),
     };
     batch.set(auditLogRef, auditLogData);
 
