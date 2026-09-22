@@ -36,58 +36,65 @@ export function MoodInsightsCard({ vents, user }: MoodInsightsCardProps) {
 
   const hasEnoughVents = vents.length >= 3;
 
+  const runInsightGeneration = async () => {
+    hasGeneratedThisSession.current = true;
+    setLoading(true);
+    setError(null);
+
+    const ventData = vents.slice(0, 20).map((vent) => {
+      const date = getDate(vent.timestamp);
+      return {
+        text: vent.text,
+        mood: vent.mood,
+        category: vent.category || "General",
+        date: date ? format(date, "MMM d, yyyy") : "Unknown date",
+      };
+    });
+
+    const result = await generateMoodInsights(ventData, user.username || 'Friend');
+
+    if (result.success && result.data) {
+      setInsights(result.data);
+      try {
+        await updateDoc(doc(db, "users", user.uid), {
+          currentInsights: result.data,
+          lastInsightGeneratedAt: serverTimestamp()
+        });
+      } catch (e) {
+        console.error("Failed to save insights to profile:", e);
+      }
+    } else {
+      // Only set error if we don't already have insights
+      if (!insights && !user.currentInsights) {
+        setError(result.error || "Failed to generate mood insights.");
+      }
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
     if (!hasEnoughVents) return;
     if (hasGeneratedThisSession.current) return;
 
     const checkAndGenerateInsights = async () => {
       const now = new Date();
-      const lastGeneratedDate = user.lastInsightGeneratedAt?.toDate();
+      const lastGeneratedDate = getDate(user.lastInsightGeneratedAt);
       const daysSinceLastGeneration = lastGeneratedDate ? differenceInDays(now, lastGeneratedDate) : Infinity;
 
-      const latestVentTimestamp = vents.length > 0 && vents[0].timestamp ? vents[0].timestamp.toDate() : new Date(0);
-      const hasNewVents = lastGeneratedDate ? latestVentTimestamp > lastGeneratedDate : true;
+      const latestVentDate = vents.length > 0 ? getDate(vents[0].timestamp) : null;
+      const hasNewVents = lastGeneratedDate && latestVentDate ? latestVentDate > lastGeneratedDate : true;
 
       const shouldGenerate = (daysSinceLastGeneration >= 7 && hasNewVents) || !user.currentInsights;
 
       if (shouldGenerate) {
-        hasGeneratedThisSession.current = true;
-        setLoading(true);
-        setError(null);
-
-        const ventData = vents.slice(0, 20).map((vent) => {
-          const date = getDate(vent.timestamp);
-          return {
-            text: vent.text,
-            mood: vent.mood,
-            category: vent.category || "General",
-            date: date ? format(date, "MMM d, yyyy") : "Unknown date",
-          };
-        });
-
-        const result = await generateMoodInsights(ventData, user.username || 'Friend');
-
-        if (result.success && result.data) {
-          setInsights(result.data);
-          try {
-            await updateDoc(doc(db, "users", user.uid), {
-              currentInsights: result.data,
-              lastInsightGeneratedAt: serverTimestamp()
-            });
-          } catch (e) {
-            console.error("Failed to save insights to profile:", e);
-          }
-        } else {
-          setError(result.error || "Something went wrong.");
-        }
-        setLoading(false);
+        await runInsightGeneration();
       } else if (user.currentInsights && !insights) {
-          setInsights(user.currentInsights);
+        setInsights(user.currentInsights);
       }
     };
 
     checkAndGenerateInsights();
-  }, [hasEnoughVents, user.uid, vents.length]); // Re-run if they cross the 3 vent threshold or user changes. We use vents.length as a simple trigger, the inner logic prevents infinite loops.
+  }, [hasEnoughVents, user.uid, vents.length]);
 
 
   if (!hasEnoughVents) {
@@ -157,12 +164,12 @@ export function MoodInsightsCard({ vents, user }: MoodInsightsCardProps) {
           </div>
         )}
 
-        {error && (
+        {error && !insights && (
           <div className="text-center py-6 space-y-3">
             <AlertTriangle className="h-8 w-8 text-destructive/60 mx-auto" />
             <p className="text-sm text-muted-foreground">{error}</p>
-            <Button variant="outline" onClick={() => window.location.reload()} size="sm">
-              Reload Page
+            <Button variant="outline" onClick={() => runInsightGeneration()} size="sm">
+              Try Again
             </Button>
           </div>
         )}
