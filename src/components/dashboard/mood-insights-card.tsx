@@ -1,18 +1,18 @@
-
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { generateMoodInsights } from "@/actions/ai";
-import { BrainCircuit, TrendingUp, TrendingDown, Minus, Activity, Lightbulb, AlertTriangle, Sparkles, Info } from "lucide-react";
+import { BrainCircuit, TrendingUp, TrendingDown, Minus, Activity, Lightbulb, AlertTriangle, Sparkles, Info, RefreshCw } from "lucide-react";
 import type { Vent, UserProfile, MoodInsights } from "@/lib/types";
-import { format, differenceInDays } from "date-fns";
+import { format } from "date-fns";
 import { getDate } from "@/lib/date-utils";
 import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { cn } from "@/lib/utils";
 
 interface MoodInsightsCardProps {
   vents: Vent[];
@@ -26,18 +26,74 @@ const trendConfig = {
   fluctuating: { label: "Fluctuating", icon: Activity, className: "text-violet-600 dark:text-violet-400 bg-violet-500/10 border-violet-500/20" },
 };
 
+const COOLDOWN_MS = 5 * 60 * 1000; // 5-minute cooldown between manual Groq calls to preserve quota
+
 export function MoodInsightsCard({ vents, user }: MoodInsightsCardProps) {
-  const [insights, setInsights] = useState<MoodInsights | null>(user.currentInsights || null);
+  // Load cached insights immediately from user profile or localStorage to prevent any Groq call on refresh
+  const [insights, setInsights] = useState<MoodInsights | null>(() => {
+    if (user.currentInsights) return user.currentInsights;
+    if (typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem(`mood_insights_${user.uid}`);
+        if (cached) return JSON.parse(cached);
+      } catch (e) {}
+    }
+    return null;
+  });
+
+  const [lastGeneratedAt, setLastGeneratedAt] = useState<Date | null>(() => {
+    const fromUser = getDate(user.lastInsightGeneratedAt);
+    if (fromUser) return fromUser;
+    if (typeof window !== "undefined") {
+      try {
+        const cachedTime = localStorage.getItem(`mood_insights_time_${user.uid}`);
+        if (cachedTime) return new Date(Number(cachedTime));
+      } catch (e) {}
+    }
+    return null;
+  });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  // Ultimate safeguard to prevent infinite API loops
-  const hasGeneratedThisSession = useRef(false);
+  const [cooldownRemaining, setCooldownRemaining] = useState<number>(0);
 
   const hasEnoughVents = vents.length >= 3;
 
+  // Sync with user profile if it updates from Firestore
+  useEffect(() => {
+    if (user.currentInsights) {
+      setInsights(user.currentInsights);
+      try {
+        localStorage.setItem(`mood_insights_${user.uid}`, JSON.stringify(user.currentInsights));
+      } catch (e) {}
+    }
+    const fromUser = getDate(user.lastInsightGeneratedAt);
+    if (fromUser) {
+      setLastGeneratedAt(fromUser);
+    }
+  }, [user.currentInsights, user.lastInsightGeneratedAt, user.uid]);
+
+  // Handle countdown timer for refresh cooldown
+  useEffect(() => {
+    if (!lastGeneratedAt) {
+      setCooldownRemaining(0);
+      return;
+    }
+
+    const updateTimer = () => {
+      const elapsed = Date.now() - lastGeneratedAt.getTime();
+      const remaining = Math.max(0, Math.ceil((COOLDOWN_MS - elapsed) / 1000));
+      setCooldownRemaining(remaining);
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [lastGeneratedAt]);
+
   const runInsightGeneration = async () => {
-    hasGeneratedThisSession.current = true;
+    if (loading || cooldownRemaining > 0) return;
+
     setLoading(true);
     setError(null);
 
@@ -54,8 +110,13 @@ export function MoodInsightsCard({ vents, user }: MoodInsightsCardProps) {
     const result = await generateMoodInsights(ventData, user.username || 'Friend');
 
     if (result.success && result.data) {
+      const now = new Date();
       setInsights(result.data);
+      setLastGeneratedAt(now);
+
       try {
+        localStorage.setItem(`mood_insights_${user.uid}`, JSON.stringify(result.data));
+        localStorage.setItem(`mood_insights_time_${user.uid}`, now.getTime().toString());
         await updateDoc(doc(db, "users", user.uid), {
           currentInsights: result.data,
           lastInsightGeneratedAt: serverTimestamp()
@@ -64,38 +125,12 @@ export function MoodInsightsCard({ vents, user }: MoodInsightsCardProps) {
         console.error("Failed to save insights to profile:", e);
       }
     } else {
-      // Only set error if we don't already have insights
-      if (!insights && !user.currentInsights) {
+      if (!insights) {
         setError(result.error || "Failed to generate mood insights.");
       }
     }
     setLoading(false);
   };
-
-  useEffect(() => {
-    if (!hasEnoughVents) return;
-    if (hasGeneratedThisSession.current) return;
-
-    const checkAndGenerateInsights = async () => {
-      const now = new Date();
-      const lastGeneratedDate = getDate(user.lastInsightGeneratedAt);
-      const daysSinceLastGeneration = lastGeneratedDate ? differenceInDays(now, lastGeneratedDate) : Infinity;
-
-      const latestVentDate = vents.length > 0 ? getDate(vents[0].timestamp) : null;
-      const hasNewVents = lastGeneratedDate && latestVentDate ? latestVentDate > lastGeneratedDate : true;
-
-      const shouldGenerate = (daysSinceLastGeneration >= 7 && hasNewVents) || !user.currentInsights;
-
-      if (shouldGenerate) {
-        await runInsightGeneration();
-      } else if (user.currentInsights && !insights) {
-        setInsights(user.currentInsights);
-      }
-    };
-
-    checkAndGenerateInsights();
-  }, [hasEnoughVents, user.uid, vents.length]);
-
 
   if (!hasEnoughVents) {
     const ventsNeeded = 3 - vents.length;
@@ -124,17 +159,32 @@ export function MoodInsightsCard({ vents, user }: MoodInsightsCardProps) {
   return (
     <Card className="shadow-lg border-primary/10">
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-2">
             <BrainCircuit className="h-5 w-5 text-primary" />
             <CardTitle className="text-lg font-headline">AI Mood Insights</CardTitle>
           </div>
-          {trend && (
-            <Badge variant="outline" className={trend.className}>
-              {TrendIcon && <TrendIcon className="h-3.5 w-3.5 mr-1" />}
-              {trend.label}
-            </Badge>
-          )}
+          <div className="flex items-center gap-2">
+            {trend && (
+              <Badge variant="outline" className={trend.className}>
+                {TrendIcon && <TrendIcon className="h-3.5 w-3.5 mr-1" />}
+                {trend.label}
+              </Badge>
+            )}
+            {insights && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={runInsightGeneration}
+                disabled={loading || cooldownRemaining > 0}
+                className="h-8 text-xs border-primary/20 hover:bg-primary/5 transition-all"
+                title={cooldownRemaining > 0 ? `Can be refreshed again in ${cooldownRemaining}s` : "Refresh AI insights"}
+              >
+                <RefreshCw className={cn("h-3.5 w-3.5 mr-1.5", loading && "animate-spin")} />
+                {loading ? "Analyzing..." : cooldownRemaining > 0 ? `Cooldown (${cooldownRemaining}s)` : "Refresh Insights"}
+              </Button>
+            )}
+          </div>
         </div>
         <CardDescription>
           Discover patterns in your emotional journey, powered by AI.
@@ -143,16 +193,29 @@ export function MoodInsightsCard({ vents, user }: MoodInsightsCardProps) {
 
       <CardContent>
         {!insights && !loading && !error && (
-          <div className="text-center py-6 space-y-3">
-            <Sparkles className="h-10 w-10 text-muted-foreground/40 mx-auto" />
-            <p className="text-sm text-muted-foreground">
-              Analyzing your recent vents to uncover emotional patterns, triggers, and strengths...
-            </p>
+          <div className="text-center py-8 space-y-4">
+            <Sparkles className="h-10 w-10 text-primary/70 mx-auto animate-pulse" />
+            <div className="max-w-md mx-auto space-y-1">
+              <p className="text-sm font-medium text-foreground">
+                Ready to analyze your emotional journey
+              </p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                You have {vents.length} written vents. Tap below whenever you want to generate a personal emotional summary, uncover triggers, and see your inner strengths.
+              </p>
+            </div>
+            <Button onClick={runInsightGeneration} size="sm" className="gap-2">
+              <Sparkles className="h-4 w-4" />
+              Generate AI Insights
+            </Button>
           </div>
         )}
 
         {loading && (
           <div className="space-y-4 py-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <RefreshCw className="h-3.5 w-3.5 animate-spin text-primary" />
+              <span>Analyzing patterns across your recent vents...</span>
+            </div>
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-5/6" />
             <Skeleton className="h-4 w-4/6" />
@@ -174,7 +237,7 @@ export function MoodInsightsCard({ vents, user }: MoodInsightsCardProps) {
           </div>
         )}
 
-        {insights && (
+        {insights && !loading && (
           <div className="space-y-4">
             {/* Summary */}
             <p className="text-sm text-foreground/90 leading-relaxed">
@@ -232,15 +295,16 @@ export function MoodInsightsCard({ vents, user }: MoodInsightsCardProps) {
       </CardContent>
 
       {insights && (
-        <CardFooter className="flex-col items-start gap-2 pt-0">
+        <CardFooter className="flex-col items-start gap-1.5 pt-0">
           <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/50">
             <Info className="h-3 w-3" />
             <span>AI-generated reflections based on {vents.length} vents · Not clinical assessments</span>
           </div>
-          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground/40 mt-1">
-            <Sparkles className="h-3 w-3" />
-            <span>Insights update automatically each week based on new vents.</span>
-          </div>
+          {lastGeneratedAt && (
+            <div className="text-[11px] text-muted-foreground/40">
+              Last updated {format(lastGeneratedAt, "MMM d, yyyy 'at' h:mm a")}
+            </div>
+          )}
         </CardFooter>
       )}
     </Card>

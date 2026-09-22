@@ -65,7 +65,7 @@ export function NotificationsDropdown() {
   };
 
   return (
-    <DropdownMenu onOpenChange={handleOpenChange}>
+    <DropdownMenu modal={false} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative mr-2">
           <Bell className="h-5 w-5" />

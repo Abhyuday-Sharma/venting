@@ -188,7 +188,7 @@ export function AppHeader() {
               <InstallButton />
               <ModeToggle />
               <NotificationsDropdown />
-              <DropdownMenu>
+              <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-2 h-8 focus-visible:ring-0">
                     <Avatar className="h-8 w-8">
@@ -199,7 +199,7 @@ export function AppHeader() {
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuContent className="w-56" align="end">
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">{user.username}</p>
@@ -207,32 +207,44 @@ export function AppHeader() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => router.push('/dashboard')}>
-                    <LayoutDashboard className="mr-2 h-4 w-4" />
-                    <span>{user.role === 'owner' || user.role === 'moderator' ? 'Report History' : 'Dashboard'}</span>
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard" className="flex items-center w-full cursor-pointer">
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      <span>{user.role === 'owner' || user.role === 'moderator' ? 'Report History' : 'Dashboard'}</span>
+                    </Link>
                   </DropdownMenuItem>
-                   <DropdownMenuItem onClick={() => router.push('/feed')}>
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    <span>Public Feed</span>
+                  <DropdownMenuItem asChild>
+                    <Link href="/feed" className="flex items-center w-full cursor-pointer">
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      <span>Public Feed</span>
+                    </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push('/moments')}>
-                    <Smile className="mr-2 h-4 w-4" />
-                    <span>Bright Spots</span>
+                  <DropdownMenuItem asChild>
+                    <Link href="/moments" className="flex items-center w-full cursor-pointer">
+                      <Smile className="mr-2 h-4 w-4" />
+                      <span>Bright Spots</span>
+                    </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push('/updates')}>
-                    <Sparkles className="mr-2 h-4 w-4 text-primary" />
-                    <span>Update Log & AI Info</span>
+                  <DropdownMenuItem asChild>
+                    <Link href="/updates" className="flex items-center w-full cursor-pointer">
+                      <Sparkles className="mr-2 h-4 w-4 text-primary" />
+                      <span>Update Log & AI Info</span>
+                    </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push('/vent')}>
-                    <PenSquare className="mr-2 h-4 w-4" />
-                    <span>Vent</span>
+                  <DropdownMenuItem asChild>
+                    <Link href="/vent" className="flex items-center w-full cursor-pointer">
+                      <PenSquare className="mr-2 h-4 w-4" />
+                      <span>Vent</span>
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                   <DropdownMenuItem onClick={() => router.push('/settings')}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
+                  <DropdownMenuItem asChild>
+                    <Link href="/settings" className="flex items-center w-full cursor-pointer">
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Settings</span>
+                    </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setShowSignOutDialog(true)}>
+                  <DropdownMenuItem onClick={() => setShowSignOutDialog(true)} className="cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
                   </DropdownMenuItem>

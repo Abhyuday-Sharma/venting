@@ -30,8 +30,8 @@ export function PWAManager() {
   const { user } = useAuth();
 
   useEffect(() => {
-    // 1. Register Service Worker
-    if ("serviceWorker" in navigator) {
+    // 1. Register Service Worker in production only
+    if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("/sw.js").catch((err) => {
           console.error("Service worker registration failed:", err);
