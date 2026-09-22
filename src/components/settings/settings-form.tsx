@@ -511,9 +511,6 @@ export function SettingsForm() {
           <Separator />
           
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => router.push('/support')} disabled={isSubmitting}>
-              <Heart className="mr-2 h-4 w-4" /> Support Platform
-            </Button>
             <Button variant="outline" onClick={handleSignOut} disabled={isSubmitting}>Log Out</Button>
             <AlertDialog>
                 <AlertDialogTrigger asChild>
