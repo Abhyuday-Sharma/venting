@@ -12,6 +12,7 @@ export const ai = genkit({
         baseURL: 'https://api.groq.com/openai/v1',
     })
   ],
-  model: 'groq/llama-3.3-70b-versatile',
+  // llama-3.3-70b-versatile was retired by Groq; check GET /openai/v1/models before changing this.
+  model: 'groq/openai/gpt-oss-120b',
 });
 

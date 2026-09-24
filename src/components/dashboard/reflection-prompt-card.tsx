@@ -34,16 +34,26 @@ export function ReflectionPromptCard({ vent }: ReflectionPromptCardProps) {
   const [actionItem, setActionItem] = useState<string>("");
   const [comfortMessage, setComfortMessage] = useState<string>("");
   const [generatingAction, setGeneratingAction] = useState(false);
+  const [actionError, setActionError] = useState(false);
   const [pinned, setPinned] = useState(false);
 
   const handleGenerateAction = async () => {
     setGeneratingAction(true);
-    const result = await generateMicroActionItem(vent.text, vent.category || "General");
-    if (result.success && result.data) {
-      setActionItem(result.data.actionItem);
-      setComfortMessage(result.data.comfortMessage);
+    setActionError(false);
+    try {
+      const result = await generateMicroActionItem(vent.text, vent.category || "General");
+      if (result.success && result.data) {
+        setActionItem(result.data.actionItem);
+        setComfortMessage(result.data.comfortMessage);
+      } else {
+        setActionError(true);
+      }
+    } catch (e) {
+      console.error("Failed to generate action item:", e);
+      setActionError(true);
+    } finally {
+      setGeneratingAction(false);
     }
-    setGeneratingAction(false);
   };
 
   const handlePinAction = async () => {
@@ -192,8 +202,13 @@ export function ReflectionPromptCard({ vent }: ReflectionPromptCardProps) {
             <div className="mt-4 pt-4 border-t border-border/30 flex flex-col items-center gap-2">
               <p className="text-xs text-muted-foreground text-center">Would you like a gentle, 5-minute action item based on this reflection?</p>
               <Button variant="outline" size="sm" onClick={handleGenerateAction} className="text-xs border-primary/20 hover:bg-primary/5">
-                Generate 5-minute action item
+                {actionError ? "Try again" : "Generate 5-minute action item"}
               </Button>
+              {actionError && (
+                <p className="text-xs text-muted-foreground text-center" role="status">
+                  Couldn&apos;t come up with an action item just now. Please try again in a moment.
+                </p>
+              )}
             </div>
           )}
 

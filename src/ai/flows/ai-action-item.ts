@@ -25,8 +25,6 @@ const actionPrompt = ai.definePrompt({
   name: 'actionPrompt',
   input: { schema: ActionItemInputSchema },
   output: { schema: ActionItemOutputSchema },
-  // Explicitly target OpenAI's gpt-4o-mini model
-  model: 'openai/gpt-4o-mini',
   prompt: `You are a gentle, supportive self-care companion. The user has just shared a vulnerable vent.
 Your task is to suggest a single, realistic micro-action item they can do right now in 5 minutes or less to help ground themselves, clear their head, or take a tiny step forward.
 
@@ -45,6 +43,6 @@ Generate the action item and a short, validating explanation.`,
 });
 
 export async function generateActionItemFlow(input: ActionItemInput): Promise<ActionItemOutput> {
-  const { output } = await actionPrompt(input, { model: 'openai/gpt-4o-mini' });
+  const { output } = await actionPrompt(input);
   return output!;
 }
