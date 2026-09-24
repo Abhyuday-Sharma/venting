@@ -145,7 +145,15 @@ export const getPublicVents = async (): Promise<Vent[]> => {
         const querySnapshot = await getDocs(q);
         const now = Timestamp.now();
         return querySnapshot.docs
-            .map(doc => ({ id: doc.id, ...doc.data() } as Vent))
+            .map(doc => {
+                const data = doc.data() as Vent;
+                return {
+                    id: doc.id,
+                    ...data,
+                    // Strip author's userId on incognito vents to guarantee anonymity
+                    userId: data.isIncognito ? '' : data.userId,
+                } as Vent;
+            })
             .filter(vent => {
                 if (!vent.expiresAt) return true;
                 return vent.expiresAt.toMillis() > now.toMillis();
@@ -427,6 +435,8 @@ export const getPublicVentsByUserId = async (userId: string): Promise<Vent[]> =>
         const vents: Vent[] = querySnapshot.docs
             .map(doc => ({ id: doc.id, ...doc.data() } as Vent))
             .filter(vent => {
+                // Incognito vents must never be associated with the user's public profile
+                if (vent.isIncognito) return false;
                 if (!vent.expiresAt) return true;
                 return vent.expiresAt.toMillis() > now.toMillis();
             });

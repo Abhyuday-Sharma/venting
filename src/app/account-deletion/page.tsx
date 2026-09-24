@@ -15,11 +15,11 @@ export const metadata: Metadata = {
     canonical: "https://venting.in/account-deletion",
   },
   openGraph: {
-    title: "Account & Data Deletion | Venting.in",
+    title: "Account & Data Deletion | Venting",
     description:
       "Permanent account and data deletion portal for Venting.in users, compliant with Google Play Developer Data Safety standards.",
     url: "https://venting.in/account-deletion",
-    siteName: "Venting.in",
+    siteName: "Venting",
     images: [
       {
         url: "https://venting.in/og-image.png",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Account & Data Deletion | Venting.in",
+    title: "Account & Data Deletion | Venting",
     description:
       "Permanent account and data deletion portal for Venting.in users, compliant with Google Play Developer Data Safety standards.",
     images: ["https://venting.in/og-image.png"],

@@ -12,10 +12,10 @@ export const metadata: Metadata = {
     canonical: "https://venting.in/guides",
   },
   openGraph: {
-    title: "Guides on Venting, Journaling & Everyday Stress | Venting.in",
+    title: "Guides on Venting, Journaling & Everyday Stress | Venting",
     description: "Practical, plain-language guides on venting, journaling, and handling everyday stress.",
     url: "https://venting.in/guides",
-    siteName: "Venting.in",
+    siteName: "Venting",
     images: [{ url: "https://venting.in/og-image.png", width: 1200, height: 630, alt: "Venting Guides" }],
     type: "website",
   },

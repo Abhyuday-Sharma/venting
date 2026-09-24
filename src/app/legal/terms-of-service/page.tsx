@@ -13,10 +13,10 @@ export const metadata: Metadata = {
     canonical: "https://venting.in/legal/terms-of-service",
   },
   openGraph: {
-    title: "Terms and Conditions | Venting.in",
+    title: "Terms and Conditions | Venting",
     description: "Terms and conditions governing the use of Venting, automated AI features, safety moderation, and community behavior rules.",
     url: "https://venting.in/legal/terms-of-service",
-    siteName: "Venting.in",
+    siteName: "Venting",
     images: [
       {
         url: "https://venting.in/og-image.png",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Terms and Conditions | Venting.in",
+    title: "Terms and Conditions | Venting",
     description: "Terms and conditions governing the use of Venting, automated AI features, safety moderation, and community behavior rules.",
     images: ["https://venting.in/og-image.png"],
     creator: "@venting_in",

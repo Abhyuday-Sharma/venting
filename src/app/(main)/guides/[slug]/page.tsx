@@ -26,10 +26,10 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     description: guide.description,
     alternates: { canonical: url },
     openGraph: {
-      title: `${guide.title} | Venting.in`,
+      title: `${guide.title} | Venting`,
       description: guide.description,
       url,
-      siteName: "Venting.in",
+      siteName: "Venting",
       images: [{ url: `${SITE_URL}/og-image.png`, width: 1200, height: 630, alt: guide.title }],
       type: "article",
       publishedTime: guide.published,
@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     },
     twitter: {
       card: "summary_large_image",
-      title: `${guide.title} | Venting.in`,
+      title: `${guide.title} | Venting`,
       description: guide.description,
       images: [`${SITE_URL}/og-image.png`],
     },

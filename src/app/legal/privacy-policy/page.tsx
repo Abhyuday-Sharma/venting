@@ -13,10 +13,10 @@ export const metadata: Metadata = {
     canonical: "https://venting.in/legal/privacy-policy",
   },
   openGraph: {
-    title: "Privacy Policy & Data Protection | Venting.in",
+    title: "Privacy Policy & Data Protection | Venting",
     description: "Read how Venting.in protects your personal data, guarantees zero AI model training, and enforces strict serverless privacy standards.",
     url: "https://venting.in/legal/privacy-policy",
-    siteName: "Venting.in",
+    siteName: "Venting",
     images: [
       {
         url: "https://venting.in/og-image.png",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Privacy Policy & Data Protection | Venting.in",
+    title: "Privacy Policy & Data Protection | Venting",
     description: "Read how Venting.in protects your personal data, guarantees zero AI model training, and enforces strict serverless privacy standards.",
     images: ["https://venting.in/og-image.png"],
     creator: "@venting_in",

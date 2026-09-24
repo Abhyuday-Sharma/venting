@@ -13,10 +13,10 @@ export const metadata: Metadata = {
     canonical: "https://venting.in/legal/notes",
   },
   openGraph: {
-    title: "Legal Notes & AI Disclosure | Venting.in",
+    title: "Legal Notes & AI Disclosure | Venting",
     description: "Official legal notes, AI execution disclosures, intellectual property rights, and health disclaimers for Venting.in.",
     url: "https://venting.in/legal/notes",
-    siteName: "Venting.in",
+    siteName: "Venting",
     images: [
       {
         url: "https://venting.in/og-image.png",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Legal Notes & AI Disclosure | Venting.in",
+    title: "Legal Notes & AI Disclosure | Venting",
     description: "Official legal notes, AI execution disclosures, intellectual property rights, and health disclaimers for Venting.in.",
     images: ["https://venting.in/og-image.png"],
     creator: "@venting_in",

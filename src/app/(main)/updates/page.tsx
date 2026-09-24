@@ -8,10 +8,10 @@ export const metadata: Metadata = {
     canonical: 'https://venting.in/updates',
   },
   openGraph: {
-    title: 'Update Log & Platform Enhancements | Venting.in',
+    title: 'Update Log & Platform Enhancements | Venting',
     description: 'Track all new features, improvements, and discover how & where AI runs securely to support your emotional well-being.',
     url: 'https://venting.in/updates',
-    siteName: 'Venting.in',
+    siteName: 'Venting',
     images: [
       {
         url: 'https://venting.in/og-image.png',
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Update Log & Platform Enhancements | Venting.in',
+    title: 'Update Log & Platform Enhancements | Venting',
     description: 'Track all new features, improvements, and discover how & where AI runs securely to support your emotional well-being.',
     images: ['https://venting.in/og-image.png'],
     creator: '@venting_in',

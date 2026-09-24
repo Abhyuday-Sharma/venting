@@ -6,21 +6,29 @@ import { PublicFooter } from "@/components/layout/public-footer";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Venting – Anonymous Emotional Wellness & Safe Venting Space",
+    absolute: "Venting: Express. Release. Grow.",
   },
   description:
-    "Venting is a safe, anonymous space to write out what you feel, track your mood, and read supportive stories from a moderated community.",
+    "AI-powered anonymous emotional wellness. A safe, private space to express your thoughts, release what weighs you down, and grow through your emotions.",
   alternates: {
     canonical: "https://venting.in/",
   },
   openGraph: {
-    title: "Venting – Anonymous Emotional Wellness & Safe Venting Space",
+    title: "Venting: Express. Release. Grow.",
     description:
-      "Write out what you feel, track your mood, and read supportive stories from a moderated community.",
+      "AI-powered anonymous emotional wellness. A safe, private space to express your thoughts, release what weighs you down, and grow through your emotions.",
     url: "https://venting.in/",
-    siteName: "Venting.in",
-    images: [{ url: "https://venting.in/og-image.png", width: 1200, height: 630, alt: "Venting.in" }],
+    siteName: "Venting",
+    images: [{ url: "https://venting.in/og-image.png", width: 1200, height: 630, alt: "Venting Logo" }],
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Venting: Express. Release. Grow.",
+    description:
+      "AI-powered anonymous emotional wellness. A safe, private space to express your thoughts, release what weighs you down, and grow through your emotions.",
+    images: ["https://venting.in/og-image.png"],
+    creator: "@venting_in",
   },
   robots: {
     index: true,

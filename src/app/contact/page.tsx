@@ -13,10 +13,10 @@ export const metadata: Metadata = {
     canonical: "https://venting.in/contact",
   },
   openGraph: {
-    title: "Contact Venting | Venting.in",
+    title: "Contact Venting | Venting",
     description: "How to reach the Venting team for support, content reports, privacy and data requests.",
     url: "https://venting.in/contact",
-    siteName: "Venting.in",
+    siteName: "Venting",
     images: [{ url: "https://venting.in/og-image.png", width: 1200, height: 630, alt: "Contact Venting" }],
     type: "website",
   },

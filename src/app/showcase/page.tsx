@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     title: "Discover Venting – Emotional Wellness & Growth Platform",
     description: "Explore Venting: a safe space for emotional expression, AI-powered growth tools, mood tracking, and a supportive anonymous community.",
     url: "https://venting.in/showcase",
-    siteName: "Venting.in",
+    siteName: "Venting",
     images: [
       {
         url: "https://venting.in/og-image.png",

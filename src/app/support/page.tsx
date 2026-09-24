@@ -10,23 +10,23 @@ export const metadata: Metadata = {
     canonical: 'https://venting.in/support',
   },
   openGraph: {
-    title: 'Support Platform | Venting.in',
+    title: 'Support Platform | Venting',
     description: 'Support Venting.in to help keep this emotional wellness platform free, safe, and available for everyone.',
     url: 'https://venting.in/support',
-    siteName: 'Venting.in',
+    siteName: 'Venting',
     images: [
       {
         url: 'https://venting.in/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Support Venting.in',
+        alt: 'Support Venting',
       },
     ],
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Support Platform | Venting.in',
+    title: 'Support Platform | Venting',
     description: 'Support Venting.in to help keep this emotional wellness platform free, safe, and available for everyone.',
     images: ['https://venting.in/og-image.png'],
     creator: '@venting_in',

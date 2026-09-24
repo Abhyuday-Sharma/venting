@@ -17,23 +17,23 @@ export const metadata: Metadata = {
     canonical: "https://venting.in/feed",
   },
   openGraph: {
-    title: "Community Feed & Anonymous Vents | Venting.in",
+    title: "Community Feed & Anonymous Vents | Venting",
     description: "Read, connect, and share empathy with anonymous thoughts and vents shared by community members.",
     url: "https://venting.in/feed",
-    siteName: "Venting.in",
+    siteName: "Venting",
     images: [
       {
         url: "https://venting.in/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Venting.in Community Feed",
+        alt: "Venting Community Feed",
       },
     ],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Community Feed & Anonymous Vents | Venting.in",
+    title: "Community Feed & Anonymous Vents | Venting",
     description: "Read, connect, and share empathy with anonymous thoughts and vents shared by community members.",
     images: ["https://venting.in/og-image.png"],
     creator: "@venting_in",
