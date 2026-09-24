@@ -184,13 +184,13 @@ service cloud.firestore {
           // 3. Increment report count (without hiding)
           (
             request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reportCount']) &&
-            request.resource.data.reportCount == (resource.data.reportCount || 0) + 1
+            request.resource.data.reportCount == (resource.data.get('reportCount', 0)) + 1
           )
           ||
           // 4. Increment report count that crosses auto-hide threshold (>= 3 reports)
           (
             request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reportCount', 'isHidden']) &&
-            request.resource.data.reportCount == (resource.data.reportCount || 0) + 1 &&
+            request.resource.data.reportCount == (resource.data.get('reportCount', 0)) + 1 &&
             request.resource.data.reportCount >= 3 &&
             request.resource.data.isHidden == true
           )
@@ -225,13 +225,13 @@ service cloud.firestore {
             // 2. Increment report count (without hiding)
             (
               request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reportCount']) &&
-              request.resource.data.reportCount == (resource.data.reportCount || 0) + 1
+              request.resource.data.reportCount == (resource.data.get('reportCount', 0)) + 1
             )
             ||
             // 3. Increment report count that crosses auto-hide threshold (>= 2 reports)
             (
               request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reportCount', 'isHidden']) &&
-              request.resource.data.reportCount == (resource.data.reportCount || 0) + 1 &&
+              request.resource.data.reportCount == (resource.data.get('reportCount', 0)) + 1 &&
               request.resource.data.reportCount >= 2 &&
               request.resource.data.isHidden == true
             )
