@@ -32,7 +32,7 @@ import { ReflectionPromptCard } from "@/components/dashboard/reflection-prompt-c
 import { MoodInsightsCard } from "@/components/dashboard/mood-insights-card";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { ModDashboardClient } from "@/components/dashboard/mod-dashboard-client";
+import { isReturningUser } from "@/lib/engagement";
 import { useStaggerAnimate } from "@/hooks/use-anime";
 
 export function DashboardClient() {
@@ -175,9 +175,10 @@ export function DashboardClient() {
     }
   }, [toast]);
 
-  const { writtenVents } = useMemo(() => {
+  const { writtenVents, isReturning } = useMemo(() => {
     const writtenVents = vents.filter(vent => vent.text && vent.text.trim().length > 0);
-    return { writtenVents };
+    // Optional AI features (micro-goals, mood insights) are for people who come back.
+    return { writtenVents, isReturning: isReturningUser(writtenVents) };
   }, [vents]);
 
 
@@ -262,10 +263,6 @@ export function DashboardClient() {
     }
   };
 
-  if (user && (user.role === 'owner' || user.role === 'moderator')) {
-    return <ModDashboardClient />;
-  }
-
   if (authLoading || loading) {
     return (
         <div className="container mx-auto p-4 md:p-8 space-y-8">
@@ -335,11 +332,12 @@ export function DashboardClient() {
             </div>
             {user && showReflection && writtenVents.length > 0 && (
               <div className="dash-item">
-                <ReflectionPromptCard vent={writtenVents[0]} />
+                <ReflectionPromptCard vent={writtenVents[0]} offerMicroGoal={isReturning} />
               </div>
             )}
 
             {/* Pinned Micro-Goals Checklist */}
+            {(isReturning || goals.length > 0) && (
             <Card className="dash-item bg-card/50 backdrop-blur-sm border border-border/50 shadow-md">
               <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
                 <div>
@@ -372,13 +370,14 @@ export function DashboardClient() {
                 )}
               </CardContent>
             </Card>
+            )}
 
             <div className="dash-item">
               <MoodChart vents={writtenVents} chartTitle="Vent Mood Journey" chartDescription="A visualization of your moods from written vents." />
             </div>
             {user && (
               <div className="dash-item">
-                <MoodInsightsCard vents={writtenVents} user={user} />
+                <MoodInsightsCard vents={writtenVents} user={user} isReturning={isReturning} />
               </div>
             )}
             <div className="dash-item">

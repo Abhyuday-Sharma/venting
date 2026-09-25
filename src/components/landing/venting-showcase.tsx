@@ -15,7 +15,6 @@ import {
   Mic,
   BarChart3,
   BrainCircuit,
-  Sparkles,
   Lightbulb,
   Target,
   ShieldCheck,
@@ -23,7 +22,16 @@ import {
   BookHeart,
   CalendarCheck,
   Eye,
+  EyeOff,
+  Timer,
+  Phone,
+  Bell,
+  Smartphone,
+  UserRound,
+  MessageSquarePlus,
+  BookOpen,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import "./venting-showcase.css";
 
 interface VentingShowcaseProps {
@@ -52,6 +60,61 @@ function useOnScreen(threshold = 0.15) {
   }, [threshold]);
 
   return { ref, visible };
+}
+
+/* ─── Slide a feature row's text and visual in, then its pills ──── */
+function animateFeatureRow(el: HTMLElement, reverse = false) {
+  const from = reverse ? 40 : -40;
+  anime.timeline({ easing: "easeOutCubic" }).add({
+    targets: el.querySelector(".showcase-feature-text"),
+    translateX: [from, 0],
+    opacity: [0, 1],
+    duration: 900,
+  }).add({
+    targets: el.querySelector(".showcase-feature-visual"),
+    translateX: [-from, 0],
+    opacity: [0, 1],
+    duration: 900,
+  }, "-=600").add({
+    targets: el.querySelectorAll(".showcase-pill"),
+    translateY: [12, 0],
+    opacity: [0, 1],
+    duration: 600,
+    delay: anime.stagger(100),
+  }, "-=400");
+}
+
+/* ─── Real app screenshot (from Sam's demo account) that follows the site theme ──── */
+interface ThemedShotProps {
+  /** Base name in /public/showcase: `${name}-light.webp` and `${name}-dark.webp`. */
+  name: string;
+  alt: string;
+  width: number;
+  height: number;
+  /** Show only the top part of the shot, as a fraction of its height, fading out. */
+  crop?: number;
+  className?: string;
+}
+
+function ThemedShot({ name, alt, width, height, crop, className }: ThemedShotProps) {
+  return (
+    <div
+      className={cn("showcase-shot", crop && "showcase-shot--crop", className)}
+      style={crop ? { aspectRatio: `${width} / ${Math.round(height * crop)}` } : undefined}
+    >
+      {(["light", "dark"] as const).map((theme) => (
+        <Image
+          key={theme}
+          src={`/showcase/${name}-${theme}.webp`}
+          alt={alt}
+          width={width}
+          height={height}
+          sizes="(min-width: 768px) 380px, 90vw"
+          className={cn("w-full h-auto", theme === "light" ? "block dark:hidden" : "hidden dark:block")}
+        />
+      ))}
+    </div>
+  );
 }
 
 /* ===================================================================== */
@@ -336,7 +399,10 @@ function VentingFeatureSection() {
               Release
             </span>
             <span className="showcase-pill">
-              <Mic className="h-3.5 w-3.5" /> Voice input
+              <Mic className="h-3.5 w-3.5" /> Voice input (Hindi too)
+            </span>
+            <span className="showcase-pill">
+              <Timer className="h-3.5 w-3.5" /> Self-destruct posts
             </span>
             <span className="showcase-pill">
               <BarChart3 className="h-3.5 w-3.5" /> Mood tracking
@@ -451,8 +517,7 @@ function CommunitySection() {
               <HeartHandshake className="h-3.5 w-3.5" /> Empathy-first comments
             </span>
             <span className="showcase-pill">
-              <Sparkles className="h-3.5 w-3.5 text-amber-500" /> AI empathy
-              nudges
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" /> Safety checks on every comment
             </span>
           </div>
         </div>
@@ -501,10 +566,34 @@ function CommunitySection() {
 }
 
 /* ===================================================================== */
-/*  Section 5 – AI-Powered Growth Tools                                   */
+/*  Section 5 – Venting grows with you (the returning-user journey)       */
 /* ===================================================================== */
-function AIToolsSection() {
-  const { ref, visible } = useOnScreen(0.12);
+const journeySteps = [
+  {
+    when: "Day 1",
+    icon: Lightbulb,
+    title: "Vent, then reflect.",
+    desc: "Right after you write, a couple of gentle prompts help you look at what you shared from a kinder angle. No rush, no pressure.",
+    shot: { name: "reflection", width: 856, height: 1200, crop: 0.6, alt: "Reflection card with a short acknowledgement and two gentle journaling prompts" },
+  },
+  {
+    when: "When you come back",
+    icon: Target,
+    title: "Small steps you can actually take.",
+    desc: "Once you've written on more than one day, each reflection can end with a 5-minute micro-goal. Pin it to your dashboard and tick it off when it's done.",
+    shot: { name: "goals", width: 856, height: 680, alt: "Dashboard checklist of three 5-minute micro-goals, one of them ticked off" },
+  },
+  {
+    when: "Every week",
+    icon: BrainCircuit,
+    title: "See your week in perspective.",
+    desc: "With a few entries across different days, ask for weekly insights: what tends to weigh on you, the strengths you're already using, and a gentle reframe. It refreshes once a week, only when you ask.",
+    shot: { name: "insights", width: 856, height: 1896, crop: 0.76, alt: "Weekly AI mood insights with a summary, potential triggers and personal strengths" },
+  },
+];
+
+function JourneySection() {
+  const { ref, visible } = useOnScreen(0.08);
   const hasAnimated = useRef(false);
 
   useEffect(() => {
@@ -513,185 +602,76 @@ function AIToolsSection() {
     const el = ref.current;
 
     anime.timeline({ easing: "easeOutCubic" }).add({
-      targets: el.querySelector(".ai-heading"),
+      targets: el.querySelector(".journey-heading"),
       translateY: [30, 0],
       opacity: [0, 1],
       duration: 800,
     }).add({
-      targets: el.querySelector(".ai-pulse"),
-      scale: [0.5, 1],
+      targets: el.querySelectorAll(".showcase-journey-step"),
+      translateY: [40, 0],
       opacity: [0, 1],
-      duration: 700,
-      easing: "easeOutElastic(1, .5)",
-    }, "-=500").add({
-      targets: el.querySelectorAll(".showcase-ai-card"),
-      translateY: [30, 0],
-      scale: [0.95, 1],
-      opacity: [0, 1],
-      duration: 700,
-      delay: anime.stagger(120),
+      duration: 900,
+      delay: anime.stagger(250),
     }, "-=300");
-
-    // Perpetual pulse on brain icon
-    anime({
-      targets: el.querySelector(".ai-pulse"),
-      scale: [1, 1.08],
-      duration: 2000,
-      easing: "easeInOutSine",
-      direction: "alternate",
-      loop: true,
-    });
   }, [visible, ref]);
-
-  const cards = [
-    {
-      icon: "🧠",
-      title: "Mood Insights",
-      desc: "AI analyzes your venting patterns and summarizes emotional trends after 3+ entries.",
-      lucide: <BrainCircuit className="h-5 w-5 text-violet-500" />,
-    },
-    {
-      icon: "💡",
-      title: "Reflection Prompts",
-      desc: "Personalized journaling questions based on what you wrote, helping you dig deeper.",
-      lucide: <Lightbulb className="h-5 w-5 text-amber-500" />,
-    },
-    {
-      icon: "🎯",
-      title: "Micro Action Items",
-      desc: "Small, achievable steps based on what you wrote. Tiny moves that actually help you feel better.",
-      lucide: <Target className="h-5 w-5 text-teal-500" />,
-    },
-    {
-      icon: "🛡️",
-      title: "Safety Moderation",
-      desc: "AI monitors public content to catch harmful patterns and offers support resources when needed.",
-      lucide: <ShieldCheck className="h-5 w-5 text-rose-500" />,
-    },
-  ];
 
   return (
     <section ref={ref} className="showcase-section">
-      <div className="text-center mb-12">
-        <div className="ai-pulse inline-flex items-center justify-center h-16 w-16 rounded-full bg-gradient-to-br from-violet-500/20 to-indigo-500/20 border border-violet-500/30 mb-6">
-          <Sparkles className="h-8 w-8 text-violet-500" />
-        </div>
-        <div className="ai-heading">
-          <div className="showcase-divider" />
-          <h2 className="text-3xl sm:text-4xl font-headline font-bold mb-3">
-            AI that{" "}
-            <span className="bg-gradient-to-r from-violet-500 to-indigo-500 bg-clip-text text-transparent">
-              cares
-            </span>
-          </h2>
-          <p className="text-muted-foreground text-base sm:text-lg max-w-lg mx-auto">
-            Venting uses AI quietly in the background. It&apos;s never intrusive, always
-            supportive. It helps you reflect, grow, and stay safe.
-          </p>
-        </div>
+      <div className="journey-heading text-center mb-16 opacity-0">
+        <div className="showcase-divider" />
+        <h2 className="text-3xl sm:text-4xl font-headline font-bold mb-3">
+          Venting{" "}
+          <span className="bg-gradient-to-r from-violet-500 to-indigo-500 bg-clip-text text-transparent">
+            grows with you.
+          </span>
+        </h2>
+        <p className="text-muted-foreground text-base sm:text-lg max-w-lg mx-auto">
+          Start with a single vent. Keep coming back, and Venting helps you turn
+          heavy days into small, steady steps.
+        </p>
       </div>
 
-      <div className="showcase-ai-grid">
-        {cards.map((card) => (
-          <div key={card.title} className="showcase-ai-card">
-            <span className="showcase-ai-card__icon">{card.icon}</span>
-            <h3 className="showcase-ai-card__title">{card.title}</h3>
-            <p className="showcase-ai-card__desc">{card.desc}</p>
-          </div>
-        ))}
-      </div>
+      <ol className="showcase-journey">
+        {journeySteps.map((step, i) => {
+          const Icon = step.icon;
+          return (
+            <li
+              key={step.when}
+              className={cn("showcase-journey-step", i % 2 === 1 && "showcase-journey-step--reverse")}
+            >
+              <div className="showcase-journey-text">
+                <span className="showcase-journey-badge">
+                  <Icon className="h-3.5 w-3.5" /> {step.when}
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-headline font-bold mb-3">{step.title}</h3>
+                <p className="text-muted-foreground text-base sm:text-lg leading-relaxed">{step.desc}</p>
+              </div>
+              <div className="showcase-journey-visual">
+                <ThemedShot {...step.shot} />
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+
+      <p className="text-xs text-muted-foreground/70 text-center mt-14">
+        AI-generated reflections · Not clinical advice
+      </p>
     </section>
   );
 }
 
 /* ===================================================================== */
-/*  Section 6 – Mood Tracking & Moments                                   */
+/*  Section 6 – Mood Tracking                                             */
 /* ===================================================================== */
 function MoodTrackingSection() {
   const { ref, visible } = useOnScreen(0.15);
   const hasAnimated = useRef(false);
 
-  // Chart data points (normalized 0-1 for SVG)
-  const points = [
-    { x: 40, y: 130 },
-    { x: 100, y: 100 },
-    { x: 160, y: 120 },
-    { x: 220, y: 70 },
-    { x: 280, y: 90 },
-    { x: 340, y: 50 },
-    { x: 400, y: 35 },
-  ];
-  const pathD = `M ${points.map((p) => `${p.x},${p.y}`).join(" L ")}`;
-  const areaD = `${pathD} L ${points[points.length - 1].x},160 L ${points[0].x},160 Z`;
-
   useEffect(() => {
     if (!visible || hasAnimated.current || !ref.current) return;
     hasAnimated.current = true;
-    const el = ref.current;
-
-    // Get stroke length for draw animation
-    const path = el.querySelector(".showcase-chart-line") as SVGPathElement;
-    if (path) {
-      const length = path.getTotalLength();
-      path.style.strokeDasharray = `${length}`;
-      path.style.strokeDashoffset = `${length}`;
-
-      anime
-        .timeline({ easing: "easeOutCubic" })
-        .add({
-          targets: el.querySelector(".showcase-feature-text"),
-          translateX: [-40, 0],
-          opacity: [0, 1],
-          duration: 900,
-        })
-        .add(
-          {
-            targets: el.querySelector(".showcase-feature-visual"),
-            translateX: [40, 0],
-            opacity: [0, 1],
-            duration: 900,
-          },
-          "-=600"
-        )
-        .add(
-          {
-            targets: path,
-            strokeDashoffset: [length, 0],
-            duration: 1500,
-            easing: "easeInOutSine",
-          },
-          "-=400"
-        )
-        .add(
-          {
-            targets: el.querySelector(".showcase-chart-area"),
-            opacity: [0, 0.3],
-            duration: 800,
-          },
-          "-=800"
-        )
-        .add(
-          {
-            targets: el.querySelectorAll(".showcase-chart-dot"),
-            opacity: [0, 1],
-            scale: [0, 1],
-            duration: 400,
-            delay: anime.stagger(100),
-            easing: "easeOutElastic(1, .6)",
-          },
-          "-=600"
-        )
-        .add(
-          {
-            targets: el.querySelectorAll(".showcase-pill"),
-            translateY: [12, 0],
-            opacity: [0, 1],
-            duration: 600,
-            delay: anime.stagger(100),
-          },
-          "-=400"
-        );
-    }
+    animateFeatureRow(ref.current);
   }, [visible, ref]);
 
   return (
@@ -706,72 +686,34 @@ function MoodTrackingSection() {
             </span>
           </h2>
           <p className="text-muted-foreground text-base sm:text-lg mb-6 leading-relaxed">
-            Track your mood over time with daily check-ins. Revisit your
-            journey, spot patterns, and celebrate your bright spots. Those
-            moments where things got a little better.
+            Log how you feel in one tap each day, then zoom out by day, week,
+            or month to see the shape of it. The dips are part of it. So is the
+            climb.
           </p>
           <div className="flex flex-wrap gap-2">
             <span className="showcase-pill">
-              <CalendarCheck className="h-3.5 w-3.5" /> Daily check-ins
+              <CalendarCheck className="h-3.5 w-3.5" /> One-tap daily check-ins
             </span>
             <span className="showcase-pill">
-              <TrendingUp className="h-3.5 w-3.5 text-teal-500" /> Visual mood
-              history
-            </span>
-            <span className="showcase-pill">
-              <BookHeart className="h-3.5 w-3.5 text-rose-500" /> Bright Spots
-              journal
+              <TrendingUp className="h-3.5 w-3.5 text-teal-500" /> Day, week &amp; month views
             </span>
           </div>
         </div>
 
         <div className="showcase-feature-visual">
-          <div className="w-full max-w-[440px]">
-            {/* Animated SVG chart */}
-            <svg
-              viewBox="0 0 440 180"
-              className="w-full h-auto mb-4"
-              aria-label="Animated mood chart showing an upward trend"
-            >
-              <defs>
-                <linearGradient
-                  id="chart-gradient"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop
-                    offset="0%"
-                    stopColor="hsl(172, 56%, 50%)"
-                    stopOpacity="0.4"
-                  />
-                  <stop
-                    offset="100%"
-                    stopColor="hsl(172, 56%, 50%)"
-                    stopOpacity="0"
-                  />
-                </linearGradient>
-              </defs>
-              <path d={areaD} className="showcase-chart-area" />
-              <path d={pathD} className="showcase-chart-line" />
-              {points.map((p, i) => (
-                <circle
-                  key={i}
-                  cx={p.x}
-                  cy={p.y}
-                  r="5"
-                  className="showcase-chart-dot"
-                />
-              ))}
-            </svg>
-
-            <Image
-              src="/showcase-dashboard.png"
-              alt="Venting dashboard showing mood charts and vent history"
-              width={380}
-              height={300}
-              className="showcase-mockup-img"
+          <div className="showcase-shot-stack">
+            <ThemedShot
+              name="mood-chart"
+              width={856}
+              height={1086}
+              alt="Monthly mood check-in chart trending upward over three weeks"
+            />
+            <ThemedShot
+              name="checkin"
+              width={920}
+              height={972}
+              alt="Daily check-in asking 'How are you today, Sam?' with seven mood options"
+              className="showcase-shot-stack__overlay"
             />
           </div>
         </div>
@@ -781,7 +723,188 @@ function MoodTrackingSection() {
 }
 
 /* ===================================================================== */
-/*  Section 7 – CTA                                                       */
+/*  Section 7 – Bright Spots                                              */
+/* ===================================================================== */
+function BrightSpotsSection() {
+  const { ref, visible } = useOnScreen(0.15);
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    if (!visible || hasAnimated.current || !ref.current) return;
+    hasAnimated.current = true;
+    animateFeatureRow(ref.current, true);
+  }, [visible, ref]);
+
+  return (
+    <section ref={ref} className="showcase-section">
+      <div className="showcase-feature-row showcase-feature-row--reverse">
+        <div className="showcase-feature-text">
+          <div className="showcase-divider" style={{ margin: "0 0 1.5rem 0" }} />
+          <h2 className="text-3xl sm:text-4xl font-headline font-bold mb-4">
+            Keep the{" "}
+            <span className="bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
+              good bits.
+            </span>
+          </h2>
+          <p className="text-muted-foreground text-base sm:text-lg mb-6 leading-relaxed">
+            Save your Bright Spots: a small win, a moment of relief, something
+            you&apos;re grateful for. On a hard day, they&apos;re proof that
+            better days happen.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <span className="showcase-pill">
+              <BookHeart className="h-3.5 w-3.5 text-rose-500" /> Bright Spots journal
+            </span>
+            <span className="showcase-pill">
+              <Shield className="h-3.5 w-3.5" /> Always private
+            </span>
+          </div>
+        </div>
+
+        <div className="showcase-feature-visual">
+          <ThemedShot
+            name="bright-spots"
+            width={920}
+            height={1496}
+            crop={0.72}
+            alt="A private journal of saved Bright Spots, such as a sister checking in and finishing a book"
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ===================================================================== */
+/*  Section 8 – Support, whenever you need it                             */
+/* ===================================================================== */
+function SupportSection() {
+  const { ref, visible } = useOnScreen(0.15);
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    if (!visible || hasAnimated.current || !ref.current) return;
+    hasAnimated.current = true;
+    animateFeatureRow(ref.current);
+  }, [visible, ref]);
+
+  return (
+    <section ref={ref} className="showcase-section">
+      <div className="showcase-feature-row">
+        <div className="showcase-feature-text">
+          <div className="showcase-divider" style={{ margin: "0 0 1.5rem 0" }} />
+          <h2 className="text-3xl sm:text-4xl font-headline font-bold mb-4">
+            Support,{" "}
+            <span className="bg-gradient-to-r from-orange-400 to-amber-500 bg-clip-text text-transparent">
+              whenever you need it.
+            </span>
+          </h2>
+          <p className="text-muted-foreground text-base sm:text-lg mb-6 leading-relaxed">
+            Venting is a place to let things out, not a replacement for care.
+            If something you write suggests you&apos;re struggling, Venting
+            pauses and gently points you to free, confidential helplines first.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <span className="showcase-pill">
+              <Shield className="h-3.5 w-3.5" /> Private by default
+            </span>
+            <span className="showcase-pill">
+              <Phone className="h-3.5 w-3.5 text-orange-500" /> Free, confidential helplines
+            </span>
+            <span className="showcase-pill">
+              <EyeOff className="h-3.5 w-3.5" /> No ads where you vent
+            </span>
+          </div>
+        </div>
+
+        <div className="showcase-feature-visual">
+          <ThemedShot
+            name="support"
+            width={876}
+            height={1700}
+            crop={0.58}
+            alt="Support message pointing to free helplines and emergency numbers"
+            className="showcase-shot--small"
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ===================================================================== */
+/*  Section 9 – Also inside                                               */
+/* ===================================================================== */
+const alsoInside = [
+  { icon: Smartphone, title: "Install it like an app", desc: "Add Venting to your home screen and open it in one tap." },
+  { icon: Bell, title: "Notifications", desc: "Know when someone sends a heart, a hug or a comment on your post." },
+  { icon: UserRound, title: "Try it as a guest", desc: "Write two private vents on your device before making an account." },
+  { icon: MessageSquarePlus, title: "Shape what's next", desc: "Share feedback in the app and help decide what gets built next." },
+];
+
+function AlsoInsideSection() {
+  const { ref, visible } = useOnScreen(0.12);
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    if (!visible || hasAnimated.current || !ref.current) return;
+    hasAnimated.current = true;
+    const el = ref.current;
+
+    anime.timeline({ easing: "easeOutCubic" }).add({
+      targets: el.querySelector(".also-heading"),
+      translateY: [30, 0],
+      opacity: [0, 1],
+      duration: 800,
+    }).add({
+      targets: el.querySelectorAll(".showcase-also-tile"),
+      translateY: [24, 0],
+      opacity: [0, 1],
+      duration: 700,
+      delay: anime.stagger(100),
+    }, "-=400");
+  }, [visible, ref]);
+
+  return (
+    <section ref={ref} className="showcase-section">
+      <div className="also-heading text-center mb-12 opacity-0">
+        <div className="showcase-divider" />
+        <h2 className="text-3xl sm:text-4xl font-headline font-bold mb-3">Also inside</h2>
+        <p className="text-muted-foreground text-base sm:text-lg max-w-lg mx-auto">
+          The quieter things that make Venting easy to come back to.
+        </p>
+      </div>
+
+      <div className="showcase-also-grid">
+        <div className="showcase-also-tile showcase-also-tile--feature">
+          <BookOpen className="h-5 w-5 text-indigo-500 mb-3" />
+          <h3 className="font-bold text-lg mb-1">Guides</h3>
+          <p className="text-sm text-muted-foreground leading-relaxed mb-5">
+            Short, practical reads on venting, journaling, and getting through
+            stressful days.
+          </p>
+          <ThemedShot
+            name="guides"
+            width={920}
+            height={1596}
+            crop={0.5}
+            alt="Guides page listing short reads such as 'Why Venting Can Feel Relieving'"
+          />
+        </div>
+        {alsoInside.map(({ icon: Icon, title, desc }) => (
+          <div key={title} className="showcase-also-tile">
+            <Icon className="h-5 w-5 text-violet-500 mb-3" />
+            <h3 className="font-bold text-lg mb-1">{title}</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ===================================================================== */
+/*  Section 10 – CTA                                                      */
 /* ===================================================================== */
 function CTASection({ mode }: { mode: "pre-auth" | "post-auth" }) {
   const { ref, visible } = useOnScreen(0.2);
@@ -881,8 +1004,11 @@ export function VentingShowcase({ mode }: VentingShowcaseProps) {
       <StatsSection />
       <VentingFeatureSection />
       <CommunitySection />
-      <AIToolsSection />
+      <JourneySection />
       <MoodTrackingSection />
+      <BrightSpotsSection />
+      <SupportSection />
+      <AlsoInsideSection />
       <CTASection mode={mode} />
     </div>
   );

@@ -122,11 +122,11 @@ Severity drives the response:
 | Severity | Example intent | Effect |
 |---|---|---|
 | low | `self_harm_expression` | Publishes normally, no flag |
-| medium | `self_harm_risk` | Intended: publish + safety flag + support message + comments off |
+| medium | `self_harm_risk` | Kept private + safety flag; the crisis support modal (helplines, emergency numbers) opens before it saves |
 | high | `harassment_or_hate` | Withheld from the feed |
 | critical | `self_harm_encouragement`, `self_harm_instruction` | Blocked, warning incremented, auto-ban after 1–2 strikes |
 
-> **Known issue.** `checkVent()` short-circuits on `severity === 'high' || 'medium'` and returns a bare `{ publish: false }`, which discards the medium-severity action the taxonomy defines. A vent matching `self_harm_risk` is therefore silently withheld instead of being published with a safety flag and a support message. `src/lib/safety.test.ts` pins the current behaviour and is marked with the same caveat — update that test when the short-circuit is fixed.
+> **Self-harm risk stays private by design.** `checkVent()` withholds every medium/high vent match from the feed. For `self_harm_risk` it also returns `safetyFlag` and `showSupportMessage`, so the writer sees the support modal before the vent saves privately. The pre-filter's decision stands: the vent form skips the AI moderation call for a withheld vent. The taxonomy's own `self_harm_risk` action (publish with comments off) is not used. That is the owner's decision (2026-09-24), pinned in `src/lib/safety.test.ts`.
 
 ### AI flows
 

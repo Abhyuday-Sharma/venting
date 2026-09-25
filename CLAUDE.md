@@ -30,7 +30,26 @@ Run `npm run lint && npm run typecheck && npm test` before declaring work done. 
 1. **Fail open.** Every AI safety path returns a permissive result when the call errors (see `analyzeContentSafety` in `src/actions/ai.ts`). This is deliberate — someone in crisis must not hit an error. Don't "fix" it into a fail-closed default.
 2. **Don't silently change severity handling.** The mapping from intent → action is a product decision, not an implementation detail. If a change alters who gets blocked, flagged, or shown the support modal, say so explicitly.
 
-There is a known bug documented in the README: `checkVent()` short-circuits on medium/high severity and discards the `self_harm_risk` action (safety flag + support message + comments off), withholding the vent instead. `src/lib/safety.test.ts` pins the current behaviour with a comment pointing at this. If you fix the short-circuit, update that test in the same change.
+`checkVent()` withholds every medium/high vent match from the feed. For `self_harm_risk` it keeps the vent private *and* returns `safetyFlag` + `showSupportMessage`, so the crisis support modal opens before the save. The owner decided this on 2026-09-24: private plus support, rather than the taxonomy's publish-with-comments-off. `src/lib/safety.test.ts` pins it, and the README's safety model explains it. Don't turn it back into a silent withhold. Someone writing about self-harm must always see the support modal.
+
+## AI calls — no-wastage policy
+
+Groq credits are limited and the app has little traffic. Every model call is a cost, both in the running app and while developing.
+
+**In app code**
+- **No call without a reason.** A model call needs either a user action (a button) or new content (a vent being saved). Never call on mount, refresh, tab focus, or re-render. The mood-insights card's manual trigger plus 5-minute cooldown is the pattern to follow.
+- **Never re-call with identical input.** Key effects on the fields actually sent to the model (`vent.text`, `vent.mood`, …), never on an object's identity. Firestore subscriptions (`getVentsForUser`, etc.) hand back fresh objects on every snapshot. See `reflection-prompt-card.tsx`.
+- **Batch rather than call per chunk.** For example, one call per finished input, not one per speech segment.
+- **Prefer code when code is enough.** Regex, lookups, and arithmetic come first. A model is for judgments code can't make.
+- **Before adding or re-enabling an AI call,** state how many calls it makes per user action, and on which model, and get the owner's OK. The comment empathy and comment AI-safety checks in `comment-sheet.tsx` are switched off deliberately to save cost. Don't turn them back on as a side effect.
+- Rate limits for AI actions live in `src/actions/ai.ts`. Keep new actions behind `assertRateLimit`.
+
+**While developing**
+- **Don't make live model calls to see if something works** when reading the code, `npm run typecheck`, or a unit test would answer the question.
+- **When a live call is needed,** use the fewest inputs that prove the point, often one representative case. Save the outputs to reuse rather than regenerating them. Report how many calls you made.
+- **Driving the app end-to-end triggers real calls** (posting a vent → reflection prompts). Don't re-run those flows more than needed.
+- **Listing Groq models is free:** `GET https://api.groq.com/openai/v1/models`. Check it before changing a model id. `llama-3.3-70b-versatile` was retired without warning.
+- **TypeSafe/Jev (`TYPESAFE_API_KEY` in `.env`)** is for dev-time quality checks of prompt changes. Adding it to the running app needs the owner's sign-off.
 
 ## Testing
 

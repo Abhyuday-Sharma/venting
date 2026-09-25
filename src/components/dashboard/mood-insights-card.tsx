@@ -17,6 +17,8 @@ import { cn } from "@/lib/utils";
 interface MoodInsightsCardProps {
   vents: Vent[];
   user: UserProfile;
+  /** Has vented on more than one day; see isReturningUser. */
+  isReturning: boolean;
 }
 
 const trendConfig = {
@@ -26,9 +28,9 @@ const trendConfig = {
   fluctuating: { label: "Fluctuating", icon: Activity, className: "text-violet-600 dark:text-violet-400 bg-violet-500/10 border-violet-500/20" },
 };
 
-const COOLDOWN_MS = 5 * 60 * 1000; // 5-minute cooldown between manual Groq calls to preserve quota
+const COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000; // insights refresh at most once a week, on request, to preserve Groq quota
 
-export function MoodInsightsCard({ vents, user }: MoodInsightsCardProps) {
+export function MoodInsightsCard({ vents, user, isReturning }: MoodInsightsCardProps) {
   // Load cached insights immediately from user profile or localStorage to prevent any Groq call on refresh
   const [insights, setInsights] = useState<MoodInsights | null>(() => {
     if (user.currentInsights) return user.currentInsights;
@@ -87,9 +89,13 @@ export function MoodInsightsCard({ vents, user }: MoodInsightsCardProps) {
     };
 
     updateTimer();
-    const interval = setInterval(updateTimer, 1000);
+    const interval = setInterval(updateTimer, 60 * 1000);
     return () => clearInterval(interval);
   }, [lastGeneratedAt]);
+
+  const nextRefreshLabel = lastGeneratedAt
+    ? format(new Date(lastGeneratedAt.getTime() + COOLDOWN_MS), "MMM d")
+    : null;
 
   const runInsightGeneration = async () => {
     if (loading || cooldownRemaining > 0) return;
@@ -132,7 +138,7 @@ export function MoodInsightsCard({ vents, user }: MoodInsightsCardProps) {
     setLoading(false);
   };
 
-  if (!hasEnoughVents) {
+  if (!hasEnoughVents || !isReturning) {
     const ventsNeeded = 3 - vents.length;
     return (
       <Card className="shadow-sm border-dashed border-primary/20 bg-card/50">
@@ -144,10 +150,16 @@ export function MoodInsightsCard({ vents, user }: MoodInsightsCardProps) {
         </CardHeader>
         <CardContent className="text-center py-8 space-y-3">
           <BrainCircuit className="h-10 w-10 text-muted-foreground/20 mx-auto" />
-          <p className="text-sm text-muted-foreground">
-            You need <strong>{ventsNeeded} more</strong> written {ventsNeeded === 1 ? 'vent' : 'vents'} to unlock AI mood insights. 
-            Venting needs a little more data to find meaningful patterns in your emotional journey.
-          </p>
+          {!hasEnoughVents ? (
+            <p className="text-sm text-muted-foreground">
+              You need <strong>{ventsNeeded} more</strong> written {ventsNeeded === 1 ? 'vent' : 'vents'} to unlock AI mood insights.
+              Venting needs a little more data to find meaningful patterns in your emotional journey.
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Insights look for patterns over time, so they open up once you have written on more than one day.
+            </p>
+          )}
         </CardContent>
       </Card>
     );
@@ -178,16 +190,16 @@ export function MoodInsightsCard({ vents, user }: MoodInsightsCardProps) {
                 onClick={runInsightGeneration}
                 disabled={loading || cooldownRemaining > 0}
                 className="h-8 text-xs border-primary/20 hover:bg-primary/5 transition-all"
-                title={cooldownRemaining > 0 ? `Can be refreshed again in ${cooldownRemaining}s` : "Refresh AI insights"}
+                title={cooldownRemaining > 0 ? `Insights refresh once a week. Next update on ${nextRefreshLabel}.` : "Refresh AI insights"}
               >
                 <RefreshCw className={cn("h-3.5 w-3.5 mr-1.5", loading && "animate-spin")} />
-                {loading ? "Analyzing..." : cooldownRemaining > 0 ? `Cooldown (${cooldownRemaining}s)` : "Refresh Insights"}
+                {loading ? "Analyzing..." : cooldownRemaining > 0 ? `Next update ${nextRefreshLabel}` : "Refresh Insights"}
               </Button>
             )}
           </div>
         </div>
         <CardDescription>
-          Discover patterns in your emotional journey, powered by AI.
+          Discover patterns in your emotional journey, powered by AI. Updates once a week, only when you ask.
         </CardDescription>
       </CardHeader>
 

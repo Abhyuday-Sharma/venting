@@ -42,12 +42,49 @@ describe('checkVent', () => {
     expect(checkVent('').publish).toBe(true);
   });
 
-  // Documents current behaviour, which looks unintended: the medium-severity
-  // `self_harm_risk` intent defines publish:true + safetyFlag + support message,
-  // but the severity short-circuit in checkVent discards that action.
-  // See the note in README.md; change this test if the short-circuit is fixed.
-  it('currently drops the safety action for medium-severity self-harm risk', () => {
-    expect(checkVent('I want to die.')).toEqual({ publish: false });
+  // Owner's decision: self-harm risk vents stay private rather than publishing,
+  // but keep the safety flag and the support message (see README.md).
+  it('keeps self-harm risk private but flags it and shows support', () => {
+    expect(checkVent('I want to die.')).toEqual({
+      publish: false,
+      safetyFlag: true,
+      showSupportMessage: true,
+    });
+    expect(checkVent('i actually wanna kill myself ffs. anyone please tell how to die without pain')).toEqual({
+      publish: false,
+      safetyFlag: true,
+      showSupportMessage: true,
+    });
+  });
+
+  it('catches method-seeking and indirect self-harm language', () => {
+    const support = { publish: false, safetyFlag: true, showSupportMessage: true };
+    for (const text of [
+      'suggest painless death methods please, cant take it no more', // reached the public feed before
+      'How to die without it hurting?',
+      "I can't take it anymore.",
+      'Been feeling suicidal all week',
+      "I want to end it all tonight",
+      'Thinking about self-harm again',
+      'Bas ab marna chahta hu yaar',
+    ]) {
+      expect(checkVent(text), text).toEqual(support);
+    }
+  });
+
+  it('leaves everyday hyperbole alone', () => {
+    for (const text of [
+      'This exam is going to kill me lol, three chapters left.',
+      "I'm dying to see that movie.",
+      "I can't take my roommate's music much longer.",
+      'I hurt my back at the gym.',
+    ]) {
+      expect(checkVent(text).publish, text).toBe(true);
+    }
+  });
+
+  it('withholds harassment in a vent without the support message', () => {
+    expect(checkVent('Honestly you are pathetic.')).toEqual({ publish: false });
   });
 });
 

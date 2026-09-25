@@ -38,7 +38,40 @@ const moderationIntents = {
         "end my life",
         "don't want to be here anymore",
         "give up on life",
-        "better off dead"
+        "better off dead",
+        "killing myself",
+        "take my own life",
+        "end it all",
+        "ending it all",
+        "dont want to live",
+        "dont want to be alive",
+        "no reason to live",
+        "nothing to live for",
+        "wish i was dead",
+        "wish i were dead",
+        "want to be dead",
+        "suicidal",
+        "commit suicide",
+        "suicide note",
+        "suicide methods",
+        "harm myself",
+        "self harm",
+        "self-harm",
+        "cant take it anymore",
+        "cant take it no more",
+        "cant take this anymore",
+        "cant go on",
+        "how to die",
+        "ways to die",
+        "painless death",
+        "painless way to die",
+        "die without pain",
+        "death methods",
+        "methods to die",
+        "marna chahta",
+        "marna chahti",
+        "jeene ka mann nahi",
+        "khudkushi"
       ],
       "action": {
         "publish": true,
@@ -195,6 +228,11 @@ export const checkVent = (text: string): IntentAction => {
     if (match) {
         // Vents are never blocked for harassment, they just aren't published.
         if (match.severity === 'high' || match.severity === 'medium') {
+            // Self-harm risk is kept private too (owner's decision), but the writer
+            // must still see crisis support before it saves.
+            if (match.tag === 'self_harm_risk') {
+                return { publish: false, safetyFlag: true, showSupportMessage: true };
+            }
             return { publish: false };
         }
         return match.action as IntentAction;

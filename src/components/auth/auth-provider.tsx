@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           
           unsubscribeProfile = onSnapshot(userDocRef, (docSnap) => {
             const ownerEmails = ['mrsharmaabhyuday@gmail.com'];
-            const adminEmails = ['ventingsupport@gmail.com'];
+            const adminEmails = ['support@venting.in'];
             const moderatorEmails = ['ventingmoderation@gmail.com', 'ventingmoderagtion@gmail.com'];
             const userEmail = (firebaseUser.email || '').toLowerCase().trim();
 
@@ -124,7 +124,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               // This is a new user, so their profile needs to be created.
               const { displayName, email, photoURL, uid } = firebaseUser;
               const ownerEmails = ['mrsharmaabhyuday@gmail.com'];
-              const adminEmails = ['ventingsupport@gmail.com'];
+              const adminEmails = ['support@venting.in'];
               const moderatorEmails = ['ventingmoderation@gmail.com', 'ventingmoderagtion@gmail.com'];
               
               let role: 'owner' | 'admin' | 'moderator' | 'user' = 'user';

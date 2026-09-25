@@ -15,6 +15,8 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 interface ReflectionPromptCardProps {
   vent: Vent;
+  /** Offer the 5-minute micro-goal (returning users only, to save Groq calls). */
+  offerMicroGoal?: boolean;
 }
 
 interface ReflectionPrompt {
@@ -22,7 +24,7 @@ interface ReflectionPrompt {
   text: string;
 }
 
-export function ReflectionPromptCard({ vent }: ReflectionPromptCardProps) {
+export function ReflectionPromptCard({ vent, offerMicroGoal = false }: ReflectionPromptCardProps) {
   const { user } = useAuth();
   const [prompts, setPrompts] = useState<ReflectionPrompt[]>([]);
   const [acknowledgement, setAcknowledgement] = useState<string>("");
@@ -84,8 +86,13 @@ export function ReflectionPromptCard({ vent }: ReflectionPromptCardProps) {
     }
   };
 
+  // Keyed on the fields sent to the model, not the vent object: the dashboard's
+  // Firestore subscription hands us a fresh object on every snapshot, which
+  // would otherwise re-bill an identical Groq call.
+  const { text: ventText, mood: ventMood, category: ventCategory } = vent;
+
   useEffect(() => {
-    if (!vent.text) {
+    if (!ventText) {
       setLoading(false);
       return;
     }
@@ -93,9 +100,9 @@ export function ReflectionPromptCard({ vent }: ReflectionPromptCardProps) {
     const fetchPrompts = async () => {
       setLoading(true);
       const result = await generateReflectionPrompts(
-        vent.text,
-        vent.mood,
-        vent.category || "General"
+        ventText,
+        ventMood,
+        ventCategory || "General"
       );
 
       if (result.success && result.data) {
@@ -108,7 +115,7 @@ export function ReflectionPromptCard({ vent }: ReflectionPromptCardProps) {
     };
 
     fetchPrompts();
-  }, [vent]);
+  }, [ventText, ventMood, ventCategory]);
 
   if (dismissed || error) {
     return null;
@@ -198,7 +205,7 @@ export function ReflectionPromptCard({ vent }: ReflectionPromptCardProps) {
             ))}
           </div>
 
-          {!actionItem && !generatingAction && (
+          {offerMicroGoal && !actionItem && !generatingAction && (
             <div className="mt-4 pt-4 border-t border-border/30 flex flex-col items-center gap-2">
               <p className="text-xs text-muted-foreground text-center">Would you like a gentle, 5-minute action item based on this reflection?</p>
               <Button variant="outline" size="sm" onClick={handleGenerateAction} className="text-xs border-primary/20 hover:bg-primary/5">

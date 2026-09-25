@@ -18,7 +18,7 @@ export function MoodCheckInManager() {
 
   useEffect(() => {
     const forbiddenPages = ['/login', '/create-username', '/about'];
-    if (loading || !user || forbiddenPages.includes(pathname)) {
+    if (loading || !user || forbiddenPages.includes(pathname) || pathname.startsWith('/admin')) {
       return;
     }
 

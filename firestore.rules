@@ -27,7 +27,7 @@ service cloud.firestore {
       return isAuthed() && request.auth.token.email != null && request.auth.token.email_verified == true && (
         request.auth.token.email.lower() == 'mrsharmaabhyuday@gmail.com' ||
         request.auth.token.email.lower() == 'ventingmoderation@gmail.com' ||
-        request.auth.token.email.lower() == 'ventingsupport@gmail.com'
+        request.auth.token.email.lower() == 'support@venting.in'
       );
     }
 

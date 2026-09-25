@@ -306,9 +306,11 @@ export function VentForm() {
       return;
     }
 
-    // Server-side AI safety check (authoritative, context-aware)
+    // Server-side AI safety check (authoritative, context-aware). Skipped when the
+    // pre-filter already withheld the vent (self-harm risk): it stays private and
+    // goes straight to the support modal, with no Groq call.
     let aiModerationAction = moderationAction;
-    if (isPublic && isIncognito) {
+    if (isPublic && isIncognito && moderationAction.publish !== false) {
       const aiResult = await analyzeContentSafety(text, 'vent');
       if (aiResult.success && aiResult.data) {
         const aiData = aiResult.data;
@@ -436,9 +438,13 @@ export function VentForm() {
             }, 500);
         }
         
-        try {
-            sessionStorage.setItem('acknowledgementTrigger', 'true');
-        } catch (e) { /* ignore session storage errors */ }
+        // After a safety-flagged vent the support modal has already been shown. Skip the
+        // "You don't have to stay" toast and the AI reflection prompts (also saves a Groq call).
+        if (!moderationAction?.showSupportMessage) {
+            try {
+                sessionStorage.setItem('acknowledgementTrigger', 'true');
+            } catch (e) { /* ignore session storage errors */ }
+        }
         
         router.push('/dashboard');
 
@@ -513,7 +519,12 @@ export function VentForm() {
           isBurningAnim && "animate-page-burn-flash"
         )} 
       />
-      <SafetySupportModal open={showSafetyModal} onOpenChange={setShowSafetyModal} onAcknowledge={confirmAndSaveVent} />
+      <SafetySupportModal
+        open={showSafetyModal}
+        onOpenChange={setShowSafetyModal}
+        onAcknowledge={confirmAndSaveVent}
+        savedPrivately={isPublic && pendingVentData?.finalIsPublic === false}
+      />
       
       {/* Consoling Message Overlay */}
       {consolingMessage && (

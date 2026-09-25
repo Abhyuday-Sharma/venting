@@ -28,12 +28,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { LayoutDashboard, LogOut, PenSquare, MessageSquare, Settings, ChevronDown, Smile, Sparkles } from 'lucide-react';
+import { LayoutDashboard, LogOut, PenSquare, MessageSquare, Settings, ChevronDown, Smile, Sparkles, ShieldAlert } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
 import Image from 'next/image';
 import { NotificationsDropdown } from './notifications-dropdown';
 import { ModeToggle } from './mode-toggle';
 import { InstallButton } from './install-button';
+import { isAuthorizedAdminEmail } from '@/lib/admin-config';
 
 const Logo = () => (
   <Image
@@ -63,6 +64,11 @@ export function AppHeader() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Hide the header on admin routes so admin has its own layout
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
 
   const handleSignOut = async () => {
     await signOut(auth);
@@ -115,7 +121,7 @@ export function AppHeader() {
                     pathname === "/dashboard" ? "text-foreground font-semibold" : "text-muted-foreground"
                   )}
               >
-                  {user.role === 'owner' || user.role === 'moderator' ? 'Report History' : 'Dashboard'}
+                  Dashboard
                   {pathname === "/dashboard" && (
                     <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
                   )}
@@ -210,9 +216,17 @@ export function AppHeader() {
                   <DropdownMenuItem asChild>
                     <Link href="/dashboard" className="flex items-center w-full cursor-pointer">
                       <LayoutDashboard className="mr-2 h-4 w-4" />
-                      <span>{user.role === 'owner' || user.role === 'moderator' ? 'Report History' : 'Dashboard'}</span>
+                      <span>Dashboard</span>
                     </Link>
                   </DropdownMenuItem>
+                  {Boolean(isAuthorizedAdminEmail(user.email) || user.role === 'owner' || user.role === 'admin' || user.role === 'moderator') && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin" className="flex items-center w-full cursor-pointer text-amber-600 dark:text-amber-400 font-medium">
+                        <ShieldAlert className="mr-2 h-4 w-4" />
+                        <span>Admin Command Center</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem asChild>
                     <Link href="/feed" className="flex items-center w-full cursor-pointer">
                       <MessageSquare className="mr-2 h-4 w-4" />

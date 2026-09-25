@@ -11,13 +11,13 @@ export function BottomNavigation() {
   const { user } = useAuth();
 
   // Hide the bottom navigation on specific pages
-  if (pathname === "/login" || pathname === "/create-username" || pathname === "/") {
+  if (pathname === "/login" || pathname === "/create-username" || pathname === "/" || pathname.startsWith("/admin")) {
     return null;
   }
 
   const navItems = [
     {
-      label: user?.role === 'owner' || user?.role === 'moderator' ? "History" : "Dashboard",
+      label: "Dashboard",
       href: "/dashboard",
       icon: LayoutDashboard,
     },

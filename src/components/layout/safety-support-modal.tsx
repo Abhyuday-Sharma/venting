@@ -18,9 +18,18 @@ interface SafetySupportModalProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   onAcknowledge?: () => void;
+  /** The vent was meant to be public but is being kept private. */
+  savedPrivately?: boolean;
 }
 
-export function SafetySupportModal({ open: controlledOpen, onOpenChange: controlledOnOpenChange, onAcknowledge }: SafetySupportModalProps = {}) {
+const helplines = [
+  { region: 'India — Tele-MANAS (Govt. of India)', number: '14416', detail: 'free, 24/7, in many Indian languages.' },
+  { region: 'India — iCall', number: '9152987821', detail: 'free, confidential counselling.' },
+  { region: 'USA — 988 Suicide & Crisis Lifeline', number: '988', detail: 'call or text, free and confidential, 24/7.' },
+  { region: 'UK — Samaritans', number: '116 123', detail: 'free, any time of day or night.' },
+];
+
+export function SafetySupportModal({ open: controlledOpen, onOpenChange: controlledOnOpenChange, onAcknowledge, savedPrivately }: SafetySupportModalProps = {}) {
   const [internalOpen, setInternalOpen] = useState(false);
   const pathname = usePathname();
 
@@ -74,43 +83,48 @@ export function SafetySupportModal({ open: controlledOpen, onOpenChange: control
             We care about you, and you are not alone.
           </AlertDialogTitle>
           <AlertDialogDescription className="text-base pt-2 text-balance">
-            It sounds like you are carrying a very heavy load right now. Please know there is support available to help you through this moment.
+            It sounds like you are carrying something really heavy right now. Before anything else, please pause for a moment and talk to someone trained to help. A counsellor or helpline is free, confidential, and there for you right now.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        
-        <div className="space-y-3 py-4">
-            <div className="bg-muted/50 p-4 rounded-xl flex items-start gap-3 border border-border/50">
-                <Phone className="h-5 w-5 text-primary mt-0.5" />
-                <div>
-                    <h4 className="font-semibold text-sm">USA — 988 Suicide & Crisis Lifeline</h4>
-                    <p className="text-sm text-muted-foreground">Call or text <span className="font-bold text-foreground">988</span> — free and confidential, 24/7.</p>
-                </div>
-            </div>
 
-            <div className="bg-muted/50 p-4 rounded-xl flex items-start gap-3 border border-border/50">
-                <Phone className="h-5 w-5 text-primary mt-0.5" />
-                <div>
-                    <h4 className="font-semibold text-sm">India — iCall</h4>
-                    <p className="text-sm text-muted-foreground">Call <span className="font-bold text-foreground">9152987821</span> — free, confidential counselling.</p>
-                </div>
-            </div>
+        <p className="text-sm text-center font-medium text-foreground bg-orange-50 dark:bg-orange-950/20 border border-orange-200/60 dark:border-orange-900/40 rounded-xl px-4 py-3">
+          If you might act on these thoughts or you are in danger right now, call your local emergency number: <a href="tel:112" className="underline">112</a> in India, <a href="tel:911" className="underline">911</a> in the US, <a href="tel:999" className="underline">999</a> in the UK.
+        </p>
 
-            <div className="bg-muted/50 p-4 rounded-xl flex items-start gap-3 border border-border/50">
-                <Phone className="h-5 w-5 text-primary mt-0.5" />
+        <div className="space-y-3 py-2">
+            {helplines.map((line) => (
+              <a
+                key={line.number}
+                href={`tel:${line.number.replace(/\s/g, '')}`}
+                className="bg-muted/50 p-4 rounded-xl flex items-start gap-3 border border-border/50 hover:bg-muted transition-colors"
+              >
+                <Phone className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                 <div>
-                    <h4 className="font-semibold text-sm">UK — Samaritans</h4>
-                    <p className="text-sm text-muted-foreground">Call <span className="font-bold text-foreground">116 123</span> — free, available any time of day or night.</p>
+                    <h4 className="font-semibold text-sm">{line.region}</h4>
+                    <p className="text-sm text-muted-foreground">Call <span className="font-bold text-foreground">{line.number}</span>, {line.detail}</p>
                 </div>
-            </div>
+              </a>
+            ))}
 
-            <div className="bg-muted/50 p-4 rounded-xl flex items-start gap-3 border border-border/50">
-                <MessageSquare className="h-5 w-5 text-primary mt-0.5" />
+            <a
+              href="https://findahelpline.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-muted/50 p-4 rounded-xl flex items-start gap-3 border border-border/50 hover:bg-muted transition-colors"
+            >
+                <MessageSquare className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                 <div>
                     <h4 className="font-semibold text-sm">Everywhere else — Find a Helpline</h4>
                     <p className="text-sm text-muted-foreground">Visit <span className="font-bold text-foreground">findahelpline.com</span> to find free crisis support in your country.</p>
                 </div>
-            </div>
+            </a>
         </div>
+
+        {savedPrivately && (
+          <p className="text-xs text-center text-muted-foreground">
+            Your vent will be saved privately. Only you can see it.
+          </p>
+        )}
 
         <AlertDialogFooter className="sm:justify-center gap-2 sm:flex-col-reverse">
           <AlertDialogAction asChild>

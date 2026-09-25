@@ -643,3 +643,45 @@ export async function submitFeedback({
     }
 }
 
+export async function adminResolveReport(reportId: string, actor: UserProfile) {
+    if (actor.role !== 'owner' && actor.role !== 'admin' && actor.role !== 'moderator') {
+        throw new Error("You do not have permission to perform this action.");
+    }
+    const reportRef = doc(db, 'reports', reportId);
+    await updateDoc(reportRef, {
+        status: 'resolved',
+        resolvedAt: serverTimestamp(),
+        resolvedBy: actor.username || actor.email || 'Admin',
+    });
+}
+
+export async function adminDeleteFeedback(feedbackId: string, actor: UserProfile) {
+    if (actor.role !== 'owner' && actor.role !== 'admin' && actor.role !== 'moderator') {
+        throw new Error("You do not have permission to perform this action.");
+    }
+    const feedbackRef = doc(db, 'feedback', feedbackId);
+    await deleteDoc(feedbackRef);
+}
+
+export async function getContentPreview(targetId: string, targetType: 'vent' | 'comment', ventId?: string): Promise<{ text: string; author?: string; notFound?: boolean }> {
+    try {
+        if (targetType === 'vent') {
+            const ventDoc = await getDoc(doc(db, 'publicVents', targetId));
+            if (ventDoc.exists()) {
+                const data = ventDoc.data();
+                return { text: data.text || '', author: data.authorUsername || 'Anonymous' };
+            }
+        } else if (targetType === 'comment' && ventId) {
+            const commentDoc = await getDoc(doc(db, 'publicVents', ventId, 'comments', targetId));
+            if (commentDoc.exists()) {
+                const data = commentDoc.data();
+                return { text: data.text || '', author: data.authorUsername || 'Anonymous' };
+            }
+        }
+        return { text: 'Content no longer available or was removed.', notFound: true };
+    } catch (e) {
+        console.warn("Could not retrieve content preview:", e);
+        return { text: 'Unable to load content preview.', notFound: true };
+    }
+}
+
